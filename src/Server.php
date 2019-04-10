@@ -52,7 +52,7 @@ class Server extends EventEmitter
      */
     const QUIET_TIME = 0.5;
 
-    public function __construct(LoopInterface $loop = null, QueueInterface $queue = null)
+    public function __construct(LoopInterface $loop, QueueInterface $queue)
     {
         $this->loop = $loop;
         $this->checkQueue = $queue;
