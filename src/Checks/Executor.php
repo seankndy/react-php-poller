@@ -3,20 +3,12 @@ namespace SeanKndy\Poller\Checks;
 
 use SeanKndy\Poller\Commands\CommandInterface;
 use SeanKndy\Poller\Results\Result;
-use Psr\Log\LoggerInterface;
-use SeanKndy\Poller\Results\Handlers\Executor as HandlerExecutor;
+use Evenement\EventEmitter;
 /**
  *
  */
-class Executor
+class Executor extends EventEmitter
 {
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
     /**
      * Executes a Check
      *
@@ -28,8 +20,8 @@ class Executor
     {
         $command = $check->getCommand();
         if (!($command instanceof CommandInterface)) {
-            throw new \RuntimeException("Cannot execute this Check (ID=" .
-                $check->getId() . ") because a Command is not defined for it!");
+            return \React\Promise\reject(new \RuntimeException("Cannot execute this Check (ID=" .
+                $check->getId() . ") because a Command is not defined for it!"));
         }
 
         $check->setState(Check::STATE_EXECUTING);
@@ -86,10 +78,8 @@ class Executor
                     function () use ($cur, $result, $check, $incident) {
                         return $cur->mutate(
                             $check, $result, $incident
-                        )->otherwise(function (\Throwable $e) {
-                            $this->logger->error("Error during mutate() Handler calls: " .
-                                "file=<" . $e->getFile() . ">; line=<" . $e->getLine() . ">; " .
-                                "msg=<" . $e->getMessage() . ">");
+                        )->otherwise(function (\Throwable $e) use ($cur) {
+                            $this->emit('error', [$cur, $e]);
                         });
                     },
                     function ($e) {
@@ -105,10 +95,8 @@ class Executor
             $clonedIncident = $incident === null ? null : clone $incident;
             foreach ($check->getHandlers() as $handler) {
                 $handler->process($clonedCheck, $clonedResult, $clonedIncident)->otherwise(
-                    function (\Throwable $e) {
-                        $this->logger->error("Error during process() Handler calls: " .
-                            "file=<" . $e->getFile() . ">; line=<" . $e->getLine() . ">; " .
-                            "msg=<" . $e->getMessage() . ">");
+                    function (\Throwable $e) use ($handler) {
+                        $this->emit('error', [$handler, $e]);
                     }
                 );
             }
