@@ -2,11 +2,9 @@
 namespace SeanKndy\Poller;
 
 use SeanKndy\Poller\Checks\QueueInterface;
-use SeanKndy\Poller\Checks\QueueStats;
 use SeanKndy\Poller\Checks\Executor;
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
-use Psr\Container\ContainerInterface;
 /**
  * Server dequeues Checks from a QueueInterface object, executes it's Command,
  * fires the Result through the Check's Handlers, then enqueues it to the
@@ -26,10 +24,6 @@ class Server extends EventEmitter
      * @var int
      */
     private $maxConcurrentChecks = 100;
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
     /**
      * @var Executor
      */
@@ -60,9 +54,8 @@ class Server extends EventEmitter
 
     public function __construct(LoopInterface $loop = null, QueueInterface $queue = null)
     {
-        $this->loop = $loop === null ? \React\EventLoop\Factory::create() : $loop;
+        $this->loop = $loop;
         $this->checkQueue = $queue;
-        $this->pid = \getmypid();
 
         // structure for tracking average runtime data
         $this->avgRunTime = new class {
@@ -99,7 +92,7 @@ class Server extends EventEmitter
             foreach ($this->checksExecuting as $id => $pair) {
                 list($check,$startTime) = $pair;
                 if (\microtime(true) - $startTime > 30.0) {
-                    $this->emit('check.error', [$check, new \Exception("Check has beeen executing for > 30sec!")]);
+                    $this->emit('check.error', [$check, new \Exception("Check has been executing for > 30sec!")]);
                 }
             }
         });
@@ -133,15 +126,16 @@ class Server extends EventEmitter
      */
     public function stop()
     {
-        $this->running = false;
-        foreach ($this->timers as $timer) {
-            $this->loop->cancelTimer($timer);
-        }
-
         $this->checkQueue->flush()->otherwise(function(\Throwable $e) {
             $this->emit('error', [new \Exception('Failed to flush check queue: ' .
                 $e->getMessage())]);
         });
+
+        foreach ($this->timers as $timer) {
+            $this->loop->cancelTimer($timer);
+        }
+
+        $this->running = false;
     }
 
     /**
