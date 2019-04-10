@@ -1,0 +1,6 @@
+src/inc/config.php
+.DS_Store
+/vendor/
+composer.lock
+.phpunit*
+log
