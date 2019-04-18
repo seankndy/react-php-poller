@@ -3,9 +3,8 @@ namespace SeanKndy\Poller\Checks;
 
 use SeanKndy\Poller\Results\Result;
 use Ramsey\Uuid\Uuid;
-
 /**
- *
+ * Represents a check that underwent a state change from OK to non-OK.
  *
  */
 class Incident

@@ -10,9 +10,9 @@ use React\HttpClient\Client;
 use React\HttpClient\Response;
 use Psr\Log\LoggerInterface;
 /**
- * Send incidents to alertmanager API
+ * Send incidents to AlertManager API (react-php-alertmanager)
  */
-class Alertmanager implements HandlerInterface
+class AlertManager implements HandlerInterface
 {
     /**
      * @var LoopInterface
@@ -43,7 +43,7 @@ class Alertmanager implements HandlerInterface
     {
         $incident = $newIncident ? $newIncident : $check->getIncident();
 
-        if ($incident && !$incident->isResolved()) {
+        if ($incident) {
             $meta = $check->getMeta();
 
             $portPathParts = explode('.', $meta['port_path']);
@@ -59,15 +59,23 @@ class Alertmanager implements HandlerInterface
             }
 
             $params = [
-                'startsAt' => \date(DATE_ATOM, $result->getTime()),
-                'endsAt' => \date(DATE_ATOM, $result->getTime()+($check->getInterval()*2)),
+                'createdAt' => $result->getTime(),
+                'expiryDuration' => $check->getInterval()*2,
+                'state' => $incident->isResolved() ? 'RESOLVED' : 'ACTIVE',
                 'generatorURL' => $meta['url'],
-                'labels' => [
-                    'alertname' => $meta['port_path'].'.'.$meta['service_template'],
-                    'devicename' => $deviceName,
-                    'locationname' => $locationName,
-                    'severity' => Result::stateIntToString($incident->getToState())
-                ],
+                'name' => $meta['port_path'].'.'.$meta['service_template'].'['.$check->getId().']'
+                'attributes' => [
+                    'location_name' => $locationName,
+                    'device_name' => $deviceName,
+                    'port_name' => $portName,
+                    'port_description' => $meta['port_desc'],
+                    'service_name' => $meta['service_template'],
+                    'ip' => $meta['ip'],
+                    'old_state' => Result::stateIntToString($incident->getFromState()),
+                    'new_state' => Result::stateIntToString($incident->getToState()),
+                    'time' => $result->getTime()
+                ]
+                /*,
                 'annotations' => [
                     'summary' => Result::stateIntToString($incident->getToState()) . ' // ' .
                             $meta['port_path'],
@@ -76,7 +84,7 @@ class Alertmanager implements HandlerInterface
                         $meta['port_path'] . '[' . $meta['port_desc'] . '] // ' .
                         $meta['service_template'] . ' // ' . $meta['ip'] . ' // ' .
                         \date('Y-m-d H:i:s', $result->getTime())
-                ]
+                ]*/
             ];
             return $this->httpPost([$params]);
         } else {
@@ -121,7 +129,7 @@ class Alertmanager implements HandlerInterface
                 if (isset($respData->status) && $respData->status == 'success') {
                     $deferred->resolve($respData);
                 } else {
-                    $deferred->reject(new \Exception("Failed to POST to alertmanager API"));
+                    $deferred->reject(new \Exception("Failed to POST to AlertManager API"));
                 }
             });
         });
