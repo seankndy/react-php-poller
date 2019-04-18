@@ -11,8 +11,9 @@ use React\HttpClient\Response;
 use Psr\Log\LoggerInterface;
 /**
  * Send incidents to AlertManager API (react-php-alertmanager)
+ * Abstract so that class user can implement buildRequestBody()
  */
-class AlertManager implements HandlerInterface
+abstract class AlertManager implements HandlerInterface
 {
     /**
      * @var LoopInterface
@@ -44,49 +45,8 @@ class AlertManager implements HandlerInterface
         $incident = $newIncident ? $newIncident : $check->getIncident();
 
         if ($incident) {
-            $meta = $check->getMeta();
-
-            $portPathParts = explode('.', $meta['port_path']);
-            if (count($portPathParts) == 4) {
-                list($locationName, $subLocationName, $deviceName, $portName) =
-                    $portPathParts;
-                if ($subLocationName) {
-                    $locationName = "$locationName.$subLocationName";
-                }
-            } else {
-                list($locationName, $deviceName, $portName) =
-                    $portPathParts;
-            }
-
-            $params = [
-                'createdAt' => $result->getTime(),
-                'expiryDuration' => $check->getInterval()*2,
-                'state' => $incident->isResolved() ? 'RESOLVED' : 'ACTIVE',
-                'generatorURL' => $meta['url'],
-                'name' => $meta['port_path'].'.'.$meta['service_template'].'['.$check->getId().']'
-                'attributes' => [
-                    'location_name' => $locationName,
-                    'device_name' => $deviceName,
-                    'port_name' => $portName,
-                    'port_description' => $meta['port_desc'],
-                    'service_name' => $meta['service_template'],
-                    'ip' => $meta['ip'],
-                    'old_state' => Result::stateIntToString($incident->getFromState()),
-                    'new_state' => Result::stateIntToString($incident->getToState()),
-                    'time' => $result->getTime()
-                ]
-                /*,
-                'annotations' => [
-                    'summary' => Result::stateIntToString($incident->getToState()) . ' // ' .
-                            $meta['port_path'],
-                    'description' => Result::stateIntToString($incident->getFromState()) . '->' .
-                        Result::stateIntToString($incident->getToState()) . ' // ' .
-                        $meta['port_path'] . '[' . $meta['port_desc'] . '] // ' .
-                        $meta['service_template'] . ' // ' . $meta['ip'] . ' // ' .
-                        \date('Y-m-d H:i:s', $result->getTime())
-                ]*/
-            ];
-            return $this->httpPost([$params]);
+            $this->buildRequest($check, $result, $incident);
+            return $this->httpPost($params);
         } else {
             return \React\Promise\resolve([]);
         }
@@ -99,6 +59,20 @@ class AlertManager implements HandlerInterface
     {
         return \React\Promise\resolve([]);
     }
+    
+    /**
+     * This should return an array for the alert being gnerated that when
+     * json-encoded meets the specifications of react-php-alertmanager.
+     *
+     * @param Check $check Associated Check object
+     * @param Result $result Associated Result object
+     * @param Incident $incident Incident will be new Incident or existing
+     *      incident, never null.
+     *
+     * @return array
+     */
+    abstract protected function buildRequest(Check $check, Result $result,
+        Incident $incident);
 
     /**
      * Post to alertmanager's API
