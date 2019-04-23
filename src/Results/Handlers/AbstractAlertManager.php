@@ -71,7 +71,7 @@ abstract class AbstractAlertManager implements HandlerInterface
      *
      * @return array
      */
-    abstract protected function buildRequest(Check $check, Result $result,
+    abstract protected function buildAlert(Check $check, Result $result,
         Incident $incident);
 
     /**
