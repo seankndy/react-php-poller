@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  * Send incidents to AlertManager API (react-php-alertmanager)
  * Abstract so that class user can implement buildRequestBody()
  */
-abstract class AlertManager implements HandlerInterface
+abstract class AbstractAlertManager implements HandlerInterface
 {
     /**
      * @var LoopInterface
@@ -59,7 +59,7 @@ abstract class AlertManager implements HandlerInterface
     {
         return \React\Promise\resolve([]);
     }
-    
+
     /**
      * This should return an array for the alert being gnerated that when
      * json-encoded meets the specifications of react-php-alertmanager.
