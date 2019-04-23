@@ -18,15 +18,15 @@ abstract class AbstractAlertManager implements HandlerInterface
     /**
      * @var LoopInterface
      */
-    private $loop;
+    protected $loop;
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
     /**
      * @var string
      */
-    private $alertmanagerApiUrl;
+    protected $alertmanagerApiUrl;
 
 
     public function __construct(LoopInterface $loop, LoggerInterface $logger,
