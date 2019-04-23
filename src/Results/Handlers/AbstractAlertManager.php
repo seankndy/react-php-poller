@@ -45,7 +45,7 @@ abstract class AbstractAlertManager implements HandlerInterface
         $incident = $newIncident ? $newIncident : $check->getIncident();
 
         if ($incident) {
-            $this->buildRequest($check, $result, $incident);
+            $this->buildAlert($check, $result, $incident);
             return $this->httpPost($params);
         } else {
             return \React\Promise\resolve([]);
