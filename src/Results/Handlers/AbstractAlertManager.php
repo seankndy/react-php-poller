@@ -27,14 +27,24 @@ abstract class AbstractAlertManager implements HandlerInterface
      * @var string
      */
     protected $alertmanagerApiUrl;
+    /**
+     * @var string
+     */
+    protected $apiUser;
+    /**
+     * @var string
+     */
+    protected $apiPass;
 
 
     public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        string $alertmanagerApiUrl)
+        string $alertmanagerApiUrl, string $apiUser = null, string $apiPass = null)
     {
         $this->loop = $loop;
         $this->logger = $logger;
         $this->alertmanagerApiUrl = $alertmanagerApiUrl;
+        $this->apiUser = $apiUser;
+        $this->apiPass = $apiPass;
     }
 
     /**
@@ -88,10 +98,15 @@ abstract class AbstractAlertManager implements HandlerInterface
         $deferred = new \React\Promise\Deferred();
         $client = new Client($this->loop);
         $jsonParams = \json_encode($params);
-        $request = $client->request('POST', $this->alertmanagerApiUrl, [
+        $headers = [
             'Content-Type' => 'application/json',
             'Content-Length' => strlen($jsonParams)
-        ]);
+        ];
+        if ($this->apiUser && $this->apiPass) {
+            $headers['Authorization'] = 'Basic ' .
+                \base64_encode($this->apiUser.':'.$this->apiPass);
+        }
+        $request = $client->request('POST', $this->alertmanagerApiUrl, $headers);
         $request->on('response', function (Response $response) use ($deferred) {
             if (substr($response->getCode(), 0, 1) != '2') {
                 $deferred->reject(new \Exception("Non-2xx response code: " .
