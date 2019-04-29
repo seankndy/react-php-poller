@@ -52,10 +52,8 @@ abstract class AbstractAlertManager implements HandlerInterface
      */
     public function process(Check $check, Result $result, Incident $newIncident = null)
     {
-        $incident = $newIncident ? $newIncident : $check->getIncident();
-
-        if ($incident) {
-            if ($params = $this->buildAlert($check, $result, $incident)) {
+        if ($newIncident || $check->getIncident()) {
+            if ($params = $this->buildAlert($check, $result, $newIncident)) {
                 return $this->httpPost($params);
             } else {
                 return \React\Promise\reject(
@@ -77,17 +75,16 @@ abstract class AbstractAlertManager implements HandlerInterface
 
     /**
      * This should return an array for the alert being gnerated that when
-     * json-encoded meets the specifications of react-php-alertmanager.
+     * json-encoded meets the specifications of react-php-alertmanager
      *
      * @param Check $check Associated Check object
      * @param Result $result Associated Result object
-     * @param Incident $incident Incident will be new Incident or existing
-     *      incident, never null.
+     * @param Incident $newIncident New incident
      *
      * @return array
      */
     abstract protected function buildAlert(Check $check, Result $result,
-        Incident $incident);
+        Incident $newIncident);
 
     /**
      * Post to alertmanager's API
