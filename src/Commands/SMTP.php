@@ -10,18 +10,18 @@ use React\Promise\Deferred;
 
 class SMTP implements CommandInterface
 {
-	/**
-	 * @var LoopInterface
-	 */
-	private $loop;
+    /**
+     * @var LoopInterface
+     */
+    private $loop;
 
-	public function __construct(LoopInterface $loop)
-	{
-		$this->loop = $loop;
-	}
+    public function __construct(LoopInterface $loop)
+    {
+        $this->loop = $loop;
+    }
 
-	public function run(Check $check)
-	{
+    public function run(Check $check)
+    {
         $lastResult = $check->getResult();
         // set default metrics
         $attributes = \array_merge([
@@ -32,67 +32,67 @@ class SMTP implements CommandInterface
             'timeout' => 10
         ], $check->getAttributes());
 
-		$deferred = new Deferred();
+        $deferred = new Deferred();
 
-		$connector = new \React\Socket\Connector($this->loop);
+        $connector = new \React\Socket\Connector($this->loop);
         $connector = new \React\Socket\TimeoutConnector($connector, $attributes['timeout'], $this->loop);
-		$timeStart = microtime(true);
-		$connector->connect($attributes['ip'] . ':' . $attributes['port'])->then(
-			function (ConnectionInterface $connection) use ($attributes, $deferred, $timeStart) {
-		        // when we get response from SMTP server, begin our speaking
+        $timeStart = microtime(true);
+        $connector->connect($attributes['ip'] . ':' . $attributes['port'])->then(
+            function (ConnectionInterface $connection) use ($attributes, $deferred, $timeStart) {
+                // when we get response from SMTP server, begin our speaking
                 $phase = 1;
-		        $connection->on('data', function ($data) use (&$phase, $deferred,
+                $connection->on('data', function ($data) use (&$phase, $deferred,
                     $connection, $attributes, $timeStart) {
                     if ($phase == 1) {
                         foreach (\preg_split('/[\r\n]+/', trim($data)) as $line) {
                             if (substr($line, 0, 4) == '220 ') {
                                 $phase++;
-            					$connection->write("{$attributes['send']}\r\n");
+                                $connection->write("{$attributes['send']}\r\n");
                             }
                         }
                     } else if ($phase == 2) {
-						$timeEnd = microtime(true);
-						$respTime = sprintf('%.3f', $timeEnd - $timeStart);
-						$metrics = [];
-						$connection->close();
-						$connection = null;
+                        $timeEnd = microtime(true);
+                        $respTime = sprintf('%.3f', $timeEnd - $timeStart);
+                        $metrics = [];
+                        $connection->close();
+                        $connection = null;
 
-						if (\preg_match($attributes['receive'], \trim($data))) {
-							$state = Result::STATE_OK;
-							$stateReason = '';
-							$metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp', $respTime);
-						} else {
-							$state = Result::STATE_CRIT;
-							$stateReason = 'Received data (' . $data . ') does not match expected value';
-						}
+                        if (\preg_match($attributes['receive'], \trim($data))) {
+                            $state = Result::STATE_OK;
+                            $stateReason = '';
+                            $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp', $respTime);
+                        } else {
+                            $state = Result::STATE_CRIT;
+                            $stateReason = 'Received data (' . $data . ') does not match expected value';
+                        }
 
-						$deferred->resolve(new Result($state, $stateReason, $metrics));
+                        $deferred->resolve(new Result($state, $stateReason, $metrics));
                     }
                 });
-				$connection->on('error', function (\Exception $e) use ($deferred, $connection, $timeStart) {
-					$connection->close();
-					$connection = null;
-					$state = Result::STATE_CRIT;
-					$timeEnd = microtime(true);
-					$totalTime = sprintf('%.3f', $timeEnd - $timeStart);
-					$stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
-					$deferred->resolve(new Result($state, $stateReason));
-				});
-		    },
-			function (\Exception $e) use ($deferred, $timeStart) {
-				$state = Result::STATE_CRIT;
-				$timeEnd = microtime(true);
-				$totalTime = sprintf('%.3f', $timeEnd - $timeStart);
-				$stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
-				$deferred->resolve(new Result($state, $stateReason));
-			}
-		);
+                $connection->on('error', function (\Exception $e) use ($deferred, $connection, $timeStart) {
+                    $connection->close();
+                    $connection = null;
+                    $state = Result::STATE_CRIT;
+                    $timeEnd = microtime(true);
+                    $totalTime = sprintf('%.3f', $timeEnd - $timeStart);
+                    $stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
+                    $deferred->resolve(new Result($state, $stateReason));
+                });
+            },
+            function (\Exception $e) use ($deferred, $timeStart) {
+                $state = Result::STATE_CRIT;
+                $timeEnd = microtime(true);
+                $totalTime = sprintf('%.3f', $timeEnd - $timeStart);
+                $stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
+                $deferred->resolve(new Result($state, $stateReason));
+            }
+        );
 
-		return $deferred->promise();
-	}
+        return $deferred->promise();
+    }
 
     public function getProducableMetrics(array $attributes)
-	{
+    {
         return [
             new ResultMetric(ResultMetric::$TYPE_GAUGE, 'resp')
         ];
