@@ -18,7 +18,7 @@ class MySQL implements CommandInterface
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
- 	}
+    }
 
     public function run(Check $check)
     {
@@ -42,42 +42,42 @@ class MySQL implements CommandInterface
         (new \React\MySQL\Factory($this->loop))->createConnection($uri)->then(
             function (ConnectionInterface $mysqlConn) use ($startTime,
                 $deferred, $attributes) {
-    	        $mysqlConn->query(
+                $mysqlConn->query(
                     $attributes['query']
                 )->then(function (QueryResult $command) use ($startTime,
                     $attributes, $deferred) {
-        			$total_time = sprintf('%.3f', \microtime(true) - $startTime);
+                    $total_time = sprintf('%.3f', \microtime(true) - $startTime);
 
-        		    $status = Result::STATE_UNKNOWN;
-        	        $status_reason = '';
+                    $status = Result::STATE_UNKNOWN;
+                    $status_reason = '';
                     $metrics = [];
 
-    				if ($total_time >= $attributes['response_time_crit_threshold']) {
-        				$status = Result::STATE_CRIT;
-        			    $status_reason = 'Response time hit max threshold';
-        	        } else if ($total_time	>= $attributes['response_time_warn_threshold']) {
-            	        $status = Result::STATE_WARN;
+                    if ($total_time >= $attributes['response_time_crit_threshold']) {
+                        $status = Result::STATE_CRIT;
                         $status_reason = 'Response time hit max threshold';
-    			    } else {
-        		        $status = Result::STATE_OK;
-        		        $status_reason = "Connection succeeded in " . $total_time . "s";
+                    } else if ($total_time >= $attributes['response_time_warn_threshold']) {
+                        $status = Result::STATE_WARN;
+                        $status_reason = 'Response time hit max threshold';
+                    } else {
+                        $status = Result::STATE_OK;
+                        $status_reason = "Connection succeeded in " . $total_time . "s";
                     }
                     $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp', $total_time);
-        	        $deferred->resolve(new Result($status, $status_reason, $metrics));
-    	        }, function (\Exception $error) use ($startTime, $deferred) {
-    	    		$total_time = sprintf('%.3f', \microtime(true) - $startTime);
+                    $deferred->resolve(new Result($status, $status_reason, $metrics));
+                }, function (\Exception $error) use ($startTime, $deferred) {
+                    $total_time = sprintf('%.3f', \microtime(true) - $startTime);
                     $status = Result::STATE_CRIT;
-        	        $status_reason = "Query failed after " .
-        			$total_time . "s with error: " . $error->getMessage();
-            		$deferred->resolve(new Result($status, $status_reason));
+                    $status_reason = "Query failed after " .
+                    $total_time . "s with error: " . $error->getMessage();
+                    $deferred->resolve(new Result($status, $status_reason));
                 });
-        	    $mysqlConn->quit();
+                $mysqlConn->quit();
             }, function (\Exception $error) use ($startTime, $deferred) {
-    			$total_time = sprintf('%.3f', \microtime(true)-$startTime);
-        		$status = Result::STATE_CRIT;
-        	    $status_reason = "Connection failed after " .
-    			$total_time . "s with error: " . $error->getMessage();
-        		$deferred->resolve(new Result($status, $status_reason));
+                $total_time = sprintf('%.3f', \microtime(true)-$startTime);
+                $status = Result::STATE_CRIT;
+                $status_reason = "Connection failed after " .
+                $total_time . "s with error: " . $error->getMessage();
+                $deferred->resolve(new Result($status, $status_reason));
             }
         );
 
