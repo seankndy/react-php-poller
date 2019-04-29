@@ -6,10 +6,10 @@ It's an object-oriented framework in which you can build a monitoring/collector 
 
 There are 4 key classes/objects in the system:
 
-    `\SeanKndy\Poller\Checks\Check` - object that represents a check to be performed (by a `\SeanKndy\Poller\Commands\CommandInterface` command) and thus collected.
-    `\SeanKndy\Poller\Results\Result` - object that represents the result of a check performed.
-    `\SeanKndy\Poller\Checks\Incident` - object that represents that the Check has went into a non-OK state
-    `\SeanKndy\Poller\Checks\QueueInterface` - interface for enqueueing and dequeuing Check objects
+`\SeanKndy\Poller\Checks\Check` - object that represents a check to be performed (by a `\SeanKndy\Poller\Commands\CommandInterface` command) and thus collected.
+`\SeanKndy\Poller\Results\Result` - object that represents the result of a check performed.
+`\SeanKndy\Poller\Checks\Incident` - object that represents that the Check has went into a non-OK state
+`\SeanKndy\Poller\Checks\QueueInterface` - interface for enqueueing and dequeuing Check objects
 
 The `\SeanKndy\Poller\Server` object starts the server and expects a `\SeanKndy\Poller\Checks\QueueInterface` as it's source of Check objects.
 
