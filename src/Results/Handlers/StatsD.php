@@ -63,7 +63,7 @@ class StatsD implements HandlerInterface
         }
 
         $factory = new React\Datagram\Factory($this->loop);
-        $factory->createClient($this->host.':'.$this->port)->then(function (React\Datagram\Socket $client) {
+        return $factory->createClient($this->host.':'.$this->port)->then(function (React\Datagram\Socket $client) {
             $client->send($this->buildProtocolMessage($check, $result));
 
             $client->on('error', function($error, $client) {
