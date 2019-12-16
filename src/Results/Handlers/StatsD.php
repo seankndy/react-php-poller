@@ -66,15 +66,15 @@ class StatsD implements HandlerInterface
         return $factory->createClient($this->host.':'.$this->port)->then(function (React\Datagram\Socket $client) {
             $client->send($this->buildProtocolMessage($check, $result));
 
-            $client->on('error', function($error, $client) {
+            $client->on('error', function(\Throwable $error, $client) {
                 $this->logger->log(
-                    LogLevel::DEBUG,
+                    LogLevel::ERROR,
                     "Failed to send metrics to statsd: " . $error->getMessage()
                 );
             });
-        }, function($error) {
+        }, function(\Throwable $error) {
             $this->logger->log(
-                LogLevel::DEBUG,
+                LogLevel::ERROR,
                 "Failed to connect to statsd server: " . $error->getMessage()
             );
         });
