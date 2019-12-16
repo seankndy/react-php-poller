@@ -15,7 +15,8 @@
         "react/http-client": "^0.5.9",
         "react/socket": "^1.2",
         "react/filesystem": "^0.1.2",
-        "ramsey/uuid": "^3.8"
+        "ramsey/uuid": "^3.8",
+        "react/datagram": "^1.5"
     },
     "autoload": {
         "psr-4": {"SeanKndy\\Poller\\": "src/"}
