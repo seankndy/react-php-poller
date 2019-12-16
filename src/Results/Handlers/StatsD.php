@@ -62,8 +62,8 @@ class StatsD implements HandlerInterface
             return \React\Promise\resolve([]);
         }
 
-        $factory = new React\Datagram\Factory($this->loop);
-        return $factory->createClient($this->host.':'.$this->port)->then(function (React\Datagram\Socket $client) {
+        $factory = new \React\Datagram\Factory($this->loop);
+        return $factory->createClient($this->host.':'.$this->port)->then(function (\React\Datagram\Socket $client) {
             $client->send($this->buildProtocolMessage($check, $result));
 
             $client->on('error', function(\Throwable $error, $client) {
