@@ -65,19 +65,29 @@ class StatsD implements HandlerInterface
         $factory = new \React\Datagram\Factory($this->loop);
         return $factory->createClient($this->host.':'.$this->port)->then(
             function (\React\Datagram\Socket $client) use ($check, $result) {
-                $client->send($this->buildProtocolMessage($check, $result));
+                $msg = $this->buildProtocolMessage($check, $result);
+
+                $this->logger->log(
+                    LogLevel::DEBUG,
+                    'Sending following datagram to '.$this->host.':'.$this->port.': ' .
+                        \str_replace("\n", "\\n", $msg)
+                );
+
+                $client->send($msg);
                 $client->end(); // end() will wait for send buffer to drain
                 $client->on('error', function(\Throwable $error, $client) {
                     $this->logger->log(
                         LogLevel::ERROR,
-                        "Failed to send metrics to statsd: " . $error->getMessage()
+                        ($err = "Failed to send metrics to statsd: " . $error->getMessage())
                     );
+                    throw new \Exception($err);
                 });
             }, function(\Throwable $error) {
                 $this->logger->log(
                     LogLevel::ERROR,
-                    "Failed to connect to statsd server: " . $error->getMessage()
+                    ($err = "Failed to connect to statsd server: " . $error->getMessage())
                 );
+                throw new \Exception($msg);
             }
         );
     }
