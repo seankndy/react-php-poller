@@ -66,7 +66,7 @@ class StatsD implements HandlerInterface
         return $factory->createClient($this->host.':'.$this->port)->then(
             function (\React\Datagram\Socket $client) use ($check, $result) {
                 $client->send($this->buildProtocolMessage($check, $result));
-
+                $client->end(); // end() will wait for send buffer to drain
                 $client->on('error', function(\Throwable $error, $client) {
                     $this->logger->log(
                         LogLevel::ERROR,
