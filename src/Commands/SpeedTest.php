@@ -6,8 +6,7 @@ use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 /**
- * SpeedTest++ (https://github.com/taganaka/SpeedTest)
- * (speedtest.net client)
+ * Ookla official speedtest CLI
  *
  */
 class SpeedTest implements CommandInterface
@@ -21,7 +20,7 @@ class SpeedTest implements CommandInterface
      */
     private $speedTestBin = '';
 
-    public function __construct(LoopInterface $loop, $speedTestBin = '/usr/local/bin/SpeedTest')
+    public function __construct(LoopInterface $loop, $speedTestBin = '/usr/local/bin/speedtest')
     {
         $this->loop = $loop;
 
@@ -43,12 +42,14 @@ class SpeedTest implements CommandInterface
             'server' => '', // host:port
             'download_threshold' => 0, // Mbit/sec
             'upload_threshold' => 0, // Mbit/sec
-            'ping_threshold' => 0 // milliseconds
+            'ping_threshold' => 0, // milliseconds
+            'jitter_threshold' => 0, // milliseconds
+            'loss_threshold' => 20 // %
         ], $check->getAttributes());
 
-        $command = $this->speedTestBin . " --output json";
+        $command = $this->speedTestBin . " -f json -u bps";
         if ($attributes['server']) {
-            $command .= " --test-server {$attributes['server']}";
+            $command .= " -s {$attributes['server']}";
         }
         $process = new \React\ChildProcess\Process($command);
         $process->start($this->loop);
@@ -62,10 +63,10 @@ class SpeedTest implements CommandInterface
             $attributes, $command, &$stdoutBuffer) {
             if (!($stResult = \json_decode($stdoutBuffer))) {
                 $state = Result::STATE_UNKNOWN;
-                $stateReason = 'Invalid output from speedtest-cli command.';
+                $stateReason = 'Invalid output from speedtest command.';
             } else {
-                $downloadMbits = $stResult->download / 1000 / 1000;
-                $uploadMbits = $stResult->upload / 1000 / 1000;
+                $downloadMbits = $stResult->download->bandwidth / 1000 / 1000;
+                $uploadMbits = $stResult->upload->bandwidth  / 1000 / 1000;
 
                 if ($attributes['download_threshold'] && $downloadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
@@ -73,9 +74,15 @@ class SpeedTest implements CommandInterface
                 } else if ($attributes['upload_threshold'] && $uploadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
                     $stateReason = "Upload dropped below threshold.";
-                } else if ($attributes['ping_threshold'] && $stResult->ping > $attributes['ping_threshold']) {
+                } else if ($attributes['ping_threshold'] && $stResult->ping->latency > $attributes['ping_threshold']) {
                     $state = Result::STATE_WARN;
                     $stateReason = "Ping exceeded threshold.";
+                } else if ($attributes['jitter_threshold'] && $stResult->ping->jitter > $attributes['jitter_threshold']) {
+                    $state = Result::STATE_WARN;
+                    $stateReason = "Jitter exceeded threshold.";
+                } else if ($attributes['loss_threshold'] >= 0 && $stResult->packetLoss > $attributes['loss_threshold']) {
+                    $state = Result::STATE_WARN;
+                    $stateReason = "Loss exceeded threshold.";
                 } else {
                     $state = Result::STATE_OK;
                     $stateReason = '';
@@ -84,7 +91,13 @@ class SpeedTest implements CommandInterface
                 $result = new Result($state, $stateReason);
                 $result->setMetrics([
                     new ResultMetric(
-                        ResultMetric::TYPE_GAUGE, 'ping', $stResult->ping
+                        ResultMetric::TYPE_GAUGE, 'latency', $stResult->ping->latency
+                    ),
+                    new ResultMetric(
+                        ResultMetric::TYPE_GAUGE, 'jitter', $stResult->ping->jitter
+                    ),
+                    new ResultMetric(
+                        ResultMetric::TYPE_GAUGE, 'loss', $stResult->packetLoss
                     ),
                     new ResultMetric(
                         ResultMetric::TYPE_GAUGE, 'download_mbps', $downloadMbits
@@ -107,7 +120,9 @@ class SpeedTest implements CommandInterface
     public function getProducableMetrics(array $attributes)
     {
         return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'ping'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'latency'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'jitter'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'loss'),
             new ResultMetric(ResultMetric::TYPE_GAUGE, 'download_mbps'),
             new ResultMetric(ResultMetric::TYPE_GAUGE, 'upload_mbps')
         ];
