@@ -37,15 +37,20 @@ class Ping implements CommandInterface
             'loss_threshold' => 0,
             'avg_threshold' => 0,
             'try_count' => 1,
-            'count' => 5
+            'count' => 5,
+            'jitter_threshold' => 0
         ], $check->getAttributes());
 
         if ($attributes['try_count'] <= 0) {
             $attributes['try_count'] = 1;
         }
 
-        $command = $this->fpingBin . " -q -p 100 -b {$attributes['size']} -i " .
-            "{$attributes['interval']} -c {$attributes['count']} {$attributes['ip']}";
+        $command = $this->fpingBin . " -C {$attributes['count']} -q -b " .
+            "{$attributes['size']} -B1 -r1 -i{$attributes['interval']} -p 500 " .
+            "{$attributes['ip']}";
+
+        /*$command = $this->fpingBin . " -q -p 100 -b {$attributes['size']} -i " .
+            "{$attributes['interval']} -c {$attributes['count']} {$attributes['ip']}";*/
         $process = new \React\ChildProcess\Process($command);
         $process->start($this->loop);
 
@@ -56,39 +61,58 @@ class Ping implements CommandInterface
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $attributes, $command, &$stderrBuffer) {
-            $state = Result::STATE_UNKNOWN;
-            $stateReason = '';
+            [$host, $measurements] = \explode(' : ', $stderrBuffer);
+            $measurements = \explode(' ', $measurements);
+            $cntNoResponse = 0;
+            foreach ($measurements as $m) {
+                if ($m == '-') {
+                    $cntNoResponse++;
+                } else {
+                    $realMeasurements[] = $m;
+                }
+            }
+            $loss = $cntNoResponse / \count($measurements);
 
-            $matched = preg_match('#.*? ([0-9\.]+)/([0-9\.]+)/([0-9\.]+)\%(.*?/([0-9\.]+)/.+)?#', $stderrBuffer, $m);
-            if ($matched) {
-                if (!isset($m[4])) {
-                    $state = Result::STATE_CRIT;
-                    $stateReason = 'Host down';
-                } else if ($m[3] > $attributes['loss_threshold']) {
+            $metrics = [];
+            $metrics[] = new ResultMetric(
+                ResultMetric::TYPE_GAUGE, 'loss', $loss
+            );
+
+            if ($loss == 100) {
+                $state = Result::STATE_CRIT;
+                $stateReason = 'Host down';
+            } else {
+                $avg = \array_sum($realMeasurements) / \count($realMeasurements);
+                $jitter = \round(\sqrt(\array_sum(\array_map(function ($x, $mean) {
+                    return \pow($x - $mean,2);
+                }, $realMeasurements, \array_fill(
+                    0, \count($realMeasurements),
+                    (\array_sum($realMeasurements) / \count($realMeasurements))
+                ))) / (\count($realMeasurements)-1)), 2);
+
+                if ($loss > $attributes['loss_threshold']) {
                     $state = Result::STATE_CRIT;
                     $stateReason = 'Hit packet loss threshold';
-                } else if (isset($m[5]) && $attributes['avg_threshold'] > 0 && $m[5] > $attributes['avg_threshold']) {
+                } else if ($attributes['avg_threshold'] > 0 && $avg > $attributes['avg_threshold']) {
                     $state = Result::STATE_WARN;
                     $stateReason = 'Hit latency threshold';
+                } else if ($attributes['jitter_threshold'] > 0 && $jitter > $attributes['jitter_threshold']) {
+                    $state = Result::STATE_WARN;
+                    $stateReason = 'Hit jitter threshold';
                 } else {
                     $state = Result::STATE_OK;
+                    $stateReason = '';
                 }
-            } else {
-                $state = Result::STATE_CRIT;
-                $stateReason = 'Unknown command output: '.$stderrBuffer;
+
+                $metrics[] = new ResultMetric(
+                    ResultMetric::TYPE_GAUGE, 'avg', $avg
+                );
+                $metrics[] = new ResultMetric(
+                    ResultMetric::TYPE_GAUGE, 'jitter', $jitter
+                );
             }
 
-            $result = new Result($state, $stateReason);
-            if ($m) {
-                $result->addMetric(new ResultMetric(
-                    ResultMetric::TYPE_GAUGE, 'loss', $m[3]
-                ));
-                if (isset($m[5])) { // avg
-                    $result->addMetric(new ResultMetric(
-                        ResultMetric::TYPE_GAUGE, 'avg', $m[5]
-                    ));
-                }
-            }
+            $result = new Result($state, $stateReason, $metrics);
             $deferred->resolve($result);
         });
 
@@ -99,7 +123,8 @@ class Ping implements CommandInterface
     {
         return [
             new ResultMetric(ResultMetric::TYPE_GAUGE, 'loss'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'avg')
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'avg'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'jitter')
         ];
     }
 }
