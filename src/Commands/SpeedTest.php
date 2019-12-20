@@ -88,7 +88,7 @@ class SpeedTest implements CommandInterface
                 $result = new Result($state, $stateReason);
                 $result->setMetrics([
                     new ResultMetric(
-                        ResultMetric::TYPE_GAUGE, 'ping', $result->ping
+                        ResultMetric::TYPE_GAUGE, 'ping', $stResult->ping
                     ),
                     new ResultMetric(
                         ResultMetric::TYPE_GAUGE, 'download_mbps', $downloadMbits
