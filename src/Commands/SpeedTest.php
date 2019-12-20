@@ -6,7 +6,8 @@ use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 /**
- * speedtest-cli (speedtest.net) command
+ * SpeedTest++ (https://github.com/taganaka/SpeedTest)
+ * (speedtest.net client)
  *
  */
 class SpeedTest implements CommandInterface
@@ -18,16 +19,16 @@ class SpeedTest implements CommandInterface
     /**
      * @var string
      */
-    private $speedTestCliBin = '';
+    private $speedTestBin = '';
 
-    public function __construct(LoopInterface $loop, $speedTestCliBin = '/usr/bin/speedtest-cli')
+    public function __construct(LoopInterface $loop, $speedTestBin = '/usr/local/bin/SpeedTest')
     {
         $this->loop = $loop;
 
-        if (\file_exists($speedTestCliBin)) {
-            $this->speedTestCliBin = $speedTestCliBin;
+        if (\file_exists($speedTestBin)) {
+            $this->speedTestBin = $speedTestBin;
         } else {
-            throw new \RuntimeException("speedtest-cli binary '$speedTestCliBin' could not be found.");
+            throw new \RuntimeException("SpeedTest++ binary '$speedTestBin' could not be found.");
         }
     }
 
@@ -39,20 +40,15 @@ class SpeedTest implements CommandInterface
         $lastResult = $check->getResult();
         // set default metrics
         $attributes = array_merge([
-            'server' => '',
-            'timeout' => 10,
-            'secure' => 0,
+            'server' => '', // host:port
             'download_threshold' => 0, // Mbit/sec
             'upload_threshold' => 0, // Mbit/sec
             'ping_threshold' => 0 // milliseconds
         ], $check->getAttributes());
 
-        $command = $this->speedTestCliBin . " --json --timeout {$attributes['timeout']}";
-        if ($attributes['secure']) {
-            $command .= " --secure";
-        }
+        $command = $this->speedTestBin . " --output json";
         if ($attributes['server']) {
-            $command .= " --server {$attributes['server']}";
+            $command .= " --test-server {$attributes['server']}";
         }
         $process = new \React\ChildProcess\Process($command);
         $process->start($this->loop);
