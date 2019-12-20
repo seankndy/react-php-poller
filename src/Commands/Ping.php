@@ -5,6 +5,8 @@ use SeanKndy\Poller\Checks\Check;
 use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 class Ping implements CommandInterface
 {
@@ -12,12 +14,14 @@ class Ping implements CommandInterface
      * @var LoopInterface
      */
     private $loop;
-
+    private $logger;
     protected $fpingBin = '';
 
-    public function __construct(LoopInterface $loop, $fpingBin = '/usr/bin/fping')
+    public function __construct(LoopInterface $loop, LoggerInterface $logger,
+        $fpingBin = '/usr/bin/fping')
     {
         $this->loop = $loop;
+        $this->logger = $logger;
 
         if (\file_exists($fpingBin)) {
             $this->fpingBin = $fpingBin;
@@ -61,6 +65,9 @@ class Ping implements CommandInterface
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $attributes, $command, &$stderrBuffer) {
+
+            $this->logger->log(LogLevel::DEBUG, "Ping: $command --> $stderrBuffer");
+
             [$host, $measurements] = \explode(' : ', $stderrBuffer);
             $measurements = \explode(' ', $measurements);
             $cntNoResponse = 0;
