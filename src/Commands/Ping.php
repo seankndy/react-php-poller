@@ -85,6 +85,8 @@ class Ping implements CommandInterface
                 ResultMetric::TYPE_GAUGE, 'loss', $loss
             );
 
+            $this->logger->log(LogLevel::DEBUG, "Ping: calculated loss = $loss");
+
             if ($loss == 100) {
                 $state = Result::STATE_CRIT;
                 $stateReason = 'Host down';
@@ -96,6 +98,8 @@ class Ping implements CommandInterface
                     0, \count($realMeasurements),
                     (\array_sum($realMeasurements) / \count($realMeasurements))
                 ))) / (\count($realMeasurements)-1)), 2);
+
+                $this->logger->log(LogLevel::DEBUG, "Ping: calculated avg,jitter = $avg,$jitter");
 
                 if ($loss > $attributes['loss_threshold']) {
                     $state = Result::STATE_CRIT;
