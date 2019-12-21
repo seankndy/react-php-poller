@@ -69,8 +69,9 @@ class Ping implements CommandInterface
             $this->logger->log(LogLevel::DEBUG, "Ping: $command --> $stderrBuffer");
 
             [$host, $measurements] = \explode(' : ', $stderrBuffer);
-            $measurements = \explode(' ', $measurements);
+            $measurements = \explode(' ', \trim($measurements));
             $cntNoResponse = 0;
+            $realMeasurements = [];
             foreach ($measurements as $m) {
                 if ($m == '-') {
                     $cntNoResponse++;
@@ -78,7 +79,7 @@ class Ping implements CommandInterface
                     $realMeasurements[] = $m;
                 }
             }
-            $loss = $cntNoResponse / \count($measurements);
+            $loss = ($cntNoResponse / \count($measurements)) * 100;
 
             $metrics = [];
             $metrics[] = new ResultMetric(
