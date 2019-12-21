@@ -65,8 +65,8 @@ class SpeedTest implements CommandInterface
                 $state = Result::STATE_UNKNOWN;
                 $stateReason = 'Invalid output from speedtest command.';
             } else {
-                $downloadMbits = $stResult->download->bandwidth / 1000 / 1000;
-                $uploadMbits = $stResult->upload->bandwidth  / 1000 / 1000;
+                $downloadMbits = $stResult->download->bandwidth * 0.000008;
+                $uploadMbits = $stResult->upload->bandwidth * 0.000008;
 
                 if ($attributes['download_threshold'] && $downloadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
