@@ -74,6 +74,11 @@ class Check
      * @var mixed
      */
     protected $meta;
+    /**
+     * Does this Check wish to be automatically enqueued()
+     * @var bool
+     */
+    protected $shouldEnqueue = true;
 
     /**
      * Time this Check object was 'changed' such as
@@ -486,6 +491,29 @@ class Check
 
         // not ok, no last incident, no last result
         return true;
+    }
+
+    /**
+     * Set $shouldEnqueue
+     *
+     * @param bool $shouldEnqueue
+     *
+     * @return self
+     */
+    public function setShouldEnqueue(bool $shouldEnqueue)
+    {
+        $this->shouldEnqueue = $shouldEnqueue;
+        return $this;
+    }
+
+    /**
+     * shouldEnqueue?
+     *
+     * @return bool
+     */
+    public function shouldEnqueue()
+    {
+        return $this->shouldEnqueue;
     }
 
     /**
