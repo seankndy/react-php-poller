@@ -22,6 +22,8 @@ class Check
      */
     protected $state;
     /**
+     * Interval in seconds the Check is due to run.
+     * A value <=0 means the Check should not be re-enqueued()
      * @var int
      */
     protected $interval;
@@ -74,11 +76,7 @@ class Check
      * @var mixed
      */
     protected $meta;
-    /**
-     * Does this Check wish to be automatically enqueued()
-     * @var bool
-     */
-    protected $shouldEnqueue = true;
+
 
     /**
      * Time this Check object was 'changed' such as
@@ -115,9 +113,9 @@ class Check
     {
         if ($this->state != $state) {
             if ($this->stateChangeTime) {
-                $this->lastStateDuration = microtime(true) - $this->stateChangeTime;
+                $this->lastStateDuration = \microtime(true) - $this->stateChangeTime;
             }
-            $this->stateChangeTime = microtime(true);
+            $this->stateChangeTime = \microtime(true);
             $this->lastState = $this->state;
         }
         $this->state = $state;
@@ -133,7 +131,7 @@ class Check
      */
     public function isDue($time = null)
     {
-        if ($time == null) $time = time();
+        if ($time == null) $time = \time();
         return ($this->state != self::STATE_EXECUTING && (!$this->lastCheck
             || $time >= $this->timeOfNextCheck()));
     }
@@ -491,29 +489,6 @@ class Check
 
         // not ok, no last incident, no last result
         return true;
-    }
-
-    /**
-     * Set $shouldEnqueue
-     *
-     * @param bool $shouldEnqueue
-     *
-     * @return self
-     */
-    public function setShouldEnqueue(bool $shouldEnqueue)
-    {
-        $this->shouldEnqueue = $shouldEnqueue;
-        return $this;
-    }
-
-    /**
-     * shouldEnqueue?
-     *
-     * @return bool
-     */
-    public function shouldEnqueue()
-    {
-        return $this->shouldEnqueue;
     }
 
     /**
