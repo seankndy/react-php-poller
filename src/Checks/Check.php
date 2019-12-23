@@ -52,6 +52,11 @@ class Check
      */
     protected $result = null;
     /**
+     * Previous Result for the check, may be null
+     * @var Result
+     */
+    protected $previousResult = null;
+    /**
      * @var int
      */
     protected $lastStateDuration = 0;
@@ -307,26 +312,50 @@ class Check
     }
 
     /**
-     * Set last Result object
+     * Set Result object, but first copy previous result to $previousResult
      *
-     * @param Result $result Last result
+     * @param Result $result Current result
      *
      * @return $this
      */
     public function setResult(Result $result)
     {
+        $this->previousResult = $this->result;
         $this->result = $result;
         return $this;
     }
 
     /**
-     * Get last Result object
+     * Get Result object
      *
      * @return Result
      */
     public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * Set the previous Result object
+     *
+     * @param Result $result Last result
+     *
+     * @return $this
+     */
+    public function setPreviousResult(Result $result)
+    {
+        $this->previousResult = $result;
+        return $this;
+    }
+
+    /**
+     * Get the previous Result object
+     *
+     * @return Result
+     */
+    public function getPreviousResult()
+    {
+        return $this->previousResult;
     }
 
     /**
