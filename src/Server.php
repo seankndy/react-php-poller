@@ -183,10 +183,12 @@ class Server extends EventEmitter
                 }
 
                 unset($this->checksExecuting[$check->getId()]);
-                $this->checkQueue->enqueue($check)->otherwise(function(\Throwable $e) {
-                    $this->emit('error', [new \Exception("Failed to enqueue() Check ID=<" .
-                        $check->getId() . ">: " . $e->getMessage())]);
-                });
+                if ($check->getInterval() > 0) {
+                    $this->checkQueue->enqueue($check)->otherwise(function(\Throwable $e) {
+                        $this->emit('error', [new \Exception("Failed to enqueue() Check ID=<" .
+                            $check->getId() . ">: " . $e->getMessage())]);
+                    });
+                }
             });
 
             $this->loop->futureTick(function() { $this->runDueChecks(); });

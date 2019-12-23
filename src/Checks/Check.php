@@ -22,6 +22,8 @@ class Check
      */
     protected $state;
     /**
+     * Interval in seconds the Check is due to run.
+     * A value <=0 means the Check should not be re-enqueued()
      * @var int
      */
     protected $interval;
@@ -80,6 +82,7 @@ class Check
      */
     protected $meta;
 
+
     /**
      * Time this Check object was 'changed' such as
      * updated attributes, handlers or interval
@@ -115,9 +118,9 @@ class Check
     {
         if ($this->state != $state) {
             if ($this->stateChangeTime) {
-                $this->lastStateDuration = microtime(true) - $this->stateChangeTime;
+                $this->lastStateDuration = \microtime(true) - $this->stateChangeTime;
             }
-            $this->stateChangeTime = microtime(true);
+            $this->stateChangeTime = \microtime(true);
             $this->lastState = $this->state;
         }
         $this->state = $state;
@@ -133,7 +136,7 @@ class Check
      */
     public function isDue($time = null)
     {
-        if ($time == null) $time = time();
+        if ($time == null) $time = \time();
         return ($this->state != self::STATE_EXECUTING && (!$this->lastCheck
             || $time >= $this->timeOfNextCheck()));
     }
