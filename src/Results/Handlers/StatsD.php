@@ -116,7 +116,7 @@ class StatsD implements HandlerInterface
      */
     private function buildProtocolMessage(Check $check, Result $result)
     {
-        $previousResult = $check->getPreviousResult();
+        $previousResult = $check->getResult();
         $prefix = \rtrim($this->getMetricNamePrefix($check, $result), '.');
         $msg = '';
         foreach ($result->getMetrics() as $metric) {
