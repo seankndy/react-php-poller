@@ -19,19 +19,19 @@ class StatsD implements HandlerInterface
     /**
      * @var LoopInterface
      */
-    private $loop;
+    protected $loop;
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
     /**
      * @var string
      */
-    private $host;
+    protected $host;
     /**
      * @var int
      */
-    private $port;
+    protected $port;
 
     /**
      *
