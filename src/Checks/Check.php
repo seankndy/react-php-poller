@@ -319,7 +319,7 @@ class Check
      *
      * @param Result $result Current result
      *
-     * @return $this
+     * @return self
      */
     public function setResult(Result $result)
     {
@@ -331,7 +331,7 @@ class Check
     /**
      * Get Result object
      *
-     * @return Result
+     * @return Result|null
      */
     public function getResult()
     {
@@ -343,7 +343,7 @@ class Check
      *
      * @param Result $result Last result
      *
-     * @return $this
+     * @return self
      */
     public function setPreviousResult(Result $result)
     {
@@ -354,7 +354,7 @@ class Check
     /**
      * Get the previous Result object
      *
-     * @return Result
+     * @return Result|null
      */
     public function getPreviousResult()
     {
@@ -529,6 +529,8 @@ class Check
     {
         if ($this->result)
             $this->result = clone $this->result;
+        if ($this->previousResult)
+            $this->previousResult = clone $this->previousResult;
         if ($this->incident)
             $this->incident = clone $this->incident;
     }
