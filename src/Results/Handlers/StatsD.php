@@ -120,10 +120,12 @@ class StatsD implements HandlerInterface
         $prefix = \rtrim($this->getMetricNamePrefix($check, $result), '.');
         $msg = '';
         foreach ($result->getMetrics() as $metric) {
+            $val = 0;
+
             // metric is a counter and we have a previous result
             if ($metric->getType() == Metric::TYPE_COUNTER) {
                 if ($previousResult instanceof Result) {
-                    foreach ($previousResult()->getMetrics() as $prevMetric) {
+                    foreach ($previousResult->getMetrics() as $prevMetric) {
                         // found previous metric that matches this $metric (by name)
                         if ($metric->getName() == $prevMetric->getName()) {
                             // calculate difference of counter
@@ -131,10 +133,6 @@ class StatsD implements HandlerInterface
                             break;
                         }
                     }
-                } else {
-                    // cannot calculate counter's delta yet, send 0 and in the
-                    // next cycle we should be able to calculate the difference.
-                    $val = 0;
                 }
             } else {
                 $val = $metric->getValue();
