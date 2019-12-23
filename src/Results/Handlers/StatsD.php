@@ -121,14 +121,20 @@ class StatsD implements HandlerInterface
         $msg = '';
         foreach ($result->getMetrics() as $metric) {
             // metric is a counter and we have a previous result
-            if ($metric->getType() == Metric::TYPE_COUNTER && $previousResult) {
-                foreach ($previousResult()->getMetrics() as $prevMetric) {
-                    // found previous metric that matches this $metric (by name)
-                    if ($metric->getName() == $prevMetric->getName()) {
-                        // calculate difference of counter
-                        $val = \bcsub($metric->getValue(), $prevMetric->getValue());
-                        break;
+            if ($metric->getType() == Metric::TYPE_COUNTER) {
+                if ($previousResult instanceof Result) {
+                    foreach ($previousResult()->getMetrics() as $prevMetric) {
+                        // found previous metric that matches this $metric (by name)
+                        if ($metric->getName() == $prevMetric->getName()) {
+                            // calculate difference of counter
+                            $val = \bcsub($metric->getValue(), $prevMetric->getValue());
+                            break;
+                        }
                     }
+                } else {
+                    // cannot calculate counter's delta yet, send 0 and in the
+                    // next cycle we should be able to calculate the difference.
+                    $val = 0;
                 }
             } else {
                 $val = $metric->getValue();
