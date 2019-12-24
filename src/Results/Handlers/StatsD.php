@@ -116,30 +116,10 @@ class StatsD implements HandlerInterface
      */
     private function buildProtocolMessage(Check $check, Result $result)
     {
-        $previousResult = $check->getResult();
         $prefix = \rtrim($this->getMetricNamePrefix($check, $result), '.');
         $msg = '';
         foreach ($result->getMetrics() as $metric) {
-            $val = 0;
-
-            // metric is a counter and we have a previous result
-            if ($metric->getType() == Metric::TYPE_COUNTER) {
-                if ($previousResult instanceof Result) {
-                    foreach ($previousResult->getMetrics() as $prevMetric) {
-                        // found previous metric that matches this $metric (by name)
-                        if ($metric->getName() == $prevMetric->getName()) {
-                            // calculate difference of counter
-                            $val = \bcsub($metric->getValue(), $prevMetric->getValue());
-                            break;
-                        }
-                    }
-                }
-            } else {
-                $val = $metric->getValue();
-            }
-
-            $msg .= $prefix.'.'.$metric->getName().':'.$val.'|'.
-                ($metric->getType() == Metric::TYPE_COUNTER ? 'c' : 'g') . "\n";
+            $msg .= $prefix.'.'.$metric->getName().':'.$metric->getValue()."|g\n";
         }
         return \trim($msg);
     }
