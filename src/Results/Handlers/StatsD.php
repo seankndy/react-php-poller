@@ -121,7 +121,7 @@ class StatsD implements HandlerInterface
         foreach ($result->getMetrics() as $metric) {
             if ($metric->getValue() < 0) {
                 // see https://github.com/statsd/statsd/blob/master/docs/metric_types.md#gauges
-                $msg .= $prefix.'.'.$metric->getName().':0|g\n";
+                $msg .= "$prefix.".$metric->getName().":0|g\n";
             }
 	    $msg .= $prefix.'.'.$metric->getName().':'.$metric->getValue()."|g\n";
         }
