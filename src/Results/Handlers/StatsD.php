@@ -119,7 +119,11 @@ class StatsD implements HandlerInterface
         $prefix = \rtrim($this->getMetricNamePrefix($check, $result), '.');
         $msg = '';
         foreach ($result->getMetrics() as $metric) {
-            $msg .= $prefix.'.'.$metric->getName().':'.$metric->getValue()."|g\n";
+            if ($metric->getValue() < 0) {
+                // see https://github.com/statsd/statsd/blob/master/docs/metric_types.md#gauges
+                $msg .= $prefix.'.'.$metric->getName().':0|g\n";
+            }
+	    $msg .= $prefix.'.'.$metric->getName().':'.$metric->getValue()."|g\n";
         }
         return \trim($msg);
     }

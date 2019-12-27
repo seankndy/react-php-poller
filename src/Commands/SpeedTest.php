@@ -20,14 +20,26 @@ class SpeedTest implements CommandInterface
      */
     private $speedTestBin = '';
 
-    public function __construct(LoopInterface $loop, $speedTestBin = '/usr/local/bin/speedtest')
+    public function __construct(LoopInterface $loop, $speedTestBin = '')
     {
         $this->loop = $loop;
 
-        if (\file_exists($speedTestBin)) {
+        if (!$speedTestBin) {
+            $bins = ['/usr/bin/speedtest', '/usr/local/bin/speedtest'];
+            foreach ($bins as $bin) {
+                if (\file_exists($bin)) {
+                    $speedTestBin = $bin;
+                    break;
+                }
+            }
+            if (!$speedTestBin) {
+                throw new \RuntimeException("speedtest binary could not be found.");
+            }
+            $this->speedTestBin = $speedTestBin;
+        } else if (\file_exists($speedTestBin)) {
             $this->speedTestBin = $speedTestBin;
         } else {
-            throw new \RuntimeException("SpeedTest++ binary '$speedTestBin' could not be found.");
+            throw new \RuntimeException("speedtest binary '$speedTestBin' could not be found.");
         }
     }
 
