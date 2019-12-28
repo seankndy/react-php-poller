@@ -5,6 +5,8 @@ use SeanKndy\Poller\Checks\Check;
 use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 /**
  * Ookla official speedtest CLI
  *
@@ -16,30 +18,41 @@ class SpeedTest implements CommandInterface
      */
     private $loop;
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    /**
      * @var string
      */
     private $speedTestBin = '';
 
-    public function __construct(LoopInterface $loop, $speedTestBin = '')
+    public function __construct(LoopInterface $loop, LoggerInterface $logger,
+        string $speedTestBin = '')
     {
         $this->loop = $loop;
+        $this->logger = $logger;
 
-        if (!$speedTestBin) {
-            $bins = ['/usr/bin/speedtest', '/usr/local/bin/speedtest'];
-            foreach ($bins as $bin) {
-                if (\file_exists($bin)) {
-                    $speedTestBin = $bin;
-                    break;
-                }
-            }
+        try {
             if (!$speedTestBin) {
-                throw new \RuntimeException("speedtest binary could not be found.");
+                $bins = ['/usr/bin/speedtest', '/usr/local/bin/speedtest'];
+                foreach ($bins as $bin) {
+                    if (\file_exists($bin)) {
+                        $speedTestBin = $bin;
+                        break;
+                    }
+                }
+                if (!$speedTestBin) {
+                    throw new \RuntimeException("speedtest binary could not be found.");
+                }
+                $this->speedTestBin = $speedTestBin;
+            } else if (\file_exists($speedTestBin)) {
+                $this->speedTestBin = $speedTestBin;
+            } else {
+                throw new \RuntimeException("speedtest binary '$speedTestBin' could not be found.");
             }
-            $this->speedTestBin = $speedTestBin;
-        } else if (\file_exists($speedTestBin)) {
-            $this->speedTestBin = $speedTestBin;
-        } else {
-            throw new \RuntimeException("speedtest binary '$speedTestBin' could not be found.");
+        } catch (\RuntimeException $e) {
+            $this->logger->error($e->getMessage());
+            throw $e;
         }
     }
 
@@ -63,6 +76,7 @@ class SpeedTest implements CommandInterface
         if ($attributes['server']) {
             $command .= " -s {$attributes['server']}";
         }
+        $this->logger->debug(__CLASS__ . ": executing process: ".$command);
         $process = new \React\ChildProcess\Process($command);
         $process->start($this->loop);
 
@@ -73,8 +87,11 @@ class SpeedTest implements CommandInterface
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $attributes, $command, &$stdoutBuffer) {
+            $this->logger->debug(__CLASS__ . ": command output: $stdoutBuffer");
+
             if (!($stResult = \json_decode($stdoutBuffer))) {
                 $state = Result::STATE_UNKNOWN;
+                $this->logger->error(__CLASS__ . ": unparseable command output: $stdoutBuffer");
                 $stateReason = 'Invalid output from speedtest command.';
             } else {
                 $downloadMbits = $stResult->download->bandwidth * 0.000008;
