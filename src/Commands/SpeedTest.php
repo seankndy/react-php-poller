@@ -87,12 +87,13 @@ class SpeedTest implements CommandInterface
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $attributes, $command, &$stdoutBuffer) {
-            $this->logger->debug(__CLASS__ . ": command output: $stdoutBuffer");
+            $this->logger->debug(__CLASS__ . ": command exitCode=$exitCode; output=$stdoutBuffer");
 
             if (!($stResult = \json_decode($stdoutBuffer))) {
                 $state = Result::STATE_UNKNOWN;
                 $this->logger->error(__CLASS__ . ": unparseable command output: $stdoutBuffer");
                 $stateReason = 'Invalid output from speedtest command.';
+                $metrics = [];
             } else {
                 $downloadMbits = $stResult->download->bandwidth * 0.000008;
                 $uploadMbits = $stResult->upload->bandwidth * 0.000008;
@@ -117,8 +118,7 @@ class SpeedTest implements CommandInterface
                     $stateReason = '';
                 }
 
-                $result = new Result($state, $stateReason);
-                $result->setMetrics([
+                $metrics = [
                     new ResultMetric(
                         ResultMetric::TYPE_GAUGE, 'latency', $stResult->ping->latency
                     ),
@@ -134,10 +134,12 @@ class SpeedTest implements CommandInterface
                     new ResultMetric(
                         ResultMetric::TYPE_GAUGE, 'upload_mbps', $uploadMbits
                     )
-                ]);
-
-                $deferred->resolve($result);
+                ];
             }
+
+            $result = new Result($state, $stateReason);
+            $result->setMetrics($metrics);
+            $deferred->resolve($result);
         });
 
         return $deferred->promise();
