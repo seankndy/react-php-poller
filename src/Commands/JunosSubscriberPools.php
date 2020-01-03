@@ -9,7 +9,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 /**
  * Command to check subscriber pool utilization on JunOS
- * Uses MIB: https://www.juniper.net/documentation/en_US/junos/topics/reference/mibs/mib-jnx-subscriber.txt
  *
  */
 final class JunosSubscriberPools implements CommandInterface
@@ -22,22 +21,22 @@ final class JunosSubscriberPools implements CommandInterface
      * Path to snmpwalk binary
      * @var string
      */
-    private $snmpWalkBin;
+    private $snmpGetBin;
     /**
      * @var LoggerInterface
      */
     private $logger;
 
 	public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        $snmpWalkBin = '/usr/bin/snmpwalk')
+        $snmpGetBin = '/usr/bin/snmpget')
     {
         $this->loop = $loop;
         $this->logger = $logger;
 
-        if (!\file_exists($snmpWalkBin)) {
-            throw new \Exception("snmpwalk binary '$snmpWalkBin' not found!");
+        if (!\file_exists($snmpGetBin)) {
+            throw new \Exception("snmpget binary '$snmpGetBin' not found!");
         }
-        $this->snmpWalkBin = $snmpWalkBin;
+        $this->snmpGetBin = $snmpGetBin;
 	}
 
     /**
@@ -49,7 +48,7 @@ final class JunosSubscriberPools implements CommandInterface
         $attributes = array_merge([
             'ip' => '',
             'snmp_read_community' => 'public',
-            'cidr_pools' => '', // comma-separated list of address pools
+            'pool_indexes' => '', // comma-separated list of snmp pool indexes
             'warn_percent' => 97,
             'crit_percent' => 99
         ], $check->getAttributes());
@@ -57,8 +56,18 @@ final class JunosSubscriberPools implements CommandInterface
         $deferred = new \React\Promise\Deferred();
         $stdoutBuffer = '';
 
-        $command = "{$this->snmpWalkBin} -v 2c -c {$attributes['snmp_read_community']} " .
-            "-OQ -Ov {$attributes['ip']} JUNIPER-SUBSCRIBER-MIB::jnxSubscriberIpAddress";
+        $command = "{$this->snmpGetBin} -v 2c -c {$attributes['snmp_read_community']} -OQ -Os {$attributes['ip']} ";
+        foreach (\preg_split('/[,\s\r\n]*/', $attributes['pool_indexes']) as $index) {
+            foreach ([
+                'JUNIPER-USER-AAA-MIB::jnxUserAAAAccessPoolAddressTotal.%d',
+                'JUNIPER-USER-AAA-MIB::jnxUserAAAAccessPoolAddressesInUse.%d'
+            ] as $mibfmt) {
+                $command .= sprintf($mibfmt, $index) . ' ';
+            }
+        }
+        $command = \rtrim($command, ' ');
+        $this->logger->debug(__CLASS__ . ": command=$command");
+
         $process = new \React\ChildProcess\Process($command);
         $process->start($this->loop);
         $process->stdout->on('data', function ($chunk) use (&$stdoutBuffer) {
@@ -66,26 +75,20 @@ final class JunosSubscriberPools implements CommandInterface
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $attributes, &$stdoutBuffer) {
-            $ips = \preg_split('/[\r\n]+/', $stdoutBuffer);
-            $cidrPools = \preg_split('/,\s*/', $attributes['cidr_pools']);
-
             $totalSpace = $usedSpace = 0;
-            foreach ($cidrPools as $pool) {
-                $totalSpace += $this->numIpsInNetwork($pool);
-            }
-            $this->logger->info(__CLASS__ . ": totalSpace=$totalSpace");
+            foreach (\preg_split('/[\r\n]+/', $stdoutBuffer) as $line) {
+                [$mib, $value] = \explode(' = ', \trim($line));
+                [$mib, $index] = \explode('.', $mib);
 
-            foreach ($ips as $ip) {
-                if ($ip == '0.0.0.0') {
-                    continue;
-                }
-                foreach ($cidrPools as $pool) {
-                    if ($this->ipInNetwork($ip, $pool)) {
-                        $usedSpace++;
-                    }
+                if ($mib == 'jnxUserAAAAccessPoolAddressTotal') {
+                    $totalSpace += $value;
+                } else if ($mib == 'jnxUserAAAAccessPoolAddressesInUse') {
+                    $usedSpace += $value;
                 }
             }
-            $this->logger->info(__CLASS__ . ": usedSpace=$usedSpace");
+
+            $this->logger->debug(__CLASS__ . ": totalSpace=$totalSpace");
+            $this->logger->debug(__CLASS__ . ": usedSpace=$usedSpace");
 
             $percentUsedSpace = $usedSpace / $totalSpace * 100.0;
 
@@ -118,39 +121,4 @@ final class JunosSubscriberPools implements CommandInterface
             new ResultMetric(ResultMetric::TYPE_GAUGE, 'total_pool_usage')
         ];
     }
-
-    /**
-     * Determine if IP address $ip is within network $network
-     *
-     * @param string $ip
-     * @param string $network
-     *
-     * @return bool
-     */
-     private function ipInNetwork(string $ip, string $network)
-     {
-         [$subnet, $bits] = \explode('/', $network);
-         if ($bits === null) {
-             $bits = 32;
-         }
-         $ip = \ip2long($ip);
-         $subnet = \ip2long($subnet);
-         $mask = (-1 << (32 - $bits)) & \ip2long('255.255.255.255');
-         $subnet &= $mask;
-         return ($ip & $mask) == $subnet;
-     }
-
-     /**
-      * Get number of IPs in network
-      *
-      * @param string $ip
-      * @param string $network
-      *
-      * @return bool
-      */
-      private function numIpsInNetwork(string $network)
-      {
-          [$subnet, $bits] = \explode('/', $network);
-          return \pow(2, (32-$bits));
-      }
 }

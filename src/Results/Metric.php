@@ -31,7 +31,7 @@ class Metric
     {
         $this->type = $type;
         $this->name = $name;
-        $this->value = $value;
+        $this->setValue($value);
         if (!$time) $time = time();
         $this->time = $time;
     }
@@ -49,6 +49,16 @@ class Metric
     public function getValue()
     {
         return $this->value;
+    }
+
+    public function setValue($value)
+    {
+        if (($this->type == self::TYPE_GAUGE || $this->type == self::TYPE_COUNTER)
+            && !\is_numeric($value)) {
+            $value = 0;
+        }
+        $this->value = $value;
+        return $this;
     }
 
     public function getTime()

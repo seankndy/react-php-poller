@@ -99,11 +99,7 @@ class Ping implements CommandInterface
                     0, \count($realMeasurements),
                     (\array_sum($realMeasurements) / \count($realMeasurements))
                 ))) / (\count($realMeasurements)-1)), 2);
-
-                if ($jitter == 'NAN') {
-                    $jitter = 0;
-                }
-
+                
                 $this->logger->log(LogLevel::DEBUG, "Ping: calculated avg,jitter = $avg,$jitter");
 
                 if ($loss > $attributes['loss_threshold']) {
