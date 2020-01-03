@@ -57,7 +57,7 @@ final class JunosSubscriberPools implements CommandInterface
         $stdoutBuffer = '';
 
         $command = "{$this->snmpGetBin} -v 2c -c {$attributes['snmp_read_community']} -OQ -Os {$attributes['ip']} ";
-        foreach (\preg_split('/[,\s\r\n]*/', $attributes['pool_indexes']) as $index) {
+        foreach (\preg_split('/[,\s\r\n]+/', $attributes['pool_indexes']) as $index) {
             foreach ([
                 'JUNIPER-USER-AAA-MIB::jnxUserAAAAccessPoolAddressTotal.%d',
                 'JUNIPER-USER-AAA-MIB::jnxUserAAAAccessPoolAddressesInUse.%d'
