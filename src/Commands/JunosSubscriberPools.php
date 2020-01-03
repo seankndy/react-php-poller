@@ -5,6 +5,8 @@ use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 use React\EventLoop\LoopInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 /**
  * Command to check subscriber pool utilization on JunOS
  * Uses MIB: https://www.juniper.net/documentation/en_US/junos/topics/reference/mibs/mib-jnx-subscriber.txt
@@ -21,10 +23,16 @@ final class JunosSubscriberPools implements CommandInterface
      * @var string
      */
     private $snmpWalkBin;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
-	public function __construct(LoopInterface $loop, $snmpWalkBin = '/usr/bin/snmpwalk')
+	public function __construct(LoopInterface $loop, LoggerInterface $logger,
+        $snmpWalkBin = '/usr/bin/snmpwalk')
     {
         $this->loop = $loop;
+        $this->logger = $logger;
 
         if (!\file_exists($snmpWalkBin)) {
             throw new \Exception("snmpwalk binary '$snmpWalkBin' not found!");
@@ -65,6 +73,7 @@ final class JunosSubscriberPools implements CommandInterface
             foreach ($cidrPools as $pool) {
                 $totalSpace += $this->numIpsInNetwork($pool);
             }
+            $this->logger->info(__CLASS__ . ": totalSpace=$totalSpace");
 
             foreach ($ips as $ip) {
                 if ($ip == '0.0.0.0') {
@@ -76,8 +85,10 @@ final class JunosSubscriberPools implements CommandInterface
                     }
                 }
             }
+            $this->logger->info(__CLASS__ . ": usedSpace=$usedSpace");
 
             $percentUsedSpace = $usedSpace / $totalSpace * 100.0;
+
             if ($percentUsedSpace >= $attributes['crit_percent']) {
                 $state =  Result::STATE_CRIT;
                 $stateReason = "Percent utilization hit critical threshold ($percentUsedSpace%)";
@@ -118,13 +129,13 @@ final class JunosSubscriberPools implements CommandInterface
      */
      private function ipInNetwork(string $ip, string $network)
      {
-         list ($subnet, $bits) = explode('/', $network);
+         [$subnet, $bits] = \explode('/', $network);
          if ($bits === null) {
              $bits = 32;
          }
-         $ip = ip2long($ip);
-         $subnet = ip2long($subnet);
-         $mask = (-1 << (32 - $bits)) & ip2long('255.255.255.255');
+         $ip = \ip2long($ip);
+         $subnet = \ip2long($subnet);
+         $mask = (-1 << (32 - $bits)) & \ip2long('255.255.255.255');
          $subnet &= $mask;
          return ($ip & $mask) == $subnet;
      }
@@ -139,7 +150,7 @@ final class JunosSubscriberPools implements CommandInterface
       */
       private function numIpsInNetwork(string $network)
       {
-          list ($subnet, $bits) = explode('/', $network);
+          [$subnet, $bits] = \explode('/', $network);
           return \pow(2, (32-$bits));
       }
 }
