@@ -18,7 +18,7 @@ class HTTPTest extends TestCase
         $attributes = [
             'ip' => self::SITE
         ];
-        $check = new Check(1234, $command, $attributes, 10);
+        $check = new Check(1234, $command, $attributes, \time(), 10);
         $command->run($check)->then(
             $this->expectCallableOnceWith($this->isInstanceOf(Result::class)),
             $this->expectCallableNever()

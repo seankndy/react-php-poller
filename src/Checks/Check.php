@@ -45,6 +45,10 @@ class Check
      */
     protected $lastCheck = null;
     /**
+     * @var int
+     */
+    protected $nextCheck = null;
+    /**
      * @var HandlerInterface[]
      */
     protected $handlers = [];
@@ -87,13 +91,14 @@ class Check
     protected $lastChanged;
 
     public function __construct($id, CommandInterface $command = null,
-        array $attributes, int $interval, Result $result = null,
+        array $attributes, int $nextCheck, int $interval, Result $result = null,
         array $handlers = [], Incident $incident = null, $meta = null)
     {
         $this->id = $id;
         $this->command = $command;
         $this->attributes = $attributes;
         $this->setState(self::STATE_IDLE);
+        $this->nextCheck = $nextCheck;
         $this->interval = $interval;
         $this->result = $result;
         $this->handlers = $handlers;
@@ -132,8 +137,13 @@ class Check
     public function isDue($time = null)
     {
         if ($time == null) $time = \time();
+        return ($this->state != self::STATE_EXECUTING
+            && $this->nextCheck && $time >= $this->nextCheck);
+
+        /*
         return ($this->state != self::STATE_EXECUTING && (!$this->lastCheck
             || $time >= $this->timeOfNextCheck()));
+        */
     }
 
     /**
@@ -343,6 +353,35 @@ class Check
     }
 
     /**
+     * Get next check time
+     *
+     * @return int
+     */
+    public function getNextCheck()
+    {
+        return $this->nextCheck;
+    }
+
+    /**
+     * Set next check time
+     *
+     * @param int $time Timestamp
+     *
+     * @return $this
+     */
+    public function setNextCheck(int $time = null)
+    {
+        if ($time !== null) {
+            $this->nextCheck = $time;
+        } else if ($this->interval > 0) {
+            $this->nextCheck += $this->interval;
+        } else {
+            $this->nextCheck = null;
+        }
+        return $this;
+    }
+
+    /**
      * Get last check time
      *
      * @return int
@@ -429,19 +468,22 @@ class Check
     public function timeToNextCheck($time = null)
     {
         $time = $time !== null ? $time : time();
+        return ($this->getNextCheck() - $time);
+        /*
         return $this->getLastCheck()
             ? $this->getInterval() - ($time - $this->getLastCheck())
             : -($this->getInterval() * 10);
+        */
     }
 
     /**
-     * Time when check becomes due
+     * Time when check becomes due, deprecated in favor of getNextCheck()
      *
      * @return int
      */
     public function timeOfNextCheck()
     {
-        return $this->lastCheck + $this->interval;
+        return $this->getNextCheck();
     }
 
     /**

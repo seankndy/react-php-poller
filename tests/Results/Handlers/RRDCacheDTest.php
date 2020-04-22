@@ -30,7 +30,7 @@ class RRDCacheDTest extends TestCase
             $result = new Result(Result::STATE_OK, '', [
                 new Metric(Metric::TYPE_GAUGE, 'test', 69)
             ]);
-            $check = new Check($i, null, [], 300);
+            $check = new Check($i, null, [], \time(), 300);
             $checkResultPairs[] = [$check, $result];
         }
 

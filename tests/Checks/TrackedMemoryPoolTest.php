@@ -13,7 +13,7 @@ class TrackedMemoryPoolTest extends TestCase
     {
         $time = time();
         for ($i = 1; $i <= self::NUM_CHECKS; $i++) {
-            $check = new Check($i, null, [], 10);
+            $check = new Check($i, null, [], \time(), 10);
             $check->setLastCheck($time - ($i * 10));
             $this->checks[] = $check;
         }
@@ -60,7 +60,7 @@ class TrackedMemoryPoolTest extends TestCase
         $pool = new TrackedMemoryPool();
         $time = $lastCheckTime = time()-($numChecks*10);
         for ($i = 1; $i <= $numChecks; $i++) {
-            $check = new Check($i, null, [], 10);
+            $check = new Check($i, null, [], \time(), 10);
             $check->setLastCheck($lastCheckTime);
             $pool->track($check);
 

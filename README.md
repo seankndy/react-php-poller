@@ -41,7 +41,8 @@ $check = new Check(
     'check-id-12345', // ID of check, needs to be unique
     $ping, // CommandInterface
     ['ip' => '8.8.8.8'], // attributes (array) that are passed to the command
-    300, // interval
+    \time(), // time to run next check
+    300, // interval or 0 to never run again
     null, // last Result
     [], // HandlerInterface[]
     null, // Last Incident

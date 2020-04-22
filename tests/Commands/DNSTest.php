@@ -12,10 +12,10 @@ class DNSTest extends TestCase
         $loop = \React\EventLoop\Factory::create();
         $command = new DNS($loop);
 
-        $check = new Check(1234, $command, ['lookup_hostname' => 'google.com'], 10);
+        $check = new Check(1234, $command, ['lookup_hostname' => 'google.com'], \time(), 10);
         $command->run($check)->then($this->expectCallableOnce(), $this->expectCallableNever());
 
-        $check = new Check(1234, $command, ['ip' => '1.2.3.4', 'lookup_hostname' => 'google.com'], 10);
+        $check = new Check(1234, $command, ['ip' => '1.2.3.4', 'lookup_hostname' => 'google.com'], \time(), 10);
         $command->run($check)->then($this->expectCallableOnce(), $this->expectCallableNever());
 
         $loop->run();

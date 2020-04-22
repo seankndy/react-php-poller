@@ -13,12 +13,12 @@ class PingTest extends TestCase
     public function testRun()
     {
         $loop = \React\EventLoop\Factory::create();
-        $command = new Ping($loop);
+        $command = new Ping($loop, null);
 
         $attributes = [
             'ip' => self::HOST
         ];
-        $check = new Check(1234, $command, $attributes, 10);
+        $check = new Check(1234, $command, $attributes, \time(), 10);
         $command->run($check)->then(
             $this->expectCallableOnceWith($this->isInstanceOf(Result::class)),
             $this->expectCallableNever()
