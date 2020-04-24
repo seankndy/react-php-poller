@@ -98,7 +98,8 @@ class Check
         $this->command = $command;
         $this->attributes = $attributes;
         $this->setState(self::STATE_IDLE);
-        $this->nextCheck = $nextCheck;
+        // its important that if nextCheck is in the past that this is instead set to "now"
+        $this->setNextCheck($nextCheck);
         $this->interval = $interval;
         $this->result = $result;
         $this->handlers = $handlers;
@@ -372,7 +373,9 @@ class Check
     public function setNextCheck(int $time = null)
     {
         if ($time !== null) {
-            $this->nextCheck = $time;
+            // this is important to override $time to the current time if $time
+            // is already in the past
+            $this->nextCheck = \time() > $time ? \time() : $time;
         } else if ($this->interval > 0) {
             $this->nextCheck += $this->interval;
         } else {
