@@ -78,9 +78,13 @@ class TrackedMemoryPool extends MemoryQueue
             if ($check) {
                 $deleted = !isset($this->trackedChecks[$check->getId()]);
                 if ($deleted) {
-                    // check has been dequeued(), but we dont release it to caller
-                    // and instead call dequeue() again, effectively deleting it from existance.
-                    return parent::dequeue();
+                    // check is not tracked; if it's interval is >0 then we
+                    // want to just delete this check from existance, so we
+                    // will call dequeue() again to effectively do that.
+                    // however, if it's interval == 0, then release it to caller
+                    // because caller shouldn't ever re-enqueue being that it's
+                    // interval = 0
+                    return $check->getInterval() > 0 ? parent::dequeue() : $check;
                 }
             }
             return $check;
@@ -92,9 +96,10 @@ class TrackedMemoryPool extends MemoryQueue
      */
     public function enqueue(Check $check) : PromiseInterface
     {
-        if (!$this->getById($check->getId())) {
+        if ($check->getInterval() > 0 && !$this->getById($check->getId())) {
             return \React\Promise\reject(new \RuntimeException("Check with ID " .
-                $check->getId() . " is not tracked thus cannot be queued"));
+                $check->getId() . " is not tracked nor is it a transient check " .
+                "(interval <=0) thus cannot be queued in this queue."));
         }
 
         return parent::enqueue($check);
