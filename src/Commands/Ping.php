@@ -18,15 +18,33 @@ class Ping implements CommandInterface
     protected $fpingBin = '';
 
     public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        $fpingBin = '/usr/bin/fping')
+        $fpingBin = '')
     {
         $this->loop = $loop;
         $this->logger = $logger;
 
-        if (\file_exists($fpingBin)) {
-            $this->fpingBin = $fpingBin;
-        } else {
-            throw new \RuntimeException("fping binary '$fpingBin' could not be found.");
+        try {
+            if (!$fpingBin) {
+                $bins = ['/usr/bin/fping', '/usr/local/bin/fping',
+                    '/usr/sbin/fping', '/sbin/fping', '/usr/local/sbin/fping'];
+                foreach ($bins as $bin) {
+                    if (\file_exists($bin)) {
+                        $fpingBin = $bin;
+                        break;
+                    }
+                }
+                if (!$fpingBin) {
+                    throw new \RuntimeException("fping binary could not be found.");
+                }
+                $this->fpingBin = $fpingBin;
+            } else if (\file_exists($fpingBin)) {
+                $this->fpingBin = $fpingBin;
+            } else {
+                throw new \RuntimeException("fping binary '$fpingBin' could not be found.");
+            }
+        } catch (\RuntimeException $e) {
+            $this->logger->error($e->getMessage());
+            throw $e;
         }
     }
 
