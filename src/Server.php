@@ -184,7 +184,7 @@ class Server extends EventEmitter
 
                 unset($this->checksExecuting[$check->getId()]);
                 if ($check->getInterval() > 0) {
-                    $this->checkQueue->enqueue($check)->otherwise(function(\Throwable $e) {
+                    $this->checkQueue->enqueue($check)->otherwise(function(\Throwable $e) use ($check) {
                         $this->emit('error', [new \Exception("Failed to enqueue() Check ID=<" .
                             $check->getId() . ">: " . $e->getMessage())]);
                     });
