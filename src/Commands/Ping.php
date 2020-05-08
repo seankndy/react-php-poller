@@ -7,6 +7,7 @@ use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 
 class Ping implements CommandInterface
 {
@@ -17,11 +18,11 @@ class Ping implements CommandInterface
     private $logger;
     protected $fpingBin = '';
 
-    public function __construct(LoopInterface $loop, LoggerInterface $logger,
+    public function __construct(LoopInterface $loop, LoggerInterface $logger = null,
         $fpingBin = '')
     {
         $this->loop = $loop;
-        $this->logger = $logger;
+        $this->logger = $logger == null ? new NullLogger() : $logger;
 
         try {
             if (!$fpingBin) {
@@ -117,7 +118,7 @@ class Ping implements CommandInterface
                     0, \count($realMeasurements),
                     (\array_sum($realMeasurements) / \count($realMeasurements))
                 ))) / (\count($realMeasurements)-1)), 2);
-                
+
                 $this->logger->log(LogLevel::DEBUG, "Ping: calculated avg,jitter = $avg,$jitter");
 
                 if ($loss > $attributes['loss_threshold']) {

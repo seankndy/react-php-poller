@@ -16,7 +16,8 @@ class HTTPTest extends TestCase
         $command = new HTTP($loop);
 
         $attributes = [
-            'ip' => self::SITE
+            'host' => self::SITE,
+            'ssl' => true
         ];
         $check = new Check(1234, $command, $attributes, \time(), 10);
         $command->run($check)->then(
