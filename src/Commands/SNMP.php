@@ -22,7 +22,7 @@ class SNMP implements CommandInterface
      */
     private $snmpGetBin;
 
-	public function __construct(LoopInterface $loop, $snmpGetBin = '/usr/bin/snmpget')
+    public function __construct(LoopInterface $loop, $snmpGetBin = '/usr/bin/snmpget')
     {
         $this->loop = $loop;
 
@@ -30,9 +30,9 @@ class SNMP implements CommandInterface
             throw new \Exception("snmpget binary '$snmpGetBin' not found!");
         }
         $this->snmpGetBin = $snmpGetBin;
-	}
+    }
 
-	public function run(Check $check)
+    public function run(Check $check)
     {
         $lastResult = $check->getResult();
         $start = microtime(true);
@@ -58,69 +58,69 @@ class SNMP implements CommandInterface
             }
         }
 
-		if (\strpos($attributes['snmp_if_id'], ',') !== false) {
-			//special shit for adtrans and zhones.
-			//example: '4018.vtuc, 4018.vtur'
-			//example: '49, 500049'
-			$snmpIfIds = \preg_split('/,\s*/', $attributes['snmp_if_id']);
-		} else {
-			$snmpIfIds = array($attributes['snmp_if_id']);
-		}
+        if (\strpos($attributes['snmp_if_id'], ',') !== false) {
+            //special shit for adtrans and zhones.
+            //example: '4018.vtuc, 4018.vtur'
+            //example: '49, 500049'
+            $snmpIfIds = \preg_split('/,\s*/', $attributes['snmp_if_id']);
+        } else {
+            $snmpIfIds = array($attributes['snmp_if_id']);
+        }
 
-		// check the snmp interface code
-		$command = $this->snmpGetBin . " -r {$attributes['snmp_retries']} -t {$attributes['snmp_timeout']} -OQs";
-		if ($attributes['snmp_output_numeric'] == 'true') {
-			$command .= "b";
-		}
-		$command .= " -v {$attributes['snmp_version']} -c {$attributes['snmp_read_community']} {$attributes['ip']} ";
+        // check the snmp interface code
+        $command = $this->snmpGetBin . " -r {$attributes['snmp_retries']} -t {$attributes['snmp_timeout']} -OQs";
+        if ($attributes['snmp_output_numeric'] == 'true') {
+            $command .= "b";
+        }
+        $command .= " -v {$attributes['snmp_version']} -c {$attributes['snmp_read_community']} {$attributes['ip']} ";
 
-		$mibOutputMaps = array();
-		foreach ($attributes['snmp_output_mib_maps'] as $key => $value) {
-			if (\preg_match('/^(.+)\=(.+)$/', $value, $m)) {
-				$mibOutputMaps[$m[1]] = $m[2];
-			}
-		}
+        $mibOutputMaps = array();
+        foreach ($attributes['snmp_output_mib_maps'] as $key => $value) {
+            if (\preg_match('/^(.+)\=(.+)$/', $value, $m)) {
+                $mibOutputMaps[$m[1]] = $m[2];
+            }
+        }
 
-		$renameLabels = array();
+        $renameLabels = array();
         foreach (['snmp_status_mibs', 'snmp_incremental_mibs', 'snmp_gauge_mibs'] as $keyName) {
             foreach ($attributes[$keyName] as $key => $value) {
-    			if (\preg_match('/^(.+)\=(.+)$/', $value, $m)) {
-    				$mib = $m[1];
-    				$attributes[$keyName][$key] = \preg_replace('/^(.+):+(.+)$/', '$2', $mib);
-    				$renameLabels[$attributes[$keyName][$key]] = $m[2];
-    			} else {
-    				$mib = $value;
-    			}
+                if (\preg_match('/^(.+)\=(.+)$/', $value, $m)) {
+                    $mib = $m[1];
+                    $attributes[$keyName][$key] = \preg_replace('/^(.+):+(.+)$/', '$2', $mib);
+                    $renameLabels[$attributes[$keyName][$key]] = $m[2];
+                } else {
+                    $mib = $value;
+                }
 
-    			if (($pos = \strpos($mib, ';')) !== false) {
-    				$i = \substr($mib, $pos+1, strlen($mib));
-    				$mib = \substr($mib, 0, $pos);
-    				$snmpIfId = isset($snmpIfIds[$i]) ? $snmpIfIds[$i] : $snmpIfIds[0];
-    			} else {
-    				$snmpIfId = $snmpIfIds[0];
-    			}
+                if (($pos = \strpos($mib, ';')) !== false) {
+                    $i = \substr($mib, $pos+1, strlen($mib));
+                    $mib = \substr($mib, 0, $pos);
+                    $snmpIfId = isset($snmpIfIds[$i]) ? $snmpIfIds[$i] : $snmpIfIds[0];
+                } else {
+                    $snmpIfId = $snmpIfIds[0];
+                }
 
-    			if (\strpos($mib, '.') === false) {
-    				$command .=  "'$mib.$snmpIfId' ";
-    			} else {
-    				$command .=  "'$mib' ";
-    			}
-    		}
+                if (\strpos($mib, '.') === false) {
+                    $command .=  "'$mib.$snmpIfId' ";
+                } else {
+                    $command .=  "'$mib' ";
+                }
+            }
         }
-		//$command .= "2>/dev/null";
+        //$command .= "2>/dev/null";
 
-		if (defined('DEBUG')) {
-			if ($attributes['ip'] == DEBUG_IP) {
-				if(!defined('DEBUG_SNMP_IF_ID') || DEBUG_SNMP_IF_ID == $snmpIfId){
-					echo "-----------------------------------------------------------\n";
-					print_r($snmpIfIds);
-					print_r($attributes);
-					print_r($renameLabels);
-					echo "$mib / $snmpIfId\n";
-					echo $command . "\n";
-				}
-			}
-		}
+        if (defined('DEBUG')) {
+            if ($attributes['ip'] == DEBUG_IP) {
+                if(!defined('DEBUG_SNMP_IF_ID') || DEBUG_SNMP_IF_ID == $snmpIfId){
+                    echo "-----------------------------------------------------------\n";
+                    print_r($snmpIfIds);
+                    print_r($attributes);
+                    print_r($renameLabels);
+                    echo "$mib / $snmpIfId\n";
+                    echo $command . "\n";
+                }
+            }
+        }
 
         $deferred = new \React\Promise\Deferred();
         $stdoutBuffer = '';
@@ -149,8 +149,8 @@ class SNMP implements CommandInterface
             }
 
             $curTimestamp = time();
-    		$state = Result::STATE_UNKNOWN;
-    		$stateReason = '';
+            $state = Result::STATE_UNKNOWN;
+            $stateReason = '';
 
             $metrics = [];
             foreach (\preg_split('/[\r\n]+/', \trim($stdoutBuffer)) as $item) {
@@ -337,7 +337,7 @@ class SNMP implements CommandInterface
         });
 
         return $deferred->promise();
-	}
+    }
 
     public function getProducableMetrics(array $attributes)
     {
@@ -346,83 +346,83 @@ class SNMP implements CommandInterface
 
         $metrics = [];
         foreach (['snmp_status_mibs','snmp_incremental_mibs','snmp_gauge_mibs'] as $attrKey) {
-    		foreach ($attributes[$attrKey] as $key => $value) {
-    			if (\preg_match('/^(.+)\=(.+)$/', $value, $m)) {
+            foreach ($attributes[$attrKey] as $key => $value) {
+                if (\preg_match('/^(.+)\=(.+)$/', $value, $m)) {
                     $label = $m[2];
-    			} else {
+                } else {
                     $label = $value;
-    			}
+                }
 
                 if ($attrKey == 'snmp_incremental_mibs') {
                     $metrics[] = new ResultMetric(ResultMetric::TYPE_COUNTER, $label);
                 } else {
                     $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, $label);
                 }
-    		}
+            }
         }
 
         return $metrics;
     }
 
-	private function humanSizeToBytes($size) {
-		if (\preg_match('/^\-?([0-9\.]+)\s*([A-Za-z]+)$/', $size, $m)) {
-			$num = $m[1];
-			$sizeAbbrev = $m[2];
+    private function humanSizeToBytes($size) {
+        if (\preg_match('/^\-?([0-9\.]+)\s*([A-Za-z]+)$/', $size, $m)) {
+            $num = $m[1];
+            $sizeAbbrev = $m[2];
 
-			switch ($sizeAbbrev) {
-				case 'B':
-				case 'Bytes':
-					return $num;
-				case 'KB':
-				case 'kB':
-				case 'Kilobytes':
-					return $num * 1024;
-				case 'MB':
-				case 'Megabytes':
-					return $num * 1024 * 1024;
-				case 'GB':
-				case 'Gigabytes':
-					return $num * 1024 * 1024 * 1024;
-				case 'TB':
-				case 'Terabytes':
-					return $num * 1024 * 1024 * 1024 * 1024;
+            switch ($sizeAbbrev) {
+                case 'B':
+                case 'Bytes':
+                    return $num;
+                case 'KB':
+                case 'kB':
+                case 'Kilobytes':
+                    return $num * 1024;
+                case 'MB':
+                case 'Megabytes':
+                    return $num * 1024 * 1024;
+                case 'GB':
+                case 'Gigabytes':
+                    return $num * 1024 * 1024 * 1024;
+                case 'TB':
+                case 'Terabytes':
+                    return $num * 1024 * 1024 * 1024 * 1024;
 
-				case 'b':
-				case 'bits':
-					return $num/8;
-				case 'Kb':
-				case 'kb':
-				case 'kbit':
-				case 'Kilobits':
-					return $num/8 * 1024;
-				case 'm':
-				case 'M':
-				case 'Mb':
-				case 'Mbit':
-				case 'Megabits':
-					return $num/8 * 1024 * 1024;
-				case 'Gb':
-				case 'Gbit':
-				case 'Gigabits':
-					return $num/8 * 1024 * 1024 * 1024;
-				case 'Tb':
-				case 'Tbit':
-				case 'Terabits':
-					return $num/8 * 1024 * 1024 * 1024 * 1024;
-			}
+                case 'b':
+                case 'bits':
+                    return $num/8;
+                case 'Kb':
+                case 'kb':
+                case 'kbit':
+                case 'Kilobits':
+                    return $num/8 * 1024;
+                case 'm':
+                case 'M':
+                case 'Mb':
+                case 'Mbit':
+                case 'Megabits':
+                    return $num/8 * 1024 * 1024;
+                case 'Gb':
+                case 'Gbit':
+                case 'Gigabits':
+                    return $num/8 * 1024 * 1024 * 1024;
+                case 'Tb':
+                case 'Tbit':
+                case 'Terabits':
+                    return $num/8 * 1024 * 1024 * 1024 * 1024;
+            }
 
-			return $num;
-		} else {
-			return \preg_replace('/[^\-0-9\.]/', '', $size);
-		}
-	}
+            return $num;
+        } else {
+            return \preg_replace('/[^\-0-9\.]/', '', $size);
+        }
+    }
 
     private function mergeWithDefaultAttributes(array $attributes) {
         return array_merge([
             'ip'                      => '',
             'snmp_status_mibs'        => array('ifAdminStatus','ifOperStatus'),
             'snmp_incremental_mibs'   => array('ifInOctets','ifOutOctets'),
-            'snmp_gauge_mibs'	      => [],
+            'snmp_gauge_mibs'          => [],
             // snmp_output_mib_maps is for when you pass in one mib, and it outputs another
             'snmp_output_mib_maps'    => [],
             'post_process_values'     => [],
@@ -434,9 +434,9 @@ class SNMP implements CommandInterface
             'critical_max_thresholds' => array('ifInOctets=90%', 'ifOutOctets=90%'),
             'warning_min_thresholds'  => array('ifInOctets=2%', 'ifOutOctets=2%'),
             'critical_min_thresholds' => array('ifInOctets=1%', 'ifOutOctets=1%'),
-            'ds_groups'		          => array('ifInOctets', 'ifOutOctets'),
+            'ds_groups'                  => array('ifInOctets', 'ifOutOctets'),
             'ds_groups_min_max'       => [],
-            'graph_disable'		      => [],
+            'graph_disable'              => [],
             'snmp_retries'            => 3,
             'snmp_timeout'            => 3,
             'snmp_read_community'     => 'public',

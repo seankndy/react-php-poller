@@ -9,18 +9,18 @@ use React\Dns\Model\Message;
 
 class DNS implements CommandInterface
 {
-	/**
-	 * @var LoopInterface
-	 */
-	private $loop;
+    /**
+     * @var LoopInterface
+     */
+    private $loop;
 
-	public function __construct(LoopInterface $loop)
-	{
-		$this->loop = $loop;
- 	}
+    public function __construct(LoopInterface $loop)
+    {
+        $this->loop = $loop;
+    }
 
-	public function run(Check $check)
-	{
+    public function run(Check $check)
+    {
         $lastResult = $check->getResult();
         // set default metrics
         $attributes = \array_merge([
@@ -31,54 +31,54 @@ class DNS implements CommandInterface
             'timeout' => 5
         ], $check->getAttributes());
 
-		$factory = new \React\Dns\Resolver\Factory();
-		$dns = $factory->create($attributes['ip'], $this->loop);
+        $factory = new \React\Dns\Resolver\Factory();
+        $dns = $factory->create($attributes['ip'], $this->loop);
 
-		$type = null;
-		switch ($attributes['type']) {
-			default:
-			case 'A':
-				$type = Message::TYPE_A;
-				break;
-			case 'CNAME':
-				$type = Message::TYPE_CNAME;
-				break;
-			case 'MX':
-				$type = Message::TYPE_MX;
-				break;
-			case 'AAAA':
-				$type = Message::TYPE_AAAA;
-				break;
-			case 'TXT':
-				$type = Message::TYPE_TXT;
-				break;
-		}
+        $type = null;
+        switch ($attributes['type']) {
+            default:
+            case 'A':
+                $type = Message::TYPE_A;
+                break;
+            case 'CNAME':
+                $type = Message::TYPE_CNAME;
+                break;
+            case 'MX':
+                $type = Message::TYPE_MX;
+                break;
+            case 'AAAA':
+                $type = Message::TYPE_AAAA;
+                break;
+            case 'TXT':
+                $type = Message::TYPE_TXT;
+                break;
+        }
 
-		$startTime = \microtime(true);
+        $startTime = \microtime(true);
         $deferred = new \React\Promise\Deferred();
-		$dns->resolveAll($attributes['lookup_hostname'], $type)->then(
-			function ($data) use ($startTime, $deferred) {
-				$respTime = sprintf('%.3f', \microtime(true) - $startTime);
+        $dns->resolveAll($attributes['lookup_hostname'], $type)->then(
+            function ($data) use ($startTime, $deferred) {
+                $respTime = sprintf('%.3f', \microtime(true) - $startTime);
 
-				$status = Result::STATE_OK;
-				$statusReason = '';
-	            $metrics = [new ResultMetric(
-					ResultMetric::TYPE_GAUGE, 'resp', $respTime
-				)];
+                $status = Result::STATE_OK;
+                $statusReason = '';
+                $metrics = [new ResultMetric(
+                    ResultMetric::TYPE_GAUGE, 'resp', $respTime
+                )];
 
-		        $deferred->resolve(new Result($status, $statusReason, $metrics));
-			},
-			function (\Exception $e) use ($deferred) {
-				$status = Result::STATE_CRIT;
-				$statusReason = "Failed lookup: " . $e->getMessage();
-				$deferred->resolve(new Result($status, $statusReason));
-			}
-		);
+                $deferred->resolve(new Result($status, $statusReason, $metrics));
+            },
+            function (\Exception $e) use ($deferred) {
+                $status = Result::STATE_CRIT;
+                $statusReason = "Failed lookup: " . $e->getMessage();
+                $deferred->resolve(new Result($status, $statusReason));
+            }
+        );
         return $deferred->promise();
     }
 
     public function getProducableMetrics(array $attributes)
-	{
+    {
         return [
             new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp')
         ];

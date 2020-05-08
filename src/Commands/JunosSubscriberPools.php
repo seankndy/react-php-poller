@@ -27,7 +27,7 @@ final class JunosSubscriberPools implements CommandInterface
      */
     private $logger;
 
-	public function __construct(LoopInterface $loop, LoggerInterface $logger,
+    public function __construct(LoopInterface $loop, LoggerInterface $logger,
         $snmpGetBin = '/usr/bin/snmpget')
     {
         $this->loop = $loop;
@@ -37,7 +37,7 @@ final class JunosSubscriberPools implements CommandInterface
             throw new \Exception("snmpget binary '$snmpGetBin' not found!");
         }
         $this->snmpGetBin = $snmpGetBin;
-	}
+    }
 
     /**
      * {@inheritDoc}
