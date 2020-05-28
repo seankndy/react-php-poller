@@ -24,8 +24,8 @@ class Executor extends EventEmitter
                 $check->getId() . ") because a Command is not defined for it!"));
         }
 
-        $check->setNextCheck();
         $check->setState(Check::STATE_EXECUTING);
+        $check->setLastCheck();
 
         return $command->run($check)->then(function ($result) use ($check) {
             // make new incident if necessary and mark prior incident as resolved

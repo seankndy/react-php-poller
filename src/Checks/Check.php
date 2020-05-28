@@ -4,6 +4,7 @@ namespace SeanKndy\Poller\Checks;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Handlers\HandlerInterface;
 use SeanKndy\Poller\Commands\CommandInterface;
+use SeanKndy\Poller\Checks\Schedules\ScheduleInterface;
 
 class Check
 {
@@ -22,11 +23,9 @@ class Check
      */
     protected $state;
     /**
-     * Interval in seconds the Check is due to run.
-     * A value <=0 means the Check should not be re-enqueued()
-     * @var int
+     * @var ScheduleInterface
      */
-    protected $interval;
+    protected $schedule;
     /**
      * @var bool
      */
@@ -44,10 +43,6 @@ class Check
      * @var int
      */
     protected $lastCheck = null;
-    /**
-     * @var int
-     */
-    protected $nextCheck = null;
     /**
      * @var HandlerInterface[]
      */
@@ -91,16 +86,15 @@ class Check
     protected $lastChanged;
 
     public function __construct($id, CommandInterface $command = null,
-        array $attributes, int $nextCheck, int $interval, Result $result = null,
+        array $attributes, int $lastCheck, ?ScheduleInterface $schedule, Result $result = null,
         array $handlers = [], Incident $incident = null, $meta = null)
     {
         $this->id = $id;
         $this->command = $command;
         $this->attributes = $attributes;
         $this->setState(self::STATE_IDLE);
-        // its important that if nextCheck is in the past that this is instead set to "now"
-        $this->setNextCheck($nextCheck);
-        $this->interval = $interval;
+        $this->setLastCheck($lastCheck);
+        $this->schedule = $schedule;
         $this->result = $result;
         $this->handlers = $handlers;
         $this->lastChanged = time();
@@ -131,20 +125,12 @@ class Check
     /**
      * Is the check due?
      *
-     * @param $time Timestamp of now
-     *
      * @return boolean
      */
-    public function isDue($time = null)
+    public function isDue()
     {
-        if ($time == null) $time = \time();
-        return ($this->state != self::STATE_EXECUTING
-            && $this->nextCheck && $time >= $this->nextCheck);
-
-        /*
-        return ($this->state != self::STATE_EXECUTING && (!$this->lastCheck
-            || $time >= $this->timeOfNextCheck()));
-        */
+        return $this->state != self::STATE_EXECUTING &&
+           (!$this->schedule || $this->schedule->isDue($this));
     }
 
     /**
@@ -317,7 +303,7 @@ class Check
      */
     public function getInterval()
     {
-        return $this->interval;
+        return $this->schedule ? $this->schedule->getInterval() : 0;
     }
 
     /**
@@ -354,38 +340,7 @@ class Check
     }
 
     /**
-     * Get next check time
-     *
-     * @return int
-     */
-    public function getNextCheck()
-    {
-        return $this->nextCheck;
-    }
-
-    /**
-     * Set next check time
-     *
-     * @param int $time Timestamp
-     *
-     * @return $this
-     */
-    public function setNextCheck(int $time = null)
-    {
-        if ($time !== null) {
-            // this is important to override $time to the current time if $time
-            // is already in the past
-            $this->nextCheck = \time() > $time ? \time() : $time;
-        } else if ($this->interval > 0) {
-            $this->nextCheck += $this->interval;
-        } else {
-            $this->nextCheck = null;
-        }
-        return $this;
-    }
-
-    /**
-     * Get last check time
+     * Get last check execution time
      *
      * @return int
      */
@@ -464,29 +419,13 @@ class Check
     }
 
     /**
-     * Calculate time to next check, or negative if past due
-     *
-     * @return int
-     */
-    public function timeToNextCheck($time = null)
-    {
-        $time = $time !== null ? $time : time();
-        return ($this->getNextCheck() - $time);
-        /*
-        return $this->getLastCheck()
-            ? $this->getInterval() - ($time - $this->getLastCheck())
-            : -($this->getInterval() * 10);
-        */
-    }
-
-    /**
-     * Time when check becomes due, deprecated in favor of getNextCheck()
+     * Time when check becomes due
      *
      * @return int
      */
     public function timeOfNextCheck()
     {
-        return $this->getNextCheck();
+        return $this->schedule ? $this->schedule->nextTimeIsDue($this) : \time();
     }
 
     /**
