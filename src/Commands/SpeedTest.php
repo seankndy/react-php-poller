@@ -82,12 +82,20 @@ class SpeedTest implements CommandInterface
 
         $deferred = new \React\Promise\Deferred();
         $stdoutBuffer = '';
+        // terminate process after 60sec unless this timer cancels by successful exit
+        $terminateTimer = $this->loop->addTimer(60.0, function () use ($process) {
+            foreach ($process->pipes as $pipe) {
+                $pipe->close();
+            }
+            $process->terminate();
+        });
         $process->stdout->on('data', function ($chunk) use (&$stdoutBuffer) {
             $stdoutBuffer .= $chunk;
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
-            $attributes, $command, &$stdoutBuffer) {
+            $attributes, $command, &$stdoutBuffer, $terminateTimer) {
             $this->logger->debug(__CLASS__ . ": command exitCode=$exitCode; output=$stdoutBuffer");
+            $this->loop->cancelTimer($terminateTimer);
 
             if (!($stResult = \json_decode($stdoutBuffer))) {
                 $state = Result::STATE_UNKNOWN;
