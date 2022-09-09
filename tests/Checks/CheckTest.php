@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use PHPUnit\Util\Test;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Executor;
+use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Tests\Commands\DummyCommand;
 use SeanKndy\Poller\Tests\TestCase;
 use Spatie\TestTime\TestTime;

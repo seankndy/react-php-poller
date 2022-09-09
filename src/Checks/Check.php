@@ -281,51 +281,6 @@ class Check
     }
 
     /**
-     * Determine if new Incident is warranted based on the new Result.
-     */
-    public function isNewIncident(Result $currentResult): bool
-    {
-        // if incident suppression is on, never allow new incident
-        if ($this->areIncidentsSuppressed()) {
-            return false;
-        }
-
-        $lastResult = $this->getResult();
-        $lastIncident = $this->getIncident();
-
-        // if current result is OK, no incident
-        if ($currentResult->ok()) {
-            //$resolveLastIncident();
-            return false;
-        }
-
-        // current result NOT OK and last incident exists
-        if ($lastIncident) {
-            // last incident to-state different from current result state
-            if ($lastIncident->getToState() != $currentResult->getState()) {
-                return true;
-                //$resolveLastIncident();
-                //return $makeNewIncident();
-            }
-            return false;
-        }
-
-        // current result NOT OK and NO last incident exists
-        // and last result exists
-        if ($lastResult) {
-            // last result state different from new state
-            if ($lastResult->getState() != $currentResult->getState()) {
-                return true;
-                //return $makeNewIncident();
-            }
-            return false;
-        }
-
-        // not ok, no last incident, no last result
-        return true;
-    }
-
-    /**
      * Clone handler
      * When this object cloned, we want the result to be cloned with it.
      *

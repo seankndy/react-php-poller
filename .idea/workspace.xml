@@ -2,30 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d6419efa-d99a-4786-9eef-e9dcd6fcabb8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Commands/DummyCommand.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/react-php-poller.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/react-php-poller.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Results/ResultTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Incident.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Incident.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/QueueStats.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/QueueStats.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Schedules/TimeOfDayInterval.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Schedules/TimeOfDayInterval.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/AbstractAlertManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/AbstractAlertManager.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/Dummy.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/Dummy.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/HandlerInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/HandlerInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/PagerTree.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/PagerTree.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/StatsD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/StatsD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Metric.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Metric.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Results/Result.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Result.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Checks/CheckTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/TestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/TestCase.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,25 +122,25 @@
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.CheckTest.it_increments_next_check_by_interval_when_run">
-    <configuration name="CheckTest.it_increments_next_check_by_interval_when_run" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_increments_next_check_by_interval_when_run" scope="Method" />
+  <component name="RunManager" selected="PHPUnit.ExecutorTest">
+    <configuration name="ExecutorTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" scope="Class" />
       <method v="2" />
     </configuration>
-    <configuration name="CheckTest.it_is_due_when_next_check_time_is_now" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_is_due_when_next_check_time_is_now" scope="Method" />
+    <configuration name="ExecutorTest.it_catches_exceptions_thrown_in_handlers_and_emits_error" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_catches_exceptions_thrown_in_handlers_and_emits_error" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="CheckTest.it_sets_next_check_to_current_time_if_time_given_is_in_past" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_sets_next_check_to_current_time_if_time_given_is_in_past" scope="Method" />
+    <configuration name="ExecutorTest.it_catches_exceptions_thrown_in_process_handler_and_emits_error" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_catches_exceptions_thrown_in_process_handler_and_emits_error" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="CheckTest.it_sets_next_check_to_time_given_if_time_given_is_in_future" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_sets_next_check_to_time_given_if_time_given_is_in_future" scope="Method" />
+    <configuration name="ExecutorTest.it_emits_error_when_mutation_handler_rejects" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_emits_error_when_mutation_handler_rejects" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="CheckTest.it_throws_exception_when_run_without_command" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_throws_exception_when_run_without_command" scope="Method" />
+    <configuration name="ExecutorTest.it_emits_error_when_process_handler_rejects" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_emits_error_when_process_handler_rejects" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -165,11 +149,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.CheckTest.it_increments_next_check_by_interval_when_run" />
-        <item itemvalue="PHPUnit.CheckTest.it_throws_exception_when_run_without_command" />
-        <item itemvalue="PHPUnit.CheckTest.it_sets_next_check_to_time_given_if_time_given_is_in_future" />
-        <item itemvalue="PHPUnit.CheckTest.it_sets_next_check_to_current_time_if_time_given_is_in_past" />
-        <item itemvalue="PHPUnit.CheckTest.it_is_due_when_next_check_time_is_now" />
+        <item itemvalue="PHPUnit.ExecutorTest" />
+        <item itemvalue="PHPUnit.ExecutorTest.it_emits_error_when_mutation_handler_rejects" />
+        <item itemvalue="PHPUnit.ExecutorTest.it_emits_error_when_process_handler_rejects" />
+        <item itemvalue="PHPUnit.ExecutorTest.it_catches_exceptions_thrown_in_process_handler_and_emits_error" />
+        <item itemvalue="PHPUnit.ExecutorTest.it_catches_exceptions_thrown_in_handlers_and_emits_error" />
       </list>
     </recent_temporary>
   </component>
@@ -205,5 +189,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/tests/Checks/CheckTest.php</url>
+          <line>106</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

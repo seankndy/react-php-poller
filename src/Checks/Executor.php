@@ -17,7 +17,7 @@ class Executor extends EventEmitter
             // make new incident if necessary and mark prior incident as resolved
             // if necessary
             $newIncident = null;
-            if ($check->isNewIncident($result)) {
+            if ($result->justifiesNewIncidentForCheck($check)) {
                 $newIncident = Incident::fromResults($check->getResult(), $result);
             }
             if ($result->ok() || $newIncident) {
@@ -51,6 +51,7 @@ class Executor extends EventEmitter
 
     /**
      * Run handlers for Check $check and Result $result
+     * @throws HandlerSurrogateException
      */
     private function runHandlers(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
@@ -59,31 +60,37 @@ class Executor extends EventEmitter
             $check->getHandlers(),
             function ($prev, $cur) use ($result, $check, $incident) {
                 return $prev->then(
-                    function () use ($cur, $result, $check, $incident) {
-                        return $cur->mutate(
-                            $check, $result, $incident
-                        )->otherwise(function (\Throwable $e) use ($cur) {
+                    function() use ($cur, $result, $check, $incident) {
+                        try {
+                            return $cur->mutate($check, $result, $incident)->otherwise(
+                                fn($e) => $this->emit('error', [$cur, $e])
+                            );
+                        } catch (\Exception $e) {
                             $this->emit('error', [$cur, $e]);
-                        });
+                        }
                     },
-                    function ($e) {
-                        return \React\Promise\reject($e);
-                    }
+                    fn($e) => \React\Promise\reject([$cur, $e])
                 );
             },
             \React\Promise\resolve([])
+
         // then run process() calls async
-        )->then(function () use ($result, $check, $incident) {
-            $clonedCheck = clone $check;
-            $clonedResult = clone $result;
-            $clonedIncident = $incident === null ? null : clone $incident;
-            foreach ($check->getHandlers() as $handler) {
-                $handler->process($clonedCheck, $clonedResult, $clonedIncident)->otherwise(
-                    function (\Throwable $e) use ($handler) {
+        )->then(
+            function () use ($result, $check, $incident) {
+                $clonedCheck = clone $check;
+                $clonedResult = clone $result;
+                $clonedIncident = $incident === null ? null : clone $incident;
+
+                foreach ($check->getHandlers() as $handler) {
+                    try {
+                        $handler->process($clonedCheck, $clonedResult, $clonedIncident)->otherwise(
+                            fn($e) => $this->emit('error', [$handler, $e])
+                        );
+                    } catch (\Exception $e) {
                         $this->emit('error', [$handler, $e]);
                     }
-                );
+                }
             }
-        });
+        );
     }
 }

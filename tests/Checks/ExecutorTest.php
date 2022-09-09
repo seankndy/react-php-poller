@@ -216,4 +216,96 @@ class ExecutorTest extends TestCase
 
         $this->assertEquals('12345', $check->getAttribute('test'));
     }
+
+    /** @test */
+    public function it_catches_exceptions_thrown_in_mutation_handler_and_emits_error()
+    {
+        $handler = new class implements HandlerInterface {
+            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                throw new \RuntimeException("Uh oh.");
+            }
+
+            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\resolve(new Result());
+            }
+        };
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+            $handler
+        ]);
+
+        $executor = new Executor();
+        $executor->on('error', $this->expectCallableOnce());
+
+        await($executor->execute($check));
+    }
+
+    /** @test */
+    public function it_catches_exceptions_thrown_in_process_handler_and_emits_error()
+    {
+        $handler = new class implements HandlerInterface {
+            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\resolve([]);
+            }
+
+            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                throw new \RuntimeException("Uh oh.");
+            }
+        };
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+            $handler
+        ]);
+
+        $executor = new Executor();
+        $executor->on('error', $this->expectCallableOnce());
+
+        await($executor->execute($check));
+    }
+
+    /** @test */
+    public function it_emits_error_when_mutation_handler_rejects()
+    {
+        $handler = new class implements HandlerInterface {
+            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\reject(new \RuntimeException("Uh oh."));
+            }
+
+            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\resolve(new Result());
+            }
+        };
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+            $handler
+        ]);
+
+        $executor = new Executor();
+        $executor->on('error', $this->expectCallableOnce());
+
+        await($executor->execute($check));
+    }
+
+    /** @test */
+    public function it_emits_error_when_process_handler_rejects()
+    {
+        $handler = new class implements HandlerInterface {
+            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\resolve([]);
+            }
+
+            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\reject(new \RuntimeException("Uh oh."));
+            }
+        };
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+            $handler
+        ]);
+
+        $executor = new Executor();
+        $executor->on('error', $this->expectCallableOnce());
+
+        await($executor->execute($check));
+    }
 }

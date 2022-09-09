@@ -4,6 +4,7 @@ namespace SeanKndy\Poller\Results;
 
 use Ramsey\Uuid\Uuid;
 use Carbon\Carbon;
+use SeanKndy\Poller\Checks\Check;
 
 /**
  * Basic data structure for storing Result from Check Command
@@ -160,6 +161,41 @@ class Result
     public function ok(): bool
     {
         return ($this->getState() === self::STATE_OK);
+    }
+
+    /**
+     * Does $this Result justify the creation of a new Incident for Check $check?
+     */
+    public function justifiesNewIncidentForCheck(Check $check): bool
+    {
+        // if incident suppression is on, never allow new incident
+        if ($check->areIncidentsSuppressed()) {
+            return false;
+        }
+
+        $lastResult = $check->getResult();
+        $lastIncident = $check->getIncident();
+
+        // if current result is OK, no incident
+        if ($this->ok()) {
+            return false;
+        }
+
+        // current result NOT OK and last incident exists
+        if ($lastIncident) {
+            // last incident to-state different from $this' state
+            return $lastIncident->getToState() !== $this->getState();
+        }
+
+        // current result NOT OK and NO last incident exists
+        // and last result exists
+        if ($lastResult) {
+            // last result state different from new state
+            return $lastResult->getState() !== $this->getState();
+        }
+
+        // not ok, no last incident, no last result
+        return true;
     }
 
     /**

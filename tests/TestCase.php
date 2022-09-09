@@ -17,13 +17,13 @@ abstract class TestCase extends BaseTestCase
             ->method('__invoke');
         return $mock;
     }
-    protected function expectCallableOnceWith($value)
+    protected function expectCallableOnceWith(...$value)
     {
         $mock = $this->createCallableMock();
         $mock
             ->expects($this->once())
             ->method('__invoke')
-            ->with($value);
+            ->with(...$value);
         return $mock;
     }
     protected function expectCallableNever()
