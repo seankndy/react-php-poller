@@ -18,11 +18,11 @@ interface HandlerInterface
      *
      * @param Check $check Check object for the Result
      * @param Result $result Current/new Result to process
-     * @param Incident $newIncident Current/new Incident to process
+     * @param Incident|null $newIncident Current/new Incident to process
      *
      * @return PromiseInterface
      */
-    public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface;
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface;
 
     /**
      * Handle Result $result/Incident $incident  asynchronously to allow for various result
@@ -31,9 +31,9 @@ interface HandlerInterface
      *
      * @param Check $check (possibly cloned) Check object for the Result
      * @param Result $result (possibly cloned) Current/new Result to process
-     * @param Incident $newIncident (possibly cloned) Current/new Incident to process
+     * @param Incident|null $newIncident (possibly cloned) Current/new Incident to process
      *
      * @return PromiseInterface
      */
-    public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface;
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface;
 }

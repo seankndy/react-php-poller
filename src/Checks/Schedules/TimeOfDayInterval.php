@@ -2,6 +2,8 @@
 
 namespace SeanKndy\Poller\Checks\Schedules;
 
+use Carbon\Carbon;
+
 /**
  * This scheduler is constrained to a certain time of the day in a given timezone.
  * This is in contrast to RegularInterval that is due every <interval> seconds
@@ -96,7 +98,7 @@ final class TimeOfDayInterval implements ScheduleInterface
             ;
         }
 
-        return !$check->getLastCheck() ? \time() : $check->getLastCheck()+$this->interval;
+        return !$check->getLastCheck() ? Carbon::now()->getTimestamp() : $check->getLastCheck()+$this->interval;
     }
 
     public function secondInterval(): int

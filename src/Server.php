@@ -7,6 +7,7 @@ use SeanKndy\Poller\Checks\QueueInterface;
 use SeanKndy\Poller\Checks\Executor;
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
+use Carbon\Carbon;
 
 /**
  * Server dequeues Checks from a QueueInterface object, executes it's Command,
@@ -59,7 +60,7 @@ class Server extends EventEmitter
                 $this->total = 0.0;
                 $this->max = 0;
                 $this->maxId = 0;
-                $this->startTime = time();
+                $this->startTime = Carbon::now()->getTimestamp();
             }
         };
         $this->avgRunTime->reset();
@@ -89,7 +90,7 @@ class Server extends EventEmitter
         $this->timers[] = $this->loop->addPeriodicTimer(300.0, function () {
             if ($this->avgRunTime->counter > 0) {
                 $this->emit('runtime.stats', [[
-                    'since' => \sprintf("%.1f", (\time()-$this->avgRunTime->startTime) / 60.0) . 'm ago',
+                    'since' => \sprintf("%.1f", (Carbon::now()->getTimestamp()-$this->avgRunTime->startTime) / 60.0) . 'm ago',
                     'num-checks' => $this->avgRunTime->counter,
                     'average-runtime' => \sprintf("%.3f", $this->avgRunTime->total/$this->avgRunTime->counter),
                     'max-runtime' => \sprintf("%.3f", $this->avgRunTime->max) . "s (id=" . $this->maxId . ")"

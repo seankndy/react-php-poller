@@ -2,6 +2,8 @@
 
 namespace SeanKndy\Poller\Results;
 
+use Carbon\Carbon;
+
 /**
  * Basic structure for holding a metric result
  *
@@ -26,7 +28,7 @@ class Metric
 
     public function __construct(int $type, string $name, $value = null, ?int $time = null)
     {
-        if (!$time) $time = \time();
+        if (!$time) $time = Carbon::now()->getTimestamp();
 
         $this->type = $type;
         $this->name = $name;

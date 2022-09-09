@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Checks;
 
+use Carbon\Carbon;
 use SeanKndy\Poller\Results\Result;
 use Ramsey\Uuid\Uuid;
 
@@ -47,8 +48,8 @@ class Incident
         $this->id = $id ?: Uuid::uuid4()->toString();
         $this->fromState = $fromState;
         $this->toState = $toState;
-        $this->addedTime = $added ?: \time();
-        $this->updatedTime = $updated ?: \time();
+        $this->addedTime = $added ?: Carbon::now()->getTimestamp();
+        $this->updatedTime = $updated ?: Carbon::now()->getTimestamp();
         $this->reason = $reason;
         $this->resolvedTime = $resolved;
         $this->acknowledgedTime = $acknowledged;
@@ -155,14 +156,14 @@ class Incident
 
     public function resolve(): self
     {
-        $this->resolvedTime = \time();
+        $this->resolvedTime = Carbon::now()->getTimestamp();
 
         return $this;
     }
 
     public function acknowledge(): self
     {
-        $this->acknowledgedTime = \time();
+        $this->acknowledgedTime = Carbon::now()->getTimestamp();
 
         return $this;
     }

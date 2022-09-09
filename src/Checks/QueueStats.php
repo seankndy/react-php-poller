@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Checks;
 
+use Carbon\Carbon;
 use React\Promise\PromiseInterface;
 
 class QueueStats
@@ -29,7 +30,7 @@ class QueueStats
                 '<=180s' => 0,
                 '>180s' => 0,
             ];
-            $time = time();
+            $time = Carbon::now()->getTimestamp();
             foreach ($counts as $nextCheckTime => $count) {
                 $diff = $nextCheckTime-$time;
                 if ($diff <= 60) {

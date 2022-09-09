@@ -3,10 +3,10 @@
 namespace SeanKndy\Poller\Results;
 
 use Ramsey\Uuid\Uuid;
+use Carbon\Carbon;
 
 /**
  * Basic data structure for storing Result from Check Command
- *
  */
 class Result
 {
@@ -35,7 +35,7 @@ class Result
         $this->state = $state;
         $this->stateReason = $stateReason;
         $this->setMetrics($metrics);
-        $this->time = $time ?: \time();
+        $this->time = $time ?: Carbon::now()->getTimestamp();
     }
 
     public function setState(int $state): self

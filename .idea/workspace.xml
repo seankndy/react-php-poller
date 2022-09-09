@@ -2,18 +2,30 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d6419efa-d99a-4786-9eef-e9dcd6fcabb8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/php-test-framework.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/phpunit.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Commands/DummyCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/react-php-poller.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/react-php-poller.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Incident.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Incident.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/TrackedMemoryPool.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/TrackedMemoryPool.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/QueueStats.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/QueueStats.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/Schedules/TimeOfDayInterval.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Schedules/TimeOfDayInterval.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/AbstractAlertManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/AbstractAlertManager.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/Dummy.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/Dummy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/HandlerInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/HandlerInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/PagerTree.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/PagerTree.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/StatsD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/StatsD.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Metric.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Metric.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Results/Result.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Result.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,6 +105,13 @@
       <path value="$PROJECT_DIR$/vendor/ringcentral/psr7" />
       <path value="$PROJECT_DIR$/vendor/wyrihaximus/cpu-core-detector" />
       <path value="$PROJECT_DIR$/vendor/react/async" />
+      <path value="$PROJECT_DIR$/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/vendor/spatie/test-time" />
     </include_path>
   </component>
   <component name="ProjectId" id="1r8NHipbfc5XIEqYqMpVQHS6dzF" />
@@ -101,43 +120,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/sean/Projects/kdg/react-php-poller/tests/Checks",
-    "nodejs_package_manager_path": "npm",
-    "php.override.implement.member.chooser.php.doc": "NONE",
-    "settings.editor.selected.configurable": "reference.webide.settings.project.settings.php",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/sean/Projects/kdg/react-php-poller/tests/Checks&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;php.override.implement.member.chooser.php.doc&quot;: &quot;NONE&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.webide.settings.project.settings.php&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.ExecutorTest">
-    <configuration name="ExecutorTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" scope="Class" />
+  <component name="RunManager" selected="PHPUnit.CheckTest.it_increments_next_check_by_interval_when_run">
+    <configuration name="CheckTest.it_increments_next_check_by_interval_when_run" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_increments_next_check_by_interval_when_run" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_clears_previously_resolved_incident_from_check" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_clears_previously_resolved_incident_from_check" scope="Method" />
+    <configuration name="CheckTest.it_is_due_when_next_check_time_is_now" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_is_due_when_next_check_time_is_now" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_creates_new_incident_when_result_goes_from_nonok_to_other_nonok" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_creates_new_incident_when_result_goes_from_nonok_to_other_nonok" scope="Method" />
+    <configuration name="CheckTest.it_sets_next_check_to_current_time_if_time_given_is_in_past" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_sets_next_check_to_current_time_if_time_given_is_in_past" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_does_not_create_new_incident_when_last_result_is_same_as_new_result" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_does_not_create_new_incident_when_last_result_is_same_as_new_result" scope="Method" />
+    <configuration name="CheckTest.it_sets_next_check_to_time_given_if_time_given_is_in_future" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_sets_next_check_to_time_given_if_time_given_is_in_future" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_resolves_incident_when_result_goes_from_nonok_to_ok" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_resolves_incident_when_result_goes_from_nonok_to_ok" scope="Method" />
+    <configuration name="CheckTest.it_throws_exception_when_run_without_command" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_throws_exception_when_run_without_command" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -146,11 +165,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.ExecutorTest" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_clears_previously_resolved_incident_from_check" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_resolves_incident_when_result_goes_from_nonok_to_ok" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_creates_new_incident_when_result_goes_from_nonok_to_other_nonok" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_does_not_create_new_incident_when_last_result_is_same_as_new_result" />
+        <item itemvalue="PHPUnit.CheckTest.it_increments_next_check_by_interval_when_run" />
+        <item itemvalue="PHPUnit.CheckTest.it_throws_exception_when_run_without_command" />
+        <item itemvalue="PHPUnit.CheckTest.it_sets_next_check_to_time_given_if_time_given_is_in_future" />
+        <item itemvalue="PHPUnit.CheckTest.it_sets_next_check_to_current_time_if_time_given_is_in_past" />
+        <item itemvalue="PHPUnit.CheckTest.it_is_due_when_next_check_time_is_now" />
       </list>
     </recent_temporary>
   </component>
@@ -175,5 +194,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

@@ -65,7 +65,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, Incident $incident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -73,7 +73,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $incident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
         if (!$result->getMetrics()) { // no metrics? no run.
             return \React\Promise\resolve([]);

@@ -2,7 +2,9 @@
 
 namespace SeanKndy\Poller\Tests\Checks;
 
+use Carbon\Carbon;
 use SeanKndy\Poller\Tests\TestCase;
+use Spatie\TestTime\TestTime;
 use function React\Async\await;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\MemoryQueue;
@@ -16,9 +18,13 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
+        TestTime::freeze();
+        TestTime::addHour(1);
+        $time = Carbon::now()->getTimestamp();
+        TestTime::subHour(1);
+
         // create array of Checks, each Check having a next check time earlier than the last
         $checks = [];
-        $time = \time();
         for ($i = 0; $i < self::NUM_CHECKS; $i++) {
             $checks[] = new Check(
                 $i+1,
@@ -28,6 +34,8 @@ class MemoryQueueTest extends TestCase
                 10
             );
         }
+        TestTime::addHour(1);
+
         // randomize checks so they're queued in random order
         shuffle($checks);
 
@@ -42,6 +50,8 @@ class MemoryQueueTest extends TestCase
 
             $this->assertEquals($i, $check->getId());
         }
+
+        TestTime::unfreeze();
     }
 
     /** @test */
@@ -61,7 +71,7 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            \time()+10, // in future
+            Carbon::now()->getTimestamp()+10, // in future
             60
         ));
 
@@ -77,7 +87,7 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            \time()-10, // in past
+            Carbon::now()->getTimestamp()-10, // in past
             60
         ));
 
@@ -93,7 +103,7 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            \time()-10, // in past
+            Carbon::now()->getTimestamp()-10, // in past
             60
         ));
 
@@ -110,14 +120,14 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            \time()-10, // in past, due
+            Carbon::now()->getTimestamp()-10, // in past, due
             60
         ));
         $queue->enqueue(new Check(
             2,
             null,
             [],
-            \time()+10, // in future, not due
+            Carbon::now()->getTimestamp()+10, // in future, not due
             60
         ));
 
@@ -134,14 +144,14 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            \time()-10, // in past
+            Carbon::now()->getTimestamp()-10, // in past
             60
         ));
         $queue->enqueue(new Check(
             2,
             null,
             [],
-            \time()+10, // in future
+            Carbon::now()->getTimestamp()+10, // in future
             60
         ));
 
@@ -165,7 +175,7 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            \time()-10, // in past
+            Carbon::now()->getTimestamp()-10, // in past
             60
         );
         $queue->enqueue($check);

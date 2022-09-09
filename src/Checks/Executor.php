@@ -3,30 +3,17 @@
 namespace SeanKndy\Poller\Checks;
 
 use React\Promise\PromiseInterface;
-use SeanKndy\Poller\Commands\CommandInterface;
 use SeanKndy\Poller\Results\Result;
 use Evenement\EventEmitter;
 
 class Executor extends EventEmitter
 {
     /**
-     * Executes a Check
-     *
-     * @param Check $check Check to run
-     *
-     * @return PromiseInterface
+     * Executes a Check command, create incidents if needed, run result handlers.
      */
     public function execute(Check $check): PromiseInterface
     {
-        $command = $check->getCommand();
-        if (!($command instanceof CommandInterface)) {
-            return \React\Promise\reject(new \RuntimeException("Cannot execute this Check (ID=" .
-                $check->getId() . ") because a Command is not defined for it!"));
-        }
-
-        $check->incrementNextCheckByInterval();
-
-        return $command->run($check)->then(function ($result) use ($check) {
+        return $check->run()->then(function ($result) use ($check) {
             // make new incident if necessary and mark prior incident as resolved
             // if necessary
             $newIncident = null;

@@ -40,7 +40,7 @@ class StatsD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, Incident $incident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -48,7 +48,7 @@ class StatsD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $incident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
         if (!$result->getMetrics()) { // no metrics? no run.
             return \React\Promise\resolve([]);
@@ -79,7 +79,7 @@ class StatsD implements HandlerInterface
                     LogLevel::ERROR,
                     ($err = "Failed to connect to statsd server: " . $error->getMessage())
                 );
-                throw new \Exception($msg);
+                throw new \Exception($error->getMessage());
             }
         );
     }

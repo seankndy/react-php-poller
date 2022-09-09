@@ -2,9 +2,11 @@
 
 namespace SeanKndy\Poller\Checks;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Handlers\HandlerInterface;
 use SeanKndy\Poller\Commands\CommandInterface;
+use Carbon\Carbon;
 
 class Check
 {
@@ -38,8 +40,7 @@ class Check
     /**
      * Current Result for the check, may be null
      */
-    protected ?Result $result = null;
-
+    protected ?Result $result;
 
     /**
      * Current Incident for Check.  As long as the incident is unresolved, this
@@ -52,13 +53,6 @@ class Check
      * @var mixed|null
      */
     protected $meta;
-
-    /**
-     * Time this Check object was 'changed' such as
-     * updated attributes, handlers or interval
-     * Updated state, result and lastCheck does not count as 'changed'
-     */
-    protected int $lastChanged;
 
     public function __construct(
         $id,
@@ -79,30 +73,18 @@ class Check
         $this->interval = $interval;
         $this->result = $result;
         $this->handlers = $handlers;
-        $this->lastChanged = \time();
         $this->incident = $incident;
         $this->meta = $meta;
     }
 
-    public function isDue(?int $time = null): bool
+    public function isDue(): bool
     {
-        if ($time == null) $time = \time();
-
-        return $this->nextCheck && $time >= $this->nextCheck;
-
-//        return ($this->state != self::STATE_EXECUTING
-//            && $this->nextCheck && $time >= $this->nextCheck);
-
-        /*
-        return ($this->state != self::STATE_EXECUTING && (!$this->lastCheck
-            || $time >= $this->timeOfNextCheck()));
-        */
+        return $this->nextCheck && Carbon::now()->getTimestamp() >= $this->nextCheck;
     }
 
     public function setAttributes(array $attributes): self
     {
         $this->attributes = $attributes;
-        $this->lastChanged = \time();
 
         return $this;
     }
@@ -113,7 +95,6 @@ class Check
     public function setAttribute(string $key, $val): self
     {
         $this->attributes[$key] = $val;
-        $this->lastChanged = \time();
 
         return $this;
     }
@@ -139,7 +120,6 @@ class Check
     public function setCommand(CommandInterface $cmd): self
     {
         $this->command = $cmd;
-        $this->lastChanged = \time();
 
         return $this;
     }
@@ -150,7 +130,6 @@ class Check
     public function setHandlers(array $handlers): self
     {
         $this->handlers = $handlers;
-        $this->lastChanged = \time();
 
         return $this;
     }
@@ -216,26 +195,30 @@ class Check
         return $this->nextCheck;
     }
 
-    public function setNextCheck(int $neckCheckTime = null): self
+    public function run(): PromiseInterface
     {
-        if ($neckCheckTime !== null) {
-            // this is important to override $neckCheckTime to the current time if $neckCheckTime
-            // is in the past
-            //$this->nextCheck = \time() > $neckCheckTime ? \time() : $neckCheckTime;
-            $this->nextCheck = $neckCheckTime;
-        } else if ($this->interval > 0) {
-            $this->nextCheck += $this->interval;
-        } else {
-            $this->nextCheck = null;
+        if (! $this->command) {
+            throw new \RuntimeException("Cannot execute Check (ID=" .
+                $this->getId() . ") because a Command is not defined for it!");
         }
 
-        return $this;
-    }
-
-    public function incrementNextCheckByInterval(): self
-    {
         if ($this->interval > 0) {
             $this->nextCheck += $this->interval;
+        }
+
+        return $this->command->run($this);
+    }
+
+    public function setNextCheck(int $nextCheckTime = null): self
+    {
+        if ($nextCheckTime !== null) {
+            $now = Carbon::now()->getTimestamp();
+
+            // this is important to override $nextCheckTime to the current time if $nextCheckTime
+            // is in the past
+            $this->nextCheck = max($now, $nextCheckTime);
+        } else {
+            $this->nextCheck = null;
         }
 
         return $this;
@@ -248,7 +231,7 @@ class Check
 
     public function setLastCheck(?int $time = null): self
     {
-        $this->lastCheck = $time !== null ? $time : \time();
+        $this->lastCheck = $time !== null ? $time : Carbon::now()->getTimestamp();
 
         return $this;
     }
@@ -267,7 +250,6 @@ class Check
     public function setMeta($meta): self
     {
         $this->meta = $meta;
-        $this->lastChanged = \time();
 
         return $this;
     }
@@ -280,33 +262,12 @@ class Check
         return $this->meta;
     }
 
-    public function getLastChanged(): int
-    {
-        return $this->lastChanged;
-    }
-
-    /**
-     * Is this check up to date according to timestamp $time
-     *
-     * @param string|int $time
-     */
-    public function isUpToDate($time): bool
-    {
-        if (\is_string($time) && $time && \strtolower($time) != 'null') {
-            $time = \strtotime($time);
-        } else if (!is_int($time)) {
-            return true;
-        }
-
-        return $this->getLastChanged() >= $time;
-    }
-
     /**
      * Calculate time to next check, or negative if past due
      */
     public function timeToNextCheck(?int $time = null): int
     {
-        $time = $time !== null ? $time : \time();
+        $time = $time !== null ? $time : Carbon::now()->getTimestamp();
 
         return ($this->getNextCheck() - $time);
     }

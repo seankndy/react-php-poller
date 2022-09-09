@@ -45,7 +45,7 @@ class PagerTree implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         $incident = $check->getIncident();
 
@@ -72,7 +72,7 @@ class PagerTree implements HandlerInterface
      * {@inheritDoc} Create new incidents on PagerTree within this method
      * so that we can update $newIncident with the ID returned from PagerTree.
      */
-    public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         if ($newIncident) {
             $checkMeta = $check->getMeta();

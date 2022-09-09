@@ -11,6 +11,7 @@ class MemoryQueue implements QueueInterface
 {
     /**
      * Check objects (sorted by priority) queued
+     * @var array<int, Check[]>
      */
     protected array $queuedChecks = [];
 
@@ -37,6 +38,7 @@ class MemoryQueue implements QueueInterface
     public function dequeue(): PromiseInterface
     {
         while (isset($this->queuedChecks[$this->queueMin])) {
+            /** @var Check */
             $check = current($this->queuedChecks[$this->queueMin]);
             if (!$check->isDue()) {
                  /* if top Check is not due, then nothing is due. stop. */
@@ -60,9 +62,9 @@ class MemoryQueue implements QueueInterface
     public function enqueue(Check $check): PromiseInterface
     {
         $priority = $check->getNextCheck();
-        if (!is_int($priority) || $priority < 1) {
+        if ($priority < 1) {
             return \React\Promise\reject(new \OutOfRangeException("The Check's " .
-                "timeOfNextCheck() must return a positive integer"));
+                "getNextCheck() must return a positive integer"));
         }
         if (!isset($this->queuedChecks[$priority])) {
             $this->queuedChecks[$priority] = [];

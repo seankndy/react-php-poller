@@ -45,7 +45,7 @@ abstract class AbstractAlertManager implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         if ($newIncident || $check->getIncident()) {
             if ($params = $this->buildAlert($check, $result, $newIncident)) {
@@ -63,7 +63,7 @@ abstract class AbstractAlertManager implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }

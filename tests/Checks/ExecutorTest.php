@@ -2,28 +2,20 @@
 
 namespace SeanKndy\Poller\Tests\Checks;
 
+use SeanKndy\Poller\Tests\Commands\DummyCommand;
+use SeanKndy\Poller\Tests\TestCase;
 use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Executor;
 use SeanKndy\Poller\Checks\Incident;
-use SeanKndy\Poller\Commands\CommandInterface;
+use SeanKndy\Poller\Results\Handlers\HandlerInterface;
 use SeanKndy\Poller\Results\Result;
-use SeanKndy\Poller\Tests\TestCase;
 use function React\Async\await;
 
 class ExecutorTest extends TestCase
 {
     /** @test */
-    public function it_throws_exception_if_command_is_not_valid()
-    {
-        $this->expectException(\RuntimeException::class);
-
-        $check = new Check(1, null, [], \time(), 10);
-        await((new Executor())->execute($check));
-    }
-
-    /** @test */
-    public function it_increments_next_check_time_by_interval_time()
+    public function it_increments_checks_next_check_time_by_interval_time()
     {
         $time = \time();
         $interval = 10;
@@ -104,6 +96,18 @@ class ExecutorTest extends TestCase
     }
 
     /** @test */
+    public function it_sets_result_in_check_after_successful_run()
+    {
+        $result = new Result(Result::STATE_WARN);
+        $check = new Check(1, new DummyCommand(false, $result), [], \time(), 10);
+        $this->assertNull($check->getResult());
+
+        await((new Executor())->execute($check));
+
+        $this->assertSame($result, $check->getResult());
+    }
+
+    /** @test */
     public function it_resolves_incident_when_result_goes_from_nonok_to_ok()
     {
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
@@ -135,40 +139,81 @@ class ExecutorTest extends TestCase
     /** @test */
     public function it_executes_checks_handlers_after_successful_run()
     {
-        //
+        $handlerObserver = $this->createMock(HandlerInterface::class);
+        $handlerObserver
+            ->expects($this->once())
+            ->method('mutate')
+            ->willReturn(\React\Promise\resolve([]));
+        $handlerObserver
+            ->expects($this->once())
+            ->method('process')
+            ->willReturn(\React\Promise\resolve([]));
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+            $handlerObserver
+        ]);
+
+        await((new Executor())->execute($check));
     }
 
     /** @test */
     public function it_does_not_execute_checks_handlers_after_unsuccessful_run()
     {
-        //
-    }
-}
+        $handlerObserver = $this->createMock(HandlerInterface::class);
+        $handlerObserver
+            ->expects($this->never())
+            ->method('mutate')
+            ->willReturn(\React\Promise\resolve([]));
+        $handlerObserver
+            ->expects($this->never())
+            ->method('process')
+            ->willReturn(\React\Promise\resolve([]));
 
-class DummyCommand implements CommandInterface
-{
-    private bool $failRun;
+        $check = new Check(1, new DummyCommand(true), [], \time(), 10, null, [
+            $handlerObserver
+        ]);
 
-    private Result $result;
-
-    public function __construct($failRun = false, ?Result $result = null)
-    {
-        $this->failRun = $failRun;
-        if (!$result) {
-            $result = new Result();
-        }
-        $this->result = $result;
-    }
-
-    public function run(Check $check): PromiseInterface
-    {
-        return $this->failRun
-            ? \React\Promise\reject(new \Exception("Oops."))
-            : \React\Promise\resolve($this->result);
+        try {
+            await((new Executor())->execute($check));
+        } catch (\Exception $e) {}
     }
 
-    public function getProducableMetrics(array $attributes): array
+    /** @test */
+    public function it_executes_checks_handler_mutations_sequentially()
     {
-        return [];
+        $makeHandler = fn($id, $sleep) => new class($id, $sleep) implements HandlerInterface {
+            private int $id;
+
+            private float $sleep;
+
+            public function __construct(int $id, float $sleep) {
+                $this->id = $id;
+                $this->sleep = $sleep;
+            }
+
+            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\Timer\sleep($this->sleep)->then(function() use ($check) {
+                    $value = $check->getAttribute('test') ?? '';
+                    $check->setAttribute('test', $value . $this->id);
+                    return [];
+                });
+            }
+
+            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\resolve(new Result());
+            }
+        };
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+            $makeHandler(1, 1),
+            $makeHandler(2, 0),
+            $makeHandler(3, .5),
+            $makeHandler(4, 0),
+            $makeHandler(5, .7)
+        ]);
+
+        await((new Executor())->execute($check));
+
+        $this->assertEquals('12345', $check->getAttribute('test'));
     }
 }
