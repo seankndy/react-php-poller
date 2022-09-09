@@ -24,8 +24,7 @@ class Executor extends EventEmitter
                 $check->getId() . ") because a Command is not defined for it!"));
         }
 
-        $check->setNextCheck();
-        $check->setState(Check::STATE_EXECUTING);
+        $check->incrementNextCheckByInterval();
 
         return $command->run($check)->then(function ($result) use ($check) {
             // make new incident if necessary and mark prior incident as resolved
@@ -34,11 +33,11 @@ class Executor extends EventEmitter
             if ($check->isNewIncident($result)) {
                 $newIncident = Incident::fromResults($check->getResult(), $result);
             }
-            if (Result::isOK($result) || $newIncident) {
-                if ($incident = $check->getIncident()) { // existing incident
-                    if (!$incident->isResolved()) {
+            if ($result->ok() || $newIncident) {
+                if ($existingIncident = $check->getIncident()) { // existing incident
+                    if (! $existingIncident->isResolved()) {
                         // resolve it since we are now OK or have new incident
-                        $incident->setResolvedTime();
+                        $existingIncident->resolve();
                     } else {
                         // already resolved(old incident), discard it
                         $check->setIncident(null);
@@ -49,7 +48,6 @@ class Executor extends EventEmitter
             return $this->runHandlers(
                 $check, $result, $newIncident
             )->always(function() use ($check, $result, $newIncident) {
-                $check->setState(Check::STATE_IDLE);
                 $check->setLastCheck();
                 $check->setResult($result);
                 if ($newIncident) {
@@ -58,7 +56,6 @@ class Executor extends EventEmitter
             });
         }, function ($e) use ($check) {
             // no handlers called here because the Check Command completely failed.
-            $check->setState(Check::STATE_ERRORED);
             $check->setLastCheck();
 
             return \React\Promise\reject($e);

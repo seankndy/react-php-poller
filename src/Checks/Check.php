@@ -8,18 +8,11 @@ use SeanKndy\Poller\Commands\CommandInterface;
 
 class Check
 {
-    const STATE_NEW = 0;
-    const STATE_IDLE = 1;
-    const STATE_EXECUTING = 2;
-    const STATE_ERRORED = 255;
-
     /**
      * Unique ID for this check
      * @var mixed
      */
     protected $id;
-
-    protected int $state = self::STATE_IDLE;
 
     /**
      * Interval in seconds the Check is due to run.
@@ -47,11 +40,6 @@ class Check
      */
     protected ?Result $result = null;
 
-    protected float $lastStateDuration = 0.0;
-
-    protected float $stateChangeTime = 0.0;
-
-    protected int $lastState = self::STATE_NEW;
 
     /**
      * Current Incident for Check.  As long as the incident is unresolved, this
@@ -86,7 +74,6 @@ class Check
         $this->id = $id;
         $this->command = $command;
         $this->attributes = $attributes;
-        $this->setState(self::STATE_IDLE);
         // its important that if nextCheck is in the past that this is instead set to "now"
         $this->setNextCheck($nextCheck);
         $this->interval = $interval;
@@ -97,26 +84,14 @@ class Check
         $this->meta = $meta;
     }
 
-    public function setState(int $state): self
-    {
-        if ($this->state != $state) {
-            if ($this->stateChangeTime) {
-                $this->lastStateDuration = \microtime(true) - $this->stateChangeTime;
-            }
-            $this->stateChangeTime = \microtime(true);
-            $this->lastState = $this->state;
-        }
-        $this->state = $state;
-
-        return $this;
-    }
-
     public function isDue(?int $time = null): bool
     {
         if ($time == null) $time = \time();
 
-        return ($this->state != self::STATE_EXECUTING
-            && $this->nextCheck && $time >= $this->nextCheck);
+        return $this->nextCheck && $time >= $this->nextCheck;
+
+//        return ($this->state != self::STATE_EXECUTING
+//            && $this->nextCheck && $time >= $this->nextCheck);
 
         /*
         return ($this->state != self::STATE_EXECUTING && (!$this->lastCheck
@@ -195,11 +170,6 @@ class Check
         return $this->handlers;
     }
 
-    public function getState(): int
-    {
-        return $this->state;
-    }
-
     public function getIncident(): ?Incident
     {
         return $this->incident;
@@ -241,11 +211,6 @@ class Check
         return $this->result;
     }
 
-    public function getLastStateDuration(): float
-    {
-        return $this->lastStateDuration;
-    }
-
     public function getNextCheck(): int
     {
         return $this->nextCheck;
@@ -262,6 +227,15 @@ class Check
             $this->nextCheck += $this->interval;
         } else {
             $this->nextCheck = null;
+        }
+
+        return $this;
+    }
+
+    public function incrementNextCheckByInterval(): self
+    {
+        if ($this->interval > 0) {
+            $this->nextCheck += $this->interval;
         }
 
         return $this;
@@ -293,6 +267,7 @@ class Check
     public function setMeta($meta): self
     {
         $this->meta = $meta;
+        $this->lastChanged = \time();
 
         return $this;
     }
@@ -358,7 +333,7 @@ class Check
         $lastIncident = $this->getIncident();
 
         // if current result is OK, no incident
-        if (Result::isOK($currentResult)) {
+        if ($currentResult->ok()) {
             //$resolveLastIncident();
             return false;
         }

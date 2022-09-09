@@ -2,10 +2,10 @@
 
 namespace SeanKndy\Poller\Tests\Checks;
 
-use SeanKndy\Poller\Checks\Check;
-use SeanKndy\Poller\Checks\MemoryQueue;
 use SeanKndy\Poller\Tests\TestCase;
 use function React\Async\await;
+use SeanKndy\Poller\Checks\Check;
+use SeanKndy\Poller\Checks\MemoryQueue;
 
 class MemoryQueueTest extends TestCase
 {
@@ -154,5 +154,22 @@ class MemoryQueueTest extends TestCase
         $queue = new MemoryQueue();
 
         $this->assertEquals(0, await($queue->countQueued()));
+    }
+
+    /** @test */
+    public function it_dequeues_original_object_not_a_clone()
+    {
+        // ensure the pool does not return a cloned/copied Check
+        $queue = new MemoryQueue();
+        $check = new Check(
+            1,
+            null,
+            [],
+            \time()-10, // in past
+            60
+        );
+        $queue->enqueue($check);
+
+        $this->assertSame($check, await($queue->dequeue()));
     }
 }

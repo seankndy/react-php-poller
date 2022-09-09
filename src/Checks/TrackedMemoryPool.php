@@ -79,7 +79,7 @@ class TrackedMemoryPool extends MemoryQueue
                 $deleted = !isset($this->trackedChecks[$check->getId()]);
                 if ($deleted) {
                     // check is not tracked; if it's interval is >0 then we
-                    // want to just delete this check from existance, so we
+                    // want to just delete this check from existence, so we
                     // will call dequeue() again to effectively do that.
                     // however, if it's interval == 0, then release it to caller
                     // because caller shouldn't ever re-enqueue being that it's

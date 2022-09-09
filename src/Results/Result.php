@@ -19,15 +19,18 @@ class Result
 
     protected int $state;
 
-    protected string $stateReason = '';
+    protected ?string $stateReason;
 
     protected MetricSet $metrics;
 
     protected int $time;
 
-    public function __construct(int $state = self::STATE_UNKNOWN,
-        string $stateReason = null, array $metrics = [], ?int $time = null)
-    {
+    public function __construct(
+        int $state = self::STATE_UNKNOWN,
+        ?string $stateReason = null,
+        array $metrics = [],
+        ?int $time = null
+    ) {
         $this->id = Uuid::uuid4()->toString();
         $this->state = $state;
         $this->stateReason = $stateReason;
@@ -42,14 +45,14 @@ class Result
         return $this;
     }
 
-    public function setStateReason(string $reason): self
+    public function setStateReason(?string $reason): self
     {
         $this->stateReason = $reason;
 
         return $this;
     }
 
-    public function getStateReason(): string
+    public function getStateReason(): ?string
     {
         return $this->stateReason;
     }
@@ -154,9 +157,9 @@ class Result
     /**
      * Determine if Result is in an OK state
      */
-    public static function isOK(Result $result): bool
+    public function ok(): bool
     {
-        return ($result->getState() === self::STATE_OK);
+        return ($this->getState() === self::STATE_OK);
     }
 
     /**

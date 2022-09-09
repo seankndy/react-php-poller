@@ -39,16 +39,16 @@ class Incident
         int $fromState,
         int $toState,
         string $reason = null,
-        $resolved = null,
-        $acknowledged = null,
-        $added = null,
-        $updated = null
+        ?int $resolved = null,
+        ?int $acknowledged = null,
+        ?int $added = null,
+        ?int $updated = null
     ) {
         $this->id = $id ?: Uuid::uuid4()->toString();
         $this->fromState = $fromState;
         $this->toState = $toState;
-        $this->addedTime = $added ?: time();
-        $this->updatedTime = $updated ?: time();
+        $this->addedTime = $added ?: \time();
+        $this->updatedTime = $updated ?: \time();
         $this->reason = $reason;
         $this->resolvedTime = $resolved;
         $this->acknowledgedTime = $acknowledged;
@@ -82,7 +82,7 @@ class Incident
         return !!$this->acknowledgedTime;
     }
 
-    public function getResolvedTime(): int
+    public function getResolvedTime(): ?int
     {
         return $this->resolvedTime;
     }
@@ -97,7 +97,7 @@ class Incident
         return $this->updatedTime;
     }
 
-    public function getAcknowledgedTime(): int
+    public function getAcknowledgedTime(): ?int
     {
         return $this->acknowledgedTime;
     }
@@ -153,30 +153,16 @@ class Incident
         return $this;
     }
 
-    public function setResolvedTime(?int $time = null): self
+    public function resolve(): self
     {
-        $this->resolvedTime = $time ?: time();
+        $this->resolvedTime = \time();
 
         return $this;
     }
 
-    public function setAcknowledgedTime(?int $time = null): self
+    public function acknowledge(): self
     {
-        $this->acknowledgedTime = $time ? $time : time();
-
-        return $this;
-    }
-
-    public function setAddedTime(?int $time = null): self
-    {
-        $this->addedTime = $time ? $time : time();
-
-        return $this;
-    }
-
-    public function setUpdatedTime(?int $time = null): self
-    {
-        $this->updatedTime = $time ?: time();
+        $this->acknowledgedTime = \time();
 
         return $this;
     }
