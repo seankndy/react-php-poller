@@ -1,4 +1,5 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
 
 use SeanKndy\Poller\Results\Result;
@@ -17,83 +18,71 @@ class Check
      * @var mixed
      */
     protected $id;
-    /**
-     * @var int
-     */
-    protected $state;
+
+    protected int $state = self::STATE_IDLE;
+
     /**
      * Interval in seconds the Check is due to run.
      * A value <=0 means the Check should not be re-enqueued()
-     * @var int
      */
-    protected $interval;
-    /**
-     * @var bool
-     */
-    protected $incidentsSuppressed = false;
-    /**
-     * @var CommandInterface
-     */
-    protected $command;
-    /**
-     * Attributes passed to the Command.
-     * @var array
-     */
-    protected $attributes = [];
-    /**
-     * @var int
-     */
-    protected $lastCheck = null;
-    /**
-     * @var int
-     */
-    protected $nextCheck = null;
+    protected int $interval;
+
+    protected bool $incidentsSuppressed = false;
+
+    protected ?CommandInterface $command;
+
+    protected array $attributes = [];
+
+    protected ?int $lastCheck = null;
+
+    protected ?int $nextCheck = null;
+
     /**
      * @var HandlerInterface[]
      */
-    protected $handlers = [];
+    protected array $handlers = [];
+
     /**
      * Current Result for the check, may be null
-     * @var Result
      */
-    protected $result = null;
-    /**
-     * @var int
-     */
-    protected $lastStateDuration = 0;
-    /**
-     * @var float
-     */
-    protected $stateChangeTime = 0;
-    /**
-     * @var int
-     */
-    protected $lastState = self::STATE_NEW;
+    protected ?Result $result = null;
+
+    protected float $lastStateDuration = 0.0;
+
+    protected float $stateChangeTime = 0.0;
+
+    protected int $lastState = self::STATE_NEW;
+
     /**
      * Current Incident for Check.  As long as the incident is unresolved, this
      * will be that incident.  After it's resolved, it will be nulled.
-     * @var Incident
      */
-    protected $incident;
+    protected ?Incident $incident;
+
     /**
      * Any misc meta data to attach to the Check.
-     * @var mixed
+     * @var mixed|null
      */
     protected $meta;
-
 
     /**
      * Time this Check object was 'changed' such as
      * updated attributes, handlers or interval
      * Updated state, result and lastCheck does not count as 'changed'
-     * @var int
      */
-    protected $lastChanged;
+    protected int $lastChanged;
 
-    public function __construct($id, CommandInterface $command = null,
-        array $attributes, int $nextCheck, int $interval, Result $result = null,
-        array $handlers = [], Incident $incident = null, $meta = null)
-    {
+    public function __construct(
+        $id,
+        ?CommandInterface $command,
+        array $attributes,
+        int $nextCheck,
+        int $interval,
+        Result $result = null,
+        array $handlers = [],
+        Incident $incident = null,
+        $meta = null
+    ) {
         $this->id = $id;
         $this->command = $command;
         $this->attributes = $attributes;
@@ -103,19 +92,12 @@ class Check
         $this->interval = $interval;
         $this->result = $result;
         $this->handlers = $handlers;
-        $this->lastChanged = time();
+        $this->lastChanged = \time();
         $this->incident = $incident;
         $this->meta = $meta;
     }
 
-    /**
-     * Set state
-     *
-     * @param $state int State of check
-     *
-     * @return $this
-     */
-    public function setState(int $state)
+    public function setState(int $state): self
     {
         if ($this->state != $state) {
             if ($this->stateChangeTime) {
@@ -125,19 +107,14 @@ class Check
             $this->lastState = $this->state;
         }
         $this->state = $state;
+
         return $this;
     }
 
-    /**
-     * Is the check due?
-     *
-     * @param $time Timestamp of now
-     *
-     * @return boolean
-     */
-    public function isDue($time = null)
+    public function isDue(?int $time = null): bool
     {
         if ($time == null) $time = \time();
+
         return ($this->state != self::STATE_EXECUTING
             && $this->nextCheck && $time >= $this->nextCheck);
 
@@ -147,269 +124,161 @@ class Check
         */
     }
 
-    /**
-     * Set attributes passed to the Command
-     *
-     * @param array $attributes Attribute key/values
-     *
-     * @return void
-     */
-    public function setAttributes(array $attributes)
+    public function setAttributes(array $attributes): self
     {
         $this->attributes = $attributes;
-        $this->lastChanged = time();
+        $this->lastChanged = \time();
+
         return $this;
     }
 
     /**
-     * Set attribute passed to the Command
-     *
-     * @param string $key Attribute key
-     * @param mixed  $val Attribute value
-     *
-     * @return void
+     * @param mixed $val Attribute's value
      */
-    public function setAttribute($key, $val)
+    public function setAttribute(string $key, $val): self
     {
         $this->attributes[$key] = $val;
-        $this->lastChanged = time();
+        $this->lastChanged = \time();
+
         return $this;
     }
 
     /**
-     * Get attribute
-     *
-     * @param string $key Attribute key
-     *
-     * @return mixed
+     * @return mixed|null
      */
-    public function getAttribute($key)
+    public function getAttribute(string $key)
     {
-        return isset($this->attributes[$key]) ? $this->attributes[$key] : null;
+        return $this->attributes[$key] ?? null;
     }
 
-    /**
-     * Get all attributes
-     *
-     * @return array
-     */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    /**
-     * Get Command
-     *
-     * @return array
-     */
-    public function getCommand()
+    public function getCommand(): ?CommandInterface
     {
         return $this->command;
     }
 
-    /**
-     * Set Command
-     *
-     * @param CommandInterface $cmd Command to set
-     *
-     * @return $this
-     */
-    public function setCommand(CommandInterface $cmd)
+    public function setCommand(CommandInterface $cmd): self
     {
         $this->command = $cmd;
-        $this->lastChanged = time();
+        $this->lastChanged = \time();
+
         return $this;
     }
 
     /**
-     * Set Result\Handler's
-     *
-     * @return $this
+     * @param HandlerInterface[] $handlers
      */
-    public function setHandlers(array $handlers)
+    public function setHandlers(array $handlers): self
     {
         $this->handlers = $handlers;
-        $this->lastChanged = time();
+        $this->lastChanged = \time();
+
         return $this;
     }
 
-    /**
-     * Add a Results\Handlers\HandlerInterface
-     *
-     * @return $this
-     */
-    public function addHandler(HandlerInterface $handler)
+    public function addHandler(HandlerInterface $handler): self
     {
         $this->handlers[] = $handler;
+
         return $this;
     }
 
     /**
-     * Get the Result handlers
-     *
-     * @return array
+     * @return HandlerInterface[]
      */
-    public function getHandlers()
+    public function getHandlers(): array
     {
         return $this->handlers;
     }
 
-    /**
-     * Get state
-     *
-     * @return int
-     */
-    public function getState()
+    public function getState(): int
     {
         return $this->state;
     }
 
-
-    /**
-     * Get incident
-     *
-     * @return Incident
-     */
-    public function getIncident()
+    public function getIncident(): ?Incident
     {
         return $this->incident;
     }
 
-    /**
-     * Set an incident
-     *
-     * @return Incident
-     */
-    public function setIncident(Incident $incident = null)
+    public function setIncident(?Incident $incident = null): self
     {
         $this->incident = $incident;
+
         return $this;
     }
 
-    /**
-     * Set whether incident suppression is enabled or not
-     *
-     * @var bool $flag
-     *
-     * @return $this
-     */
-    public function setIncidentsSuppressed(bool $flag)
+    public function setIncidentsSuppressed(bool $flag): self
     {
         $this->incidentsSuppressed = $flag;
+
         return $this;
     }
 
-    /**
-     * Are incidents suppressed?
-     *
-     * @return bool
-     */
-    public function areIncidentsSuppressed()
+    public function areIncidentsSuppressed(): bool
     {
         return $this->incidentsSuppressed;
     }
 
-    /**
-     * Get interval
-     *
-     * @return int
-     */
-    public function getInterval()
+    public function getInterval(): int
     {
         return $this->interval;
     }
 
-    /**
-     * Set Result object
-     *
-     * @param Result $result Current result
-     *
-     * @return self
-     */
-    public function setResult(Result $result)
+    public function setResult(?Result $result): self
     {
         $this->result = $result;
+
         return $this;
     }
 
-    /**
-     * Get Result object
-     *
-     * @return Result|null
-     */
-    public function getResult()
+    public function getResult(): ?Result
     {
         return $this->result;
     }
 
-    /**
-     * Get time between last state changes
-     *
-     * @return float
-     */
-    public function getLastStateDuration()
+    public function getLastStateDuration(): float
     {
         return $this->lastStateDuration;
     }
 
-    /**
-     * Get next check time
-     *
-     * @return int
-     */
-    public function getNextCheck()
+    public function getNextCheck(): int
     {
         return $this->nextCheck;
     }
 
-    /**
-     * Set next check time
-     *
-     * @param int $time Timestamp
-     *
-     * @return $this
-     */
-    public function setNextCheck(int $time = null)
+    public function setNextCheck(int $neckCheckTime = null): self
     {
-        if ($time !== null) {
+        if ($neckCheckTime !== null) {
             // this is important to override $time to the current time if $time
             // is already in the past
-            $this->nextCheck = \time() > $time ? \time() : $time;
+            $this->nextCheck = \time() > $neckCheckTime ? \time() : $neckCheckTime;
         } else if ($this->interval > 0) {
             $this->nextCheck += $this->interval;
         } else {
             $this->nextCheck = null;
         }
+
         return $this;
     }
 
-    /**
-     * Get last check time
-     *
-     * @return int
-     */
-    public function getLastCheck()
+    public function getLastCheck(): ?int
     {
         return $this->lastCheck;
     }
 
-    /**
-     * Set last check time
-     *
-     * @param int $time Timestamp
-     *
-     * @return $this
-     */
-    public function setLastCheck(int $time = null)
+    public function setLastCheck(?int $time = null): self
     {
         $this->lastCheck = $time !== null ? $time : \time();
+
         return $this;
     }
 
     /**
-     * Get ID for this Check
-     *
      * @return mixed
      */
     public function getId()
@@ -418,19 +287,16 @@ class Check
     }
 
     /**
-     * Set metadata
-     *
-     * @return $this
+     * @param mixed|null $meta
      */
-    public function setMeta($meta)
+    public function setMeta($meta): self
     {
         $this->meta = $meta;
+
         return $this;
     }
 
     /**
-     * Get metadata
-     *
      * @return mixed
      */
     public function getMeta()
@@ -438,12 +304,7 @@ class Check
         return $this->meta;
     }
 
-    /**
-     * Get last change time
-     *
-     * @return int
-     */
-    public function getLastChanged()
+    public function getLastChanged(): int
     {
         return $this->lastChanged;
     }
@@ -451,50 +312,41 @@ class Check
     /**
      * Is this check up to date according to timestamp $time
      *
-     * @return bool
+     * @param string|int $time
      */
-    public function isUpToDate($time)
+    public function isUpToDate($time): bool
     {
         if (\is_string($time) && $time && \strtolower($time) != 'null') {
             $time = \strtotime($time);
         } else if (!is_int($time)) {
             return true;
         }
+
         return $this->getLastChanged() >= $time;
     }
 
     /**
      * Calculate time to next check, or negative if past due
-     *
-     * @return int
      */
-    public function timeToNextCheck($time = null)
+    public function timeToNextCheck(?int $time = null): int
     {
-        $time = $time !== null ? $time : time();
+        $time = $time !== null ? $time : \time();
+
         return ($this->getNextCheck() - $time);
-        /*
-        return $this->getLastCheck()
-            ? $this->getInterval() - ($time - $this->getLastCheck())
-            : -($this->getInterval() * 10);
-        */
     }
 
     /**
-     * Time when check becomes due, deprecated in favor of getNextCheck()
-     *
-     * @return int
+     * @deprecated Use getNextCheck() instead.
      */
-    public function timeOfNextCheck()
+    public function timeOfNextCheck(): int
     {
         return $this->getNextCheck();
     }
 
     /**
      * Determine if new Incident is warranted based on the new Result.
-     *
-     * @return bool
      */
-    public function isNewIncident(Result $currentResult)
+    public function isNewIncident(Result $currentResult): bool
     {
         // if incident suppression is on, never allow new incident
         if ($this->areIncidentsSuppressed()) {

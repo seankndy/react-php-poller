@@ -1,4 +1,5 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
 use SeanKndy\Poller\Checks\Check;
@@ -12,23 +13,21 @@ use React\EventLoop\LoopInterface;
 
 class SNMP implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-    /**
-     * Path to snmpget binary
-     * @var string
-     */
-    private $snmpGetBin;
+    private LoopInterface $loop;
 
+    private string $snmpGetBin;
+
+    /**
+     * @throws \RuntimeException
+     */
     public function __construct(LoopInterface $loop, $snmpGetBin = '/usr/bin/snmpget')
     {
         $this->loop = $loop;
 
         if (!\file_exists($snmpGetBin)) {
-            throw new \Exception("snmpget binary '$snmpGetBin' not found!");
+            throw new \RuntimeException("snmpget binary '$snmpGetBin' not found!");
         }
+
         $this->snmpGetBin = $snmpGetBin;
     }
 
@@ -339,7 +338,7 @@ class SNMP implements CommandInterface
         return $deferred->promise();
     }
 
-    public function getProducableMetrics(array $attributes)
+    public function getProducableMetrics(array $attributes): array
     {
         // set default metrics
         $attributes = $this->mergeWithDefaultAttributes($attributes);
@@ -364,7 +363,8 @@ class SNMP implements CommandInterface
         return $metrics;
     }
 
-    private function humanSizeToBytes($size) {
+    private function humanSizeToBytes($size): int
+    {
         if (\preg_match('/^\-?([0-9\.]+)\s*([A-Za-z]+)$/', $size, $m)) {
             $num = $m[1];
             $sizeAbbrev = $m[2];
@@ -413,11 +413,12 @@ class SNMP implements CommandInterface
 
             return $num;
         } else {
-            return \preg_replace('/[^\-0-9\.]/', '', $size);
+            return intval(\preg_replace('/[^\-0-9\.]/', '', $size));
         }
     }
 
-    private function mergeWithDefaultAttributes(array $attributes) {
+    private function mergeWithDefaultAttributes(array $attributes): array
+    {
         return array_merge([
             'ip'                      => '',
             'snmp_status_mibs'        => array('ifAdminStatus','ifOperStatus'),

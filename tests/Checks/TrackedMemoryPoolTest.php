@@ -1,8 +1,10 @@
 <?php
-namespace SeanKndy\Poller\Tests;
+namespace SeanKndy\Poller\Tests\Checks;
 
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\TrackedMemoryPool;
+use SeanKndy\Poller\Tests\TestCase;
+use function React\Async\await;
 
 class TrackedMemoryPoolTest extends TestCase
 {
@@ -31,12 +33,13 @@ class TrackedMemoryPoolTest extends TestCase
             // checks should come out of queue in reverse order that they were added
             // because every check was added with an increasingly longer last check time
             for ($i = self::NUM_CHECKS; $i >= 1; $i--) {
-                $check = $pool->dequeue();
+                $check = await($pool->dequeue());
+
                 $this->assertInstanceOf(Check::class, $check, "pass=$pass");
                 $this->assertEquals($i, $check->getId(), "pass=$pass");
             }
-            $this->assertNull($pool->dequeue(), "pass=$pass");
-            $this->assertEquals($pool->countQueued(), 0, "pass=$pass");
+            $this->assertNull(await($pool->dequeue()), "pass=$pass");
+            $this->assertEquals(await($pool->countQueued()), 0, "pass=$pass");
 
             if ($pass == 2) break;
 
@@ -46,7 +49,7 @@ class TrackedMemoryPoolTest extends TestCase
             foreach  ($indexes as $i) {
                 $pool->enqueue($this->checks[$i]);
             }
-            $this->assertEquals($pool->countQueued(), self::NUM_CHECKS);
+            $this->assertEquals(await($pool->countQueued()), self::NUM_CHECKS);
         }
     }
 

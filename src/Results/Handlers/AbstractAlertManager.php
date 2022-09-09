@@ -1,45 +1,40 @@
 <?php
+
 namespace SeanKndy\Poller\Results\Handlers;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Result;
-use SeanKndy\Poller\Results\Metric;
 use React\EventLoop\LoopInterface;
 use React\HttpClient\Client;
 use React\HttpClient\Response;
 use Psr\Log\LoggerInterface;
+
 /**
  * Send incidents to AlertManager API (react-php-alertmanager)
  * Abstract so that class user can implement buildRequestBody()
  */
 abstract class AbstractAlertManager implements HandlerInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    protected $loop;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var string
-     */
-    protected $alertmanagerApiUrl;
-    /**
-     * @var string
-     */
-    protected $apiUser;
-    /**
-     * @var string
-     */
-    protected $apiPass;
+    protected LoopInterface $loop;
+
+    protected LoggerInterface $logger;
+
+    protected string $alertmanagerApiUrl;
+
+    protected ?string $apiUser;
+
+    protected ?string $apiPass;
 
 
-    public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        string $alertmanagerApiUrl, string $apiUser = null, string $apiPass = null)
-    {
+    public function __construct(
+        LoopInterface $loop,
+        LoggerInterface $logger,
+        string $alertmanagerApiUrl,
+        ?string $apiUser = null,
+        ?string $apiPass = null
+    ) {
         $this->loop = $loop;
         $this->logger = $logger;
         $this->alertmanagerApiUrl = $alertmanagerApiUrl;
@@ -50,7 +45,7 @@ abstract class AbstractAlertManager implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $newIncident = null)
+    public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface
     {
         if ($newIncident || $check->getIncident()) {
             if ($params = $this->buildAlert($check, $result, $newIncident)) {
@@ -68,7 +63,7 @@ abstract class AbstractAlertManager implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, Incident $newIncident = null)
+    public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -80,17 +75,13 @@ abstract class AbstractAlertManager implements HandlerInterface
      * @param Check $check Associated Check object
      * @param Result $result Associated Result object
      * @param Incident $newIncident New incident
-     *
-     * @return array
      */
-    abstract protected function buildAlert(Check $check, Result $result,
-        Incident $newIncident);
+    abstract protected function buildAlert(Check $check, Result $result, Incident $newIncident): array;
 
     /**
      * Post to alertmanager's API
-     *
      */
-    private function httpPost(array $params)
+    private function httpPost(array $params): PromiseInterface
     {
         $deferred = new \React\Promise\Deferred();
         $client = new Client($this->loop);
@@ -128,6 +119,7 @@ abstract class AbstractAlertManager implements HandlerInterface
             $deferred->reject($e);
         });
         $request->end($jsonParams);
+
         return $deferred->promise();
     }
 }

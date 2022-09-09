@@ -1,14 +1,15 @@
 <?php
+
 namespace SeanKndy\Poller\Results\Handlers;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Result;
-use SeanKndy\Poller\Results\Metric;
-use React\Socket\ConnectionInterface;
 use React\EventLoop\LoopInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+
 /**
  * Result handler for sending metrics to a statsd daemon
  * NOTE: You proably need to override getMetricNamePrefix()
@@ -16,29 +17,20 @@ use Psr\Log\LogLevel;
  */
 class StatsD implements HandlerInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    protected $loop;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var string
-     */
-    protected $host;
-    /**
-     * @var int
-     */
-    protected $port;
+    protected LoopInterface $loop;
 
-    /**
-     *
-     */
-    public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        string $host, int $port)
-    {
+    protected LoggerInterface $logger;
+
+    protected string $host;
+
+    protected int $port;
+
+    public function __construct(
+        LoopInterface $loop,
+        LoggerInterface $logger,
+        string $host,
+        int $port
+    ) {
         $this->loop = $loop;
         $this->logger = $logger;
         $this->host = $host;
@@ -48,7 +40,7 @@ class StatsD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, Incident $incident = null)
+    public function mutate(Check $check, Result $result, Incident $incident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -56,7 +48,7 @@ class StatsD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $incident = null)
+    public function process(Check $check, Result $result, Incident $incident = null): PromiseInterface
     {
         if (!$result->getMetrics()) { // no metrics? no run.
             return \React\Promise\resolve([]);
@@ -98,23 +90,16 @@ class StatsD implements HandlerInterface
      * (ex. if your Metric's $name property has no prefix/namespace, you probably
      *  will need this method to dictate some kind of namespace for the metric
      *  such as 'network.wi.greenbay.rtr-a.')
-     *
-     * @param Check $check
-     * @param Result $result
-     *
-     * @return string
      */
-    protected function getMetricNamePrefix(Check $check, Result $result)
+    protected function getMetricNamePrefix(Check $check, Result $result): string
     {
         return '';
     }
 
     /**
      * Build statsd protocol message
-     *
-     * @return string
      */
-    private function buildProtocolMessage(Check $check, Result $result)
+    private function buildProtocolMessage(Check $check, Result $result): string
     {
         $prefix = \rtrim($this->getMetricNamePrefix($check, $result), '.');
         $msg = '';
@@ -123,7 +108,7 @@ class StatsD implements HandlerInterface
                 // see https://github.com/statsd/statsd/blob/master/docs/metric_types.md#gauges
                 $msg .= "$prefix.".$metric->getName().":0|g\n";
             }
-	    $msg .= $prefix.'.'.$metric->getName().':'.$metric->getValue()."|g\n";
+	        $msg .= $prefix.'.'.$metric->getName().':'.$metric->getValue()."|g\n";
         }
         return \trim($msg);
     }

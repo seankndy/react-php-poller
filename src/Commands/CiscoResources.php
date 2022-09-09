@@ -1,6 +1,7 @@
 <?php
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
@@ -24,7 +25,7 @@ class CiscoResources implements CommandInterface
         $this->snmpGetBin = $snmpGetBin;
     }
 
-    public function getProducableMetrics(array $attributes)
+    public function getProducableMetrics(array $attributes): array
     {
         return [
             new ResultMetric(ResultMetric::TYPE_GAUGE, 'uptime'),
@@ -33,7 +34,7 @@ class CiscoResources implements CommandInterface
         ];
     }
 
-    public function run(Check $check)
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         // set default metrics

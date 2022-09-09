@@ -1,16 +1,17 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
-/**
- *
- */
+
+use React\Promise\PromiseInterface;
+
 class QueueStats
 {
     /**
      * Fetch a QueueInterface's stats
      *
-     * @return \React\Promise\PromiseInterface Returns a Promise<array,void>
+     * @return PromiseInterface Returns a Promise<array,void>
      */
-    public static function get(QueueInterface $queue)
+    public static function get(QueueInterface $queue): PromiseInterface
     {
         return $queue->getQueued()->then(function ($queued) {
             $counts = [];

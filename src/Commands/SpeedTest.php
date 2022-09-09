@@ -1,30 +1,25 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
+
 /**
  * Ookla official speedtest CLI
  *
  */
 class SpeedTest implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var string
-     */
-    private $speedTestBin = '';
+    private LoopInterface $loop;
+
+    private LoggerInterface $logger;
+
+    private string $speedTestBin = '';
 
     public function __construct(LoopInterface $loop, LoggerInterface $logger,
         string $speedTestBin = '')
@@ -56,10 +51,18 @@ class SpeedTest implements CommandInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'latency'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'jitter'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'loss'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'download_mbps'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'upload_mbps')
+        ];
+    }
+
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         // set default metrics
@@ -153,17 +156,4 @@ class SpeedTest implements CommandInterface
         return $deferred->promise();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'latency'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'jitter'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'loss'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'download_mbps'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'upload_mbps')
-        ];
-    }
 }

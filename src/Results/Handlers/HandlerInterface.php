@@ -1,6 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Results\Handlers;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Result;
@@ -18,9 +20,9 @@ interface HandlerInterface
      * @param Result $result Current/new Result to process
      * @param Incident $newIncident Current/new Incident to process
      *
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function mutate(Check $check, Result $result, Incident $newIncident = null);
+    public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface;
 
     /**
      * Handle Result $result/Incident $incident  asynchronously to allow for various result
@@ -31,7 +33,7 @@ interface HandlerInterface
      * @param Result $result (possibly cloned) Current/new Result to process
      * @param Incident $newIncident (possibly cloned) Current/new Incident to process
      *
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function process(Check $check, Result $result, Incident $newIncident = null);
+    public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface;
 }

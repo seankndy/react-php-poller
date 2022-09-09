@@ -1,6 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Results\Handlers;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Result;
@@ -9,6 +11,7 @@ use React\Socket\ConnectionInterface;
 use React\EventLoop\LoopInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+
 /**
  * Result Handler that asynchronously creates RRD files
  * and interfaces with the rrdcached UNIX socket to submit UPDATEs to
@@ -62,7 +65,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, Incident $incident = null)
+    public function mutate(Check $check, Result $result, Incident $incident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -70,7 +73,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, Incident $incident = null)
+    public function process(Check $check, Result $result, Incident $incident = null): PromiseInterface
     {
         if (!$result->getMetrics()) { // no metrics? no run.
             return \React\Promise\resolve([]);

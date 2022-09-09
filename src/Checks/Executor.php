@@ -1,12 +1,12 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Commands\CommandInterface;
 use SeanKndy\Poller\Results\Result;
 use Evenement\EventEmitter;
-/**
- *
- */
+
 class Executor extends EventEmitter
 {
     /**
@@ -14,9 +14,9 @@ class Executor extends EventEmitter
      *
      * @param Check $check Check to run
      *
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function execute(Check $check)
+    public function execute(Check $check): PromiseInterface
     {
         $command = $check->getCommand();
         if (!($command instanceof CommandInterface)) {
@@ -67,10 +67,8 @@ class Executor extends EventEmitter
 
     /**
      * Run handlers for Check $check and Result $result
-     *
-     * @return \React\Promise\PromiseInterface
      */
-    private function runHandlers(Check $check, Result $result, Incident $incident = null)
+    private function runHandlers(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
         // run mutate() calls in order and in sequence
         return \array_reduce(

@@ -1,10 +1,13 @@
 <?php
+
 namespace SeanKndy\Poller;
 
+use React\EventLoop\TimerInterface;
 use SeanKndy\Poller\Checks\QueueInterface;
 use SeanKndy\Poller\Checks\Executor;
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
+
 /**
  * Server dequeues Checks from a QueueInterface object, executes it's Command,
  * fires the Result through the Check's Handlers, then enqueues it to the
@@ -12,40 +15,27 @@ use React\EventLoop\LoopInterface;
  */
 class Server extends EventEmitter
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-    /**
-     * @var QueueInterface
-    */
-    private $checkQueue;
-    /**
-     * @var int
-     */
-    private $maxConcurrentChecks = 100;
-    /**
-     * @var Executor
-     */
-    private $executor;
+    private LoopInterface $loop;
+
+    private QueueInterface $checkQueue;
+
+    private int $maxConcurrentChecks = 100;
+
+    private Executor $executor;
+
     /**
      * [[Check, float], ...]
-     * @var array
      */
-    private $checksExecuting = [];
+    private array $checksExecuting = [];
+
+    private object $avgRunTime;
+
+    private bool $running = true;
+
     /**
-     * @var stdObject
+     * @var TimerInterface[]
      */
-    private $avgRunTime;
-    /**
-     * If server is running
-     * @var bool
-     */
-    private $running = true;
-    /**
-     * @var array
-     */
-    private $timers = [];
+    private array $timers = [];
 
     /**
      * @const float Time to wait between runDueChecks calls
@@ -109,24 +99,14 @@ class Server extends EventEmitter
         });
     }
 
-    /**
-     * Set the maximum Checks to execute at once
-     *
-     * @var int $max
-     *
-     * @return $this;
-     */
-    public function setMaxConcurrentChecks(int $max)
+    public function setMaxConcurrentChecks(int $max): self
     {
         $this->maxConcurrentChecks = $max;
+
         return $this;
     }
 
-    /**
-     * Stop server from running any more checks
-     *
-     */
-    public function stop()
+    public function stop(): void
     {
         $this->checkQueue->flush()->otherwise(function(\Throwable $e) {
             $this->emit('error', [new \Exception('Failed to flush check queue: ' .
@@ -140,12 +120,7 @@ class Server extends EventEmitter
         $this->running = false;
     }
 
-    /**
-     * Run any Checks that are due
-     *
-     * @return void
-     */
-    private function runDueChecks()
+    private function runDueChecks(): void
     {
         if (!$this->running) return;
 

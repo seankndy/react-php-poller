@@ -1,6 +1,7 @@
 <?php
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
@@ -39,10 +40,14 @@ final class JunosSubscriberPools implements CommandInterface
         $this->snmpGetBin = $snmpGetBin;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'total_pool_usage')
+        ];
+    }
+
+    public function run(Check $check): PromiseInterface
     {
         // set default attributes
         $attributes = array_merge([
@@ -110,15 +115,5 @@ final class JunosSubscriberPools implements CommandInterface
         });
 
         return $deferred->promise();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'total_pool_usage')
-        ];
     }
 }
