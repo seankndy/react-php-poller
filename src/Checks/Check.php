@@ -254,9 +254,10 @@ class Check
     public function setNextCheck(int $neckCheckTime = null): self
     {
         if ($neckCheckTime !== null) {
-            // this is important to override $time to the current time if $time
-            // is already in the past
-            $this->nextCheck = \time() > $neckCheckTime ? \time() : $neckCheckTime;
+            // this is important to override $neckCheckTime to the current time if $neckCheckTime
+            // is in the past
+            //$this->nextCheck = \time() > $neckCheckTime ? \time() : $neckCheckTime;
+            $this->nextCheck = $neckCheckTime;
         } else if ($this->interval > 0) {
             $this->nextCheck += $this->interval;
         } else {

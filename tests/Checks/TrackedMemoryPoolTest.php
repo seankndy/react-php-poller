@@ -9,14 +9,17 @@ use function React\Async\await;
 class TrackedMemoryPoolTest extends TestCase
 {
     const NUM_CHECKS = 100;
-    protected $checks = [];
+
+    protected array $checks = [];
 
     protected function setUp() : void
     {
-        $time = time();
+        $time = \time();
+
         for ($i = 1; $i <= self::NUM_CHECKS; $i++) {
             $check = new Check($i, null, [], \time(), 10);
             $check->setLastCheck($time - ($i * 10));
+
             $this->checks[] = $check;
         }
     }
@@ -34,6 +37,8 @@ class TrackedMemoryPoolTest extends TestCase
             // because every check was added with an increasingly longer last check time
             for ($i = self::NUM_CHECKS; $i >= 1; $i--) {
                 $check = await($pool->dequeue());
+
+                print_r($check);
 
                 $this->assertInstanceOf(Check::class, $check, "pass=$pass");
                 $this->assertEquals($i, $check->getId(), "pass=$pass");
