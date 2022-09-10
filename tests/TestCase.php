@@ -7,6 +7,7 @@ abstract class TestCase extends BaseTestCase
 {
     protected function createCallableMock()
     {
+        //return $this->createMock(CallableStub::class);
         return $this->getMockBuilder(CallableStub::class)->getMock();
     }
     protected function expectCallableOnce()
