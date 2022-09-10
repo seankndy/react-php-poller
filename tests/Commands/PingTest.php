@@ -1,6 +1,7 @@
 <?php
 namespace SeanKndy\Poller\Tests\Commands;
 
+use React\EventLoop\Loop;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Commands\Ping;
@@ -12,8 +13,7 @@ class PingTest extends TestCase
 
     public function testRun()
     {
-        $loop = \React\EventLoop\Factory::create();
-        $command = new Ping($loop, null);
+        $command = new Ping(Loop::get(), null);
 
         $attributes = [
             'ip' => self::HOST
@@ -24,6 +24,6 @@ class PingTest extends TestCase
             $this->expectCallableNever()
         );
 
-        $loop->run();
+        Loop::get()->run();
     }
 }

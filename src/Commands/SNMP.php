@@ -2,6 +2,8 @@
 
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
@@ -31,7 +33,7 @@ class SNMP implements CommandInterface
         $this->snmpGetBin = $snmpGetBin;
     }
 
-    public function run(Check $check)
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         $start = microtime(true);

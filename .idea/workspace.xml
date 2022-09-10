@@ -2,14 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d6419efa-d99a-4786-9eef-e9dcd6fcabb8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/tests/Results/ResultTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Result.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Result.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/CheckTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/TestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/TestCase.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Commands/SNMP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SNMP.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/DNSTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/DNSTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/PingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/PingTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,31 +102,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/sean/Projects/kdg/react-php-poller/tests/Checks&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;php.override.implement.member.chooser.php.doc&quot;: &quot;NONE&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.webide.settings.project.settings.php&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/sean/Projects/kdg/react-php-poller/tests/Checks",
+    "nodejs_package_manager_path": "npm",
+    "php.override.implement.member.chooser.php.doc": "NONE",
+    "settings.editor.selected.configurable": "reference.webide.settings.project.settings.php",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.ExecutorTest">
-    <configuration name="ExecutorTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" scope="Class" />
+  <component name="RunManager" selected="PHPUnit.DNSTest.it_successfully_runs_dns_check">
+    <configuration name="DNSTest.it_successfully_runs_dns_check" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Commands\DNSTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Commands/DNSTest.php" method="it_successfully_runs_dns_check" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_catches_exceptions_thrown_in_handlers_and_emits_error" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_catches_exceptions_thrown_in_handlers_and_emits_error" scope="Method" />
+    <configuration name="ExecutorTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" scope="Class" />
       <method v="2" />
     </configuration>
     <configuration name="ExecutorTest.it_catches_exceptions_thrown_in_process_handler_and_emits_error" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
@@ -149,11 +146,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.DNSTest.it_successfully_runs_dns_check" />
         <item itemvalue="PHPUnit.ExecutorTest" />
         <item itemvalue="PHPUnit.ExecutorTest.it_emits_error_when_mutation_handler_rejects" />
         <item itemvalue="PHPUnit.ExecutorTest.it_emits_error_when_process_handler_rejects" />
         <item itemvalue="PHPUnit.ExecutorTest.it_catches_exceptions_thrown_in_process_handler_and_emits_error" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_catches_exceptions_thrown_in_handlers_and_emits_error" />
       </list>
     </recent_temporary>
   </component>
@@ -172,7 +169,7 @@
       <workItem from="1662656437127" duration="6722000" />
       <workItem from="1662684851352" duration="6540000" />
       <workItem from="1662725192300" duration="1072000" />
-      <workItem from="1662726348446" duration="3945000" />
+      <workItem from="1662726348446" duration="4928000" />
     </task>
     <servers />
   </component>

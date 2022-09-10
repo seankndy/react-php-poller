@@ -39,17 +39,17 @@ class RRDCacheD implements HandlerInterface
         $this->logger = $logger;
 
         if (!\file_exists($rrdToolBin)) {
-            throw new \Exception("rrdtool binary '$rrdToolBin does not exist!");
+            throw new \RuntimeException("rrdtool binary '$rrdToolBin does not exist!");
         }
         $this->rrdToolBin = $rrdToolBin;
 
         if (!\is_dir($rrdDir)) {
-            throw new \Exception("'$rrdDir' is not a directory or does not exist!");
+            throw new \RuntimeException("'$rrdDir' is not a directory or does not exist!");
         }
         $this->rrdDir = $rrdDir;
 
         if (!\file_exists($rrdCachedSockFile)) {
-            throw new \Exception("RRDCacheD Sock File '$rrdCachedSockFile' does not exist!");
+            throw new \RuntimeException("RRDCacheD Sock File '$rrdCachedSockFile' does not exist!");
         }
         $this->rrdCachedSockFile = $rrdCachedSockFile;
 
