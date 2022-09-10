@@ -2,7 +2,7 @@
 
 namespace SeanKndy\Poller\Checks;
 
-use \React\Promise\PromiseInterface;
+use React\Promise\PromiseInterface;
 
 /**
  * Queue interface for queueing Check objects.

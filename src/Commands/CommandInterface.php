@@ -1,4 +1,5 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
 use React\Promise\PromiseInterface;

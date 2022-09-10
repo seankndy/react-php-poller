@@ -190,7 +190,7 @@ class Check
         return $this->result;
     }
 
-    public function getNextCheck(): int
+    public function getNextCheck(): ?int
     {
         return $this->nextCheck;
     }
@@ -209,7 +209,7 @@ class Check
         return $this->command->run($this);
     }
 
-    public function setNextCheck(int $nextCheckTime = null): self
+    public function setNextCheck(?int $nextCheckTime = null): self
     {
         if ($nextCheckTime !== null) {
             $now = Carbon::now()->getTimestamp();
@@ -275,7 +275,7 @@ class Check
     /**
      * @deprecated Use getNextCheck() instead.
      */
-    public function timeOfNextCheck(): int
+    public function timeOfNextCheck(): ?int
     {
         return $this->getNextCheck();
     }

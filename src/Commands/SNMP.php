@@ -2,7 +2,6 @@
 
 namespace SeanKndy\Poller\Commands;
 
-use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;

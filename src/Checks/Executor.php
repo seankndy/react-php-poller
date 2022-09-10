@@ -51,7 +51,6 @@ class Executor extends EventEmitter
 
     /**
      * Run handlers for Check $check and Result $result
-     * @throws HandlerSurrogateException
      */
     private function runHandlers(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
     {
