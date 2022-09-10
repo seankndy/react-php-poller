@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d6419efa-d99a-4786-9eef-e9dcd6fcabb8" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/tests/ServerTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SNMP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SNMP.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/DNSTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/DNSTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/PingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/PingTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,17 +118,13 @@
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.DNSTest.it_successfully_runs_dns_check">
+  <component name="RunManager" selected="PHPUnit.ServerTest.it_executes_due_check">
     <configuration name="DNSTest.it_successfully_runs_dns_check" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="SeanKndy\Poller\Tests\Commands\DNSTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Commands/DNSTest.php" method="it_successfully_runs_dns_check" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="ExecutorTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" scope="Class" />
-      <method v="2" />
-    </configuration>
-    <configuration name="ExecutorTest.it_catches_exceptions_thrown_in_process_handler_and_emits_error" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_catches_exceptions_thrown_in_process_handler_and_emits_error" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="ExecutorTest.it_emits_error_when_mutation_handler_rejects" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
@@ -140,17 +135,21 @@
       <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_emits_error_when_process_handler_rejects" scope="Method" />
       <method v="2" />
     </configuration>
+    <configuration name="ServerTest.it_executes_due_check" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_executes_due_check" scope="Method" />
+      <method v="2" />
+    </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
       <TestRunner scope="XML" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.ServerTest.it_executes_due_check" />
         <item itemvalue="PHPUnit.DNSTest.it_successfully_runs_dns_check" />
         <item itemvalue="PHPUnit.ExecutorTest" />
         <item itemvalue="PHPUnit.ExecutorTest.it_emits_error_when_mutation_handler_rejects" />
         <item itemvalue="PHPUnit.ExecutorTest.it_emits_error_when_process_handler_rejects" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_catches_exceptions_thrown_in_process_handler_and_emits_error" />
       </list>
     </recent_temporary>
   </component>
@@ -169,7 +168,7 @@
       <workItem from="1662656437127" duration="6722000" />
       <workItem from="1662684851352" duration="6540000" />
       <workItem from="1662725192300" duration="1072000" />
-      <workItem from="1662726348446" duration="4928000" />
+      <workItem from="1662726348446" duration="10625000" />
     </task>
     <servers />
   </component>

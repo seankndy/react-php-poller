@@ -2,7 +2,10 @@
 
 namespace SeanKndy\Poller\Results\Handlers;
 
+use React\Filesystem\Filesystem;
+use React\Filesystem\FilesystemInterface;
 use React\Promise\PromiseInterface;
+use React\Socket\Connector;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Result;
@@ -20,25 +23,50 @@ use Psr\Log\LogLevel;
  */
 class RRDCacheD implements HandlerInterface
 {
-    private $loop;
-    private $logger;
-    private $rrdDir;
-    private $rrdToolBin;
-    private $rrdCachedSockFile;
-    private $rrdCachedConnector;
+    private LoopInterface $loop;
+
+    private LoggerInterface $logger;
+
+    private string $rrdDir;
+
+    private string $rrdToolBin;
+
+    private string $rrdCachedSockFile;
+
+    private Connector $rrdCachedConnector;
+
+    private FilesystemInterface $filesystem;
 
     /**
      * Constructor has sync filesystem calls, so it should only be called once
      * during init.
      *
      */
-    public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        $rrdDir, $rrdToolBin, $rrdCachedSockFile)
-    {
+    public function __construct(
+        LoopInterface $loop,
+        LoggerInterface $logger,
+        string $rrdDir,
+        string $rrdToolBin = null,
+        string $rrdCachedSockFile = '/var/run/rrdcached.sock'
+    ) {
         $this->loop = $loop;
         $this->logger = $logger;
 
-        if (!\file_exists($rrdToolBin)) {
+        if ($rrdToolBin === null) {
+            foreach ([
+                '/usr/bin/rrdtool',
+                '/usr/local/bin/rrdtool'
+            ] as $possibleLocation) {
+                if (\file_exists($possibleLocation)) {
+                    $rrdToolBin = $possibleLocation;
+                    break;
+                }
+            }
+
+            if (! $rrdToolBin) {
+                throw new \RuntimeException("rrdtool binary could not be found.");
+            }
+        } else if (!\file_exists($rrdToolBin)) {
             throw new \RuntimeException("rrdtool binary '$rrdToolBin does not exist!");
         }
         $this->rrdToolBin = $rrdToolBin;
@@ -48,13 +76,10 @@ class RRDCacheD implements HandlerInterface
         }
         $this->rrdDir = $rrdDir;
 
-        if (!\file_exists($rrdCachedSockFile)) {
-            throw new \RuntimeException("RRDCacheD Sock File '$rrdCachedSockFile' does not exist!");
-        }
         $this->rrdCachedSockFile = $rrdCachedSockFile;
 
-        $this->filesystem = \React\Filesystem\Filesystem::create($this->loop);
-        $this->rrdCachedConnector = new \React\Socket\Connector($this->loop, [
+        $this->filesystem = Filesystem::create($this->loop);
+        $this->rrdCachedConnector = new Connector($this->loop, [
             'tcp' => false,
             'tls' => false,
             'unix' => true,
@@ -79,25 +104,16 @@ class RRDCacheD implements HandlerInterface
             return \React\Promise\resolve([]);
         }
         return $this->initFileStructure($check, $result)->then(
-            function() use ($check, $result) {
-                return $this->rrdCachedConnect()->then(
-                    function(ConnectionInterface $connection) use ($check, $result) {
-                        return $this->writeRrdUpdateBatch($connection, $check, $result);
-                    }
-                );
-            }
+            fn() => $this->rrdCachedConnect()->then(
+                fn(ConnectionInterface $connection) => $this->writeRrdUpdateBatch($connection, $check, $result)
+            )
         );
     }
 
     /**
      * Initialize file structure.
-     *
-     * @param Check $check Check object
-     * @param Result $result Result object
-     *
-     * @return \React\Promise\PromiseInterface
      */
-    private function initFileStructure(Check $check, Result $result)
+    private function initFileStructure(Check $check, Result $result): PromiseInterface
     {
         $createRrdFiles = function () use ($check, $result) {
             $promises = [];
@@ -158,11 +174,13 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Connect to rrd cached socket
-     *
-     * @return \React\Promise\PromiseInterface
      */
-    private function rrdCachedConnect()
+    private function rrdCachedConnect(): PromiseInterface
     {
+        if (!\file_exists($this->rrdCachedSockFile)) {
+            throw new \RuntimeException("RRDCacheD Sock File '$this->rrdCachedSockFile' does not exist!");
+        }
+
         return $this->rrdCachedConnector->connect('unix://' . $this->rrdCachedSockFile)->then(
             function (ConnectionInterface $connection) {
                 return $connection;
@@ -177,13 +195,8 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Helper method to write to rrdcached socket and then read/parse response
-     *
-     * @param ConnectionInterface $connection The connection from rrdCachedConnect()
-     * @param string $dataToWrite
-     *
-     * @return \React\Promise\PromiseInterface
      */
-    private function rrdCachedWrite(ConnectionInterface $connection, string $dataToWrite)
+    private function rrdCachedWrite(ConnectionInterface $connection, string $dataToWrite): PromiseInterface
     {
         if (!$connection->isWritable()) {
             return \React\Promise\reject(new \Exception("Connection not writable!"));
@@ -212,7 +225,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * Log helper/formatter
      */
-    private function log($level, string $message, Check $check = null)
+    private function log($level, string $message, Check $check = null): void
     {
         $msg = "RRDCacheD Handler: ";
         if ($check) {
@@ -224,16 +237,12 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Write a batch of UPDATEs to rrdcached socket
-     *
-     * @param ConnectionInterface $connection The connection from rrdCachedConnect()
-     * @param Check $check
-     * @param Result $result
-     *
-     * @return \React\Promise\PromiseInterface
      */
-    private function writeRrdUpdateBatch(ConnectionInterface $connection,
-        Check $check, Result $result)
-    {
+    private function writeRrdUpdateBatch(
+        ConnectionInterface $connection,
+        Check $check,
+        Result $result
+    ): PromiseInterface {
         return $this->rrdCachedWrite($connection, 'BATCH'.PHP_EOL)->then(
             function ($codeAndMsg) use ($connection, $check, $result) {
                 list($code,$msg) = $codeAndMsg;
@@ -275,12 +284,8 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Given an interval, generate the RRD RRA definitions for the CREATE command
-     *
-     * @param int $interval
-     *
-     * @return string
      */
-    private function buildRras($interval)
+    private function buildRras(int $interval): string
     {
         $cmd = '';
 
@@ -334,12 +339,8 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Get the RRD DS name for a Metric
-     *
-     * @param Metric $metric
-     *
-     * @return string
      */
-    private function getRrdDsName(Metric $metric)
+    private function getRrdDsName(Metric $metric): string
     {
         $label = $metric->getName();
         // RRD DS can only be 19 chars max
@@ -351,13 +352,8 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Get file path of the check/metric RRD
-     *
-     * @param Check $check Check object for the metric
-     * @param Metric $metric Metric object for Check
-     *
-     * @return string
      */
-    private function getRrdFilePath(Check $check, Metric $metric)
+    private function getRrdFilePath(Check $check, Metric $metric): string
     {
         return $this->rrdDir . "/" . $check->getId() . '/' .
             $this->getRrdDsName($metric) . '.rrd';
@@ -365,12 +361,8 @@ class RRDCacheD implements HandlerInterface
 
     /**
      * Get base RRD storage directory for the check
-     *
-     * @param Check $check Check object
-     *
-     * @return string
      */
-    private function getRrdBaseDir(Check $check)
+    private function getRrdBaseDir(Check $check): string
     {
         return $this->rrdDir . "/" . $check->getId();
     }
@@ -378,15 +370,14 @@ class RRDCacheD implements HandlerInterface
     /**
      * Parse response line from RRDCacheD
      *
-     * @param $line
-     *
-     * @return [int, string]
+     * @return array{0: int, 1: string}
      */
-    private function parseServerLn($line)
+    private function parseServerLn(string $line): array
     {
         $space = strpos($line, ' ');
         $code = (int) substr($line, 0, $space);
         $message = trim(substr($line, $space + 1));
+
         return [$code, $message];
     }
 }
