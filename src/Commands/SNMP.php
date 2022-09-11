@@ -288,7 +288,7 @@ class SNMP implements CommandInterface
                                 $diff = \bcdiv(\bcsub($val, $metric->getValue()), $timeDiff);
                             }
 
-                            $lbl = isset($rename_labels[$key]) ? $rename_labels[$key] : $key;
+                            $lbl = $renameLabels[$key] ?? $key;
 
                             if (isset($thresholds['warning_min_thresholds'][$key])) {
                                 if (\bccomp($diff, $thresholds['warning_min_thresholds'][$key]) < 0) {
@@ -373,46 +373,46 @@ class SNMP implements CommandInterface
             switch ($sizeAbbrev) {
                 case 'B':
                 case 'Bytes':
-                    return $num;
+                    return intval($num);
                 case 'KB':
                 case 'kB':
                 case 'Kilobytes':
-                    return $num * 1024;
+                    return intval($num * 1024);
                 case 'MB':
                 case 'Megabytes':
-                    return $num * 1024 * 1024;
+                    return intval($num * 1024 * 1024);
                 case 'GB':
                 case 'Gigabytes':
-                    return $num * 1024 * 1024 * 1024;
+                    return intval($num * 1024 * 1024 * 1024);
                 case 'TB':
                 case 'Terabytes':
-                    return $num * 1024 * 1024 * 1024 * 1024;
+                    return intval($num * 1024 * 1024 * 1024 * 1024);
 
                 case 'b':
                 case 'bits':
-                    return $num/8;
+                    return intval($num/8);
                 case 'Kb':
                 case 'kb':
                 case 'kbit':
                 case 'Kilobits':
-                    return $num/8 * 1024;
+                    return intval($num/8 * 1024);
                 case 'm':
                 case 'M':
                 case 'Mb':
                 case 'Mbit':
                 case 'Megabits':
-                    return $num/8 * 1024 * 1024;
+                    return intval($num/8 * 1024 * 1024);
                 case 'Gb':
                 case 'Gbit':
                 case 'Gigabits':
-                    return $num/8 * 1024 * 1024 * 1024;
+                    return intval($num/8 * 1024 * 1024 * 1024);
                 case 'Tb':
                 case 'Tbit':
                 case 'Terabits':
-                    return $num/8 * 1024 * 1024 * 1024 * 1024;
+                    return intval($num/8 * 1024 * 1024 * 1024 * 1024);
             }
 
-            return $num;
+            return intval($num);
         } else {
             return intval(\preg_replace('/[^\-0-9\.]/', '', $size));
         }

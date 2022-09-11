@@ -96,7 +96,7 @@ class Server extends EventEmitter
                     'since' => \sprintf("%.1f", (Carbon::now()->getTimestamp()-$this->avgRunTime->startTime) / 60.0) . 'm ago',
                     'num-checks' => $this->avgRunTime->counter,
                     'average-runtime' => \sprintf("%.3f", $this->avgRunTime->total/$this->avgRunTime->counter),
-                    'max-runtime' => \sprintf("%.3f", $this->avgRunTime->max) . "s (id=" . $this->maxId . ")"
+                    'max-runtime' => \sprintf("%.3f", $this->avgRunTime->max) . "s (id=" . $this->avgRunTime->maxId . ")"
                 ]]);
             }
             $this->avgRunTime->reset();

@@ -108,7 +108,7 @@ class Result
         return $this;
     }
 
-    public function getStateString(): int
+    public function getStateString(): string
     {
         return self::stateIntToString($this->state);
     }

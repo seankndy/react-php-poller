@@ -26,7 +26,7 @@ interface HandlerInterface
 
     /**
      * Handle Result $result/Incident $incident  asynchronously to allow for various result
-     * data processin/storage.  This method MAY be called with clones of the argument objects,
+     * data processing/storage.  This method MAY be called with clones of the argument objects,
      * so the implementor should treat them as immutable.
      *
      * @param Check $check (possibly cloned) Check object for the Result

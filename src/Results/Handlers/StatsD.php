@@ -40,7 +40,7 @@ class StatsD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -48,7 +48,7 @@ class StatsD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         if (!$result->getMetrics()) { // no metrics? no run.
             return \React\Promise\resolve([]);

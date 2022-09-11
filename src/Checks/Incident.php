@@ -129,7 +129,7 @@ class Incident
         return $this->toState;
     }
 
-    public function getReason(): string
+    public function getReason(): ?string
     {
         return $this->reason;
     }

@@ -21,7 +21,7 @@ class SMTP implements CommandInterface
     public function getProducableMetrics(array $attributes): array
     {
         return [
-            new ResultMetric(ResultMetric::$TYPE_GAUGE, 'resp')
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp')
         ];
     }
 

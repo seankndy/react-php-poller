@@ -14,16 +14,16 @@ class Dummy implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
-        ;
+        return \React\Promise\resolve([]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
-        ;//$result->addMetric(new Metric(Metric::TYPE_GAUGE, 'sixtynine', '69.0'));
+        return \React\Promise\resolve([]);
     }
 }

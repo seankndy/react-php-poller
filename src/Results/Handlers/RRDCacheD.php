@@ -90,7 +90,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function mutate(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }
@@ -98,7 +98,7 @@ class RRDCacheD implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
         if (!$result->getMetrics()) { // no metrics? no run.
             return \React\Promise\resolve([]);
@@ -267,7 +267,7 @@ class RRDCacheD implements HandlerInterface
                     return $codeAndMsg;
                 });
             },
-            function ($e) use ($check) {
+            function ($e) use ($check, $connection) {
                 $this->log(LogLevel::DEBUG, "RRD failed to begin BATCH: " . $e->getMessage(), $check);
                 $connection->end('QUIT'.PHP_EOL);
                 $connection->close();
