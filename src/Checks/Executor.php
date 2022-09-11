@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Checks;
 
+use React\Promise\ExtendedPromiseInterface;
 use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Results\Result;
 use Evenement\EventEmitter;
@@ -52,7 +53,7 @@ class Executor extends EventEmitter
     /**
      * Run handlers for Check $check and Result $result
      */
-    private function runHandlers(Check $check, Result $result, ?Incident $incident = null): PromiseInterface
+    private function runHandlers(Check $check, Result $result, ?Incident $incident = null): ExtendedPromiseInterface
     {
         // run mutate() calls in order and in sequence
         return \array_reduce(
@@ -82,7 +83,8 @@ class Executor extends EventEmitter
 
                 foreach ($check->getHandlers() as $handler) {
                     try {
-                        $handler->process($clonedCheck, $clonedResult, $clonedIncident)->otherwise(
+                        $handler->process($clonedCheck, $clonedResult, $clonedIncident)->then(
+                            null,
                             fn($e) => $this->emit('error', [$handler, $e])
                         );
                     } catch (\Exception $e) {

@@ -12,7 +12,7 @@ use Psr\Log\LogLevel;
 
 /**
  * Result handler for sending metrics to a statsd daemon
- * NOTE: You proably need to override getMetricNamePrefix()
+ * NOTE: You probably need to override getMetricNamePrefix()
  *
  */
 class StatsD implements HandlerInterface

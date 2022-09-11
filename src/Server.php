@@ -112,7 +112,8 @@ class Server extends EventEmitter
 
     public function stop(): void
     {
-        $this->checkQueue->flush()->otherwise(
+        $this->checkQueue->flush()->then(
+            null,
             fn(\Throwable $e) => $this->emit(
                 'error', [new \Exception('Failed to flush check queue: '.$e->getMessage())]
             )
