@@ -4,15 +4,8 @@
     <list default="true" id="d6419efa-d99a-4786-9eef-e9dcd6fcabb8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Incident.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Incident.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SMTP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SMTP.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SNMP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SNMP.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/Dummy.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/Dummy.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/HandlerInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/HandlerInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/StatsD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/StatsD.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Results/Result.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Result.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Results/ResultTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/ResultTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,13 +138,13 @@
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.ServerTest.it_does_not_requeue_check_with_zero_interval">
+  <component name="RunManager" selected="PHPUnit.ResultTest.it_does_not_instantiate_with_invalid_state">
     <configuration name="DNSTest.it_successfully_runs_dns_check" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="SeanKndy\Poller\Tests\Commands\DNSTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Commands/DNSTest.php" method="it_successfully_runs_dns_check" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" scope="Class" />
+    <configuration name="ResultTest.it_does_not_instantiate_with_invalid_state" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Results\ResultTest" file="$PROJECT_DIR$/tests/Results/ResultTest.php" method="it_does_not_instantiate_with_invalid_state" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="ServerTest.it_does_not_requeue_check_with_zero_interval" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
@@ -172,11 +165,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.ResultTest.it_does_not_instantiate_with_invalid_state" />
         <item itemvalue="PHPUnit.ServerTest.it_does_not_requeue_check_with_zero_interval" />
         <item itemvalue="PHPUnit.ServerTest.it_emits_check_start_event" />
         <item itemvalue="PHPUnit.ServerTest.it_executes_due_check" />
         <item itemvalue="PHPUnit.DNSTest.it_successfully_runs_dns_check" />
-        <item itemvalue="PHPUnit.ExecutorTest" />
       </list>
     </recent_temporary>
   </component>
@@ -195,7 +188,7 @@
       <workItem from="1662656437127" duration="6722000" />
       <workItem from="1662684851352" duration="6540000" />
       <workItem from="1662725192300" duration="1072000" />
-      <workItem from="1662726348446" duration="17813000" />
+      <workItem from="1662726348446" duration="18984000" />
     </task>
     <servers />
   </component>

@@ -173,4 +173,20 @@ class ResultTest extends TestCase
 
         $this->assertTrue(Uuid::isValid($result->getId()));
     }
+
+    /** @test */
+    public function it_does_not_instantiate_with_invalid_state(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new Result(1234);
+    }
+
+    /** @test */
+    public function it_does_not_allow_setting_to_an_invalid_state(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new Result())->setState(4321);
+    }
 }

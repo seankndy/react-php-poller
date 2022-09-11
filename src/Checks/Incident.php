@@ -31,28 +31,28 @@ class Incident
 
     private int $updatedTime;
 
-    private ?int $acknowledgedTime = null;
+    private ?int $acknowledgedTime;
 
-    private ?int $resolvedTime = null;
+    private ?int $resolvedTime;
 
     public function __construct(
-        $id,
-        int $fromState,
-        int $toState,
+               $id,
+        int    $fromState,
+        int    $toState,
         string $reason = null,
-        ?int $resolved = null,
-        ?int $acknowledged = null,
-        ?int $added = null,
-        ?int $updated = null
+        ?int   $resolvedTime = null,
+        ?int   $acknowledgedTime = null,
+        ?int   $addedTime = null,
+        ?int   $updatedTime = null
     ) {
         $this->id = $id ?: Uuid::uuid4()->toString();
         $this->fromState = $fromState;
         $this->toState = $toState;
-        $this->addedTime = $added ?: Carbon::now()->getTimestamp();
-        $this->updatedTime = $updated ?: Carbon::now()->getTimestamp();
         $this->reason = $reason;
-        $this->resolvedTime = $resolved;
-        $this->acknowledgedTime = $acknowledged;
+        $this->resolvedTime = $resolvedTime;
+        $this->acknowledgedTime = $acknowledgedTime;
+        $this->addedTime = $addedTime ?: Carbon::now()->getTimestamp();
+        $this->updatedTime = $updatedTime ?: Carbon::now()->getTimestamp();
     }
 
     /**

@@ -33,7 +33,7 @@ class Result
         ?int $time = null
     ) {
         $this->id = Uuid::uuid4()->toString();
-        $this->state = $state;
+        $this->setState($state);
         $this->stateReason = $stateReason;
         $this->setMetrics($metrics);
         $this->time = $time ?: Carbon::now()->getTimestamp();
@@ -41,6 +41,10 @@ class Result
 
     public function setState(int $state): self
     {
+        if (! \in_array($state, [self::STATE_OK, self::STATE_CRIT, self::STATE_WARN, self::STATE_UNKNOWN])) {
+            throw new \InvalidArgumentException("State is invalid.");
+        }
+
         $this->state = $state;
 
         return $this;
@@ -136,7 +140,7 @@ class Result
             'CRIT' => Result::STATE_CRIT,
             'CRITICAL' => Result::STATE_CRIT
         ];
-        $state = strtoupper(trim($state));
+        $state = \strtoupper(\trim($state));
         if (!$state || !isset($m[$state])) {
             return Result::STATE_UNKNOWN;
         }
