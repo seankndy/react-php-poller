@@ -96,6 +96,44 @@ class ServerTest extends TestCase
     }
 
     /** @test */
+    public function it_emits_error_event_when_dequeue_fails(): void
+    {
+        $queue = $this->createMock(QueueInterface::class);
+        $queue
+            ->expects($this->once())
+            ->method('dequeue')
+            ->willReturn(\React\Promise\reject(new \Exception("Uh oh.")));
+
+        $server = new Server(Loop::get(), $queue);
+
+        $server->on('error', $this->expectCallableOnceWith($this->isInstanceOf(\Exception::class)));
+
+        Loop::futureTick(fn() => Loop::stop());
+        Loop::run();
+    }
+
+    /** @test */
+    public function it_emits_error_event_when_enqueue_fails(): void
+    {
+        $queue = $this->createMock(QueueInterface::class);
+        $queue
+            ->expects($this->once())
+            ->method('dequeue')
+            ->willReturn(\React\Promise\resolve(new Check(1, new DummyCommand(), [], \time(), 10)));
+        $queue
+            ->expects($this->once())
+            ->method('enqueue')
+            ->willReturn(\React\Promise\reject(new \Exception("Uh oh.")));
+
+        $server = new Server(Loop::get(), $queue);
+
+        $server->on('error', $this->expectCallableOnceWith($this->isInstanceOf(\Exception::class)));
+
+        Loop::futureTick(fn() => Loop::stop());
+        Loop::run();
+    }
+
+    /** @test */
     public function it_requeues_check_after_it_successfully_runs(): void
     {
         $check = new Check(1, new DummyCommand(false), [], \time(), 10);

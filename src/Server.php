@@ -145,17 +145,18 @@ class Server extends EventEmitter
             $this->checksExecuting[$check->getId()] = [$check, \microtime(true)];
             $this->emit('check.start', [$check]);
 
-            $this->executor->execute($check)
-                // check succeeded, emit event, and
-                // let always() handle enqueuing
-                ->then(fn() => $this->emit('check.finish', [$check]))
+            $this->executor
+                ->execute($check)
+                ->then(
+                    // check succeeded, emit event, and
+                    // let always() handle enqueuing
+                    fn() => $this->emit('check.finish', [$check]),
+                    // check crash and burned, emit error
+                    fn (\Throwable $e) => $this->emit('check.error', [$check, $e])
+                )->always(function () use ($check) {
+                    // calc runtime, remove check from executing array,
+                    // requeue check
 
-                // check crash and burned, emit error
-                ->otherwise(fn (\Throwable $e) => $this->emit('check.error', [$check, $e]))
-
-                // calc runtime, remove check from executing array,
-                // requeue check
-                ->always(function () use ($check) {
                     $runtime = \microtime(true) - $this->checksExecuting[$check->getId()][1];
                     $this->avgRunTime->counter++;
                     $this->avgRunTime->total += $runtime;
@@ -171,7 +172,7 @@ class Server extends EventEmitter
 
                     $this->checkQueue
                         ->enqueue($check)
-                        ->otherwise(fn(\Throwable $e) => $this->emit(
+                        ->then(null, fn(\Throwable $e) => $this->emit(
                             'error',
                             [new \Exception("Failed to enqueue() Check ID=<".$check->getId().">: ".$e->getMessage())]
                         ));
