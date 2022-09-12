@@ -101,7 +101,7 @@ class Ping implements CommandInterface
 
             $this->logger->debug("Ping: $command --> $stderrBuffer");
 
-            $last = \array_slice(\explode("\n", \trim($stderrBuffer)), -1);
+            $last = \array_slice(\explode("\n", \trim($stderrBuffer)), -1)[0];
             [$host, $measurements] = \explode(' : ', $last);
             $measurements = \explode(' ', \trim($measurements));
             $cntNoResponse = 0;

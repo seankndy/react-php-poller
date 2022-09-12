@@ -4,8 +4,6 @@
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Commands/Ping.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/Ping.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SMTP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SMTP.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SNMP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SNMP.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
