@@ -85,7 +85,7 @@ class Server extends EventEmitter
         $this->timers[] = $this->loop->addPeriodicTimer(30.0, function () {
             foreach ($this->checksExecuting as $id => $pair) {
                 list($check,$startTime) = $pair;
-                if (\microtime(true) - $startTime > 30.0) {
+                if (Carbon::now()->getTimestampMs() * .001 - $startTime > 30.0) {
                     $this->emit('check.error', [$check, new \Exception("Check has been executing for > 30sec!")]);
                 }
             }
@@ -143,7 +143,7 @@ class Server extends EventEmitter
                 return;
             }
 
-            $this->checksExecuting[$check->getId()] = [$check, \microtime(true)];
+            $this->checksExecuting[$check->getId()] = [$check, Carbon::now()->getTimestampMs() * .001];
             $this->emit('check.start', [$check]);
 
             $this->executor
@@ -151,14 +151,14 @@ class Server extends EventEmitter
                 ->then(
                     // check succeeded, emit event, and
                     // let always() handle enqueuing
-                    fn() => $this->emit('check.finish', [$check]),
+                    fn() => $this->emit('check.finish', [$check, $this->checksExecuting[$check->getId()][1]]),
                     // check crash and burned, emit error
                     fn (\Throwable $e) => $this->emit('check.error', [$check, $e])
                 )->always(function () use ($check) {
                     // calc runtime, remove check from executing array,
                     // requeue check
 
-                    $runtime = \microtime(true) - $this->checksExecuting[$check->getId()][1];
+                    $runtime = Carbon::now()->getTimestampMs() * .001 - $this->checksExecuting[$check->getId()][1];
                     $this->avgRunTime->counter++;
                     $this->avgRunTime->total += $runtime;
                     if (($this->avgRunTime->max = \max($runtime, $this->avgRunTime->max)) === $runtime) {

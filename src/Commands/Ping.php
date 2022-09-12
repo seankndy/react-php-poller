@@ -8,7 +8,6 @@ use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
 class Ping implements CommandInterface
@@ -29,8 +28,11 @@ class Ping implements CommandInterface
 
         try {
             if (!$fpingBin) {
-                $bins = ['/usr/bin/fping', '/usr/local/bin/fping',
-                    '/usr/sbin/fping', '/sbin/fping', '/usr/local/sbin/fping', '/opt/homebrew/bin/fping'];
+                $bins = [
+                    '/usr/bin/fping', '/usr/local/bin/fping',
+                    '/usr/sbin/fping', '/sbin/fping',
+                    '/usr/local/sbin/fping', '/opt/homebrew/bin/fping'
+                ];
                 foreach ($bins as $bin) {
                     if (\file_exists($bin)) {
                         $fpingBin = $bin;
@@ -97,7 +99,7 @@ class Ping implements CommandInterface
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $attributes, $command, &$stderrBuffer) {
 
-            $this->logger->log(LogLevel::DEBUG, "Ping: $command --> $stderrBuffer");
+            $this->logger->debug("Ping: $command --> $stderrBuffer");
 
             [$host, $measurements] = \explode(' : ', $stderrBuffer);
             $measurements = \explode(' ', \trim($measurements));
@@ -117,7 +119,7 @@ class Ping implements CommandInterface
                 ResultMetric::TYPE_GAUGE, 'loss', $loss
             );
 
-            $this->logger->log(LogLevel::DEBUG, "Ping: calculated loss = $loss");
+            $this->logger->debug("Ping: calculated loss = $loss");
 
             if ($loss == 100) {
                 $state = Result::STATE_CRIT;
@@ -131,7 +133,7 @@ class Ping implements CommandInterface
                     (\array_sum($realMeasurements) / \count($realMeasurements))
                 ))) / (\count($realMeasurements)-1)), 2);
 
-                $this->logger->log(LogLevel::DEBUG, "Ping: calculated avg,jitter = $avg,$jitter");
+                $this->logger->debug("Ping: calculated avg,jitter = $avg,$jitter");
 
                 if ($loss > $attributes['loss_threshold']) {
                     $state = Result::STATE_CRIT;

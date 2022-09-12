@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Tests;
 
+use Carbon\Carbon;
 use React\EventLoop\Loop;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\MemoryQueue;
@@ -9,6 +10,7 @@ use SeanKndy\Poller\Checks\QueueInterface;
 use SeanKndy\Poller\Commands\CommandInterface;
 use SeanKndy\Poller\Server;
 use SeanKndy\Poller\Tests\Commands\DummyCommand;
+use Spatie\TestTime\TestTime;
 
 class ServerTest extends TestCase
 {
@@ -68,16 +70,21 @@ class ServerTest extends TestCase
     /** @test */
     public function it_emits_check_finish_event(): void
     {
+        TestTime::freeze();
+        $currentTimeMs = Carbon::now()->getTimestampMs() * .001;
+
         $server = new Server(Loop::get(), $queue = new MemoryQueue());
 
         $check = new Check(1, new DummyCommand(), [], \time(), 10);
 
-        $server->on('check.finish', $this->expectCallableOnceWith($check));
+        $server->on('check.finish', $this->expectCallableOnceWith($check, $currentTimeMs));
 
         $queue->enqueue($check);
 
         Loop::futureTick(fn() => Loop::stop());
         Loop::run();
+
+        TestTime::unfreeze();
     }
 
     /** @test */
