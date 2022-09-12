@@ -1,6 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Results\Handlers;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Result;
@@ -16,22 +18,22 @@ interface HandlerInterface
      *
      * @param Check $check Check object for the Result
      * @param Result $result Current/new Result to process
-     * @param Incident $newIncident Current/new Incident to process
+     * @param Incident|null $newIncident Current/new Incident to process
      *
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function mutate(Check $check, Result $result, Incident $newIncident = null);
+    public function mutate(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface;
 
     /**
      * Handle Result $result/Incident $incident  asynchronously to allow for various result
-     * data processin/storage.  This method MAY be called with clones of the argument objects,
+     * data processing/storage.  This method MAY be called with clones of the argument objects,
      * so the implementor should treat them as immutable.
      *
      * @param Check $check (possibly cloned) Check object for the Result
      * @param Result $result (possibly cloned) Current/new Result to process
-     * @param Incident $newIncident (possibly cloned) Current/new Incident to process
+     * @param Incident|null $newIncident (possibly cloned) Current/new Incident to process
      *
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function process(Check $check, Result $result, Incident $newIncident = null);
+    public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface;
 }

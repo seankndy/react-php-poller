@@ -1,10 +1,13 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
+
 /**
  * SpeedTest++ (https://github.com/taganaka/SpeedTest)
  * (speedtest.net client)
@@ -12,14 +15,9 @@ use SeanKndy\Poller\Results\Metric as ResultMetric;
  */
 class SpeedTestPP implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-    /**
-     * @var string
-     */
-    private $speedTestBin = '';
+    private LoopInterface $loop;
+
+    private string $speedTestBin = '';
 
     public function __construct(LoopInterface $loop, $speedTestBin = '/usr/local/bin/SpeedTest')
     {
@@ -32,10 +30,16 @@ class SpeedTestPP implements CommandInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'ping'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'download_mbps'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'upload_mbps')
+        ];
+    }
+
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         // set default metrics
@@ -99,17 +103,5 @@ class SpeedTestPP implements CommandInterface
         });
 
         return $deferred->promise();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'ping'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'download_mbps'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'upload_mbps')
-        ];
     }
 }

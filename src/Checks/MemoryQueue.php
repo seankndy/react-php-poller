@@ -1,44 +1,44 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
 
 use React\Promise\PromiseInterface;
+
 /**
  * Queue that stores Check's entirely in memory.
- *
- *
  */
 class MemoryQueue implements QueueInterface
 {
     /**
      * Check objects (sorted by priority) queued
-     *
-     * @var array
+     * @var array<int, array<Check>>
      */
-    protected $queuedChecks = [];
+    protected array $queuedChecks = [];
+
     /**
      * Priorities, aka next check timestamps
      *
-     * @var array
+     * @var array<int, int>
      */
-    protected $queuePriorities = [];
+    protected array $queuePriorities = [];
+
     /**
      * Minimum priority contained
-     *
-     * @var int
      */
-    protected $queueMin = PHP_INT_MAX;
+    protected int $queueMin = PHP_INT_MAX;
+
     /**
      * Total queued
-     *
-     * @var int
      */
-    protected $queueTot = 0;
+    protected int $queueTot = 0;
+
     /**
      * {@inheritDoc}
      */
-    public function dequeue() : PromiseInterface
+    public function dequeue(): PromiseInterface
     {
         while (isset($this->queuedChecks[$this->queueMin])) {
+            /** @var Check */
             $check = current($this->queuedChecks[$this->queueMin]);
             if (!$check->isDue()) {
                  /* if top Check is not due, then nothing is due. stop. */
@@ -55,18 +55,16 @@ class MemoryQueue implements QueueInterface
 
             return \React\Promise\resolve($check);
         }
+
         return \React\Promise\resolve(null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function enqueue(Check $check) : PromiseInterface
+    public function enqueue(Check $check): PromiseInterface
     {
-        $priority = $check->timeOfNextCheck();
+        $priority = $check->getNextCheck();
         if (!is_int($priority) || $priority < 1) {
             return \React\Promise\reject(new \OutOfRangeException("The Check's " .
-                "timeOfNextCheck() must return a positive integer"));
+                "getNextCheck() must return a positive integer"));
         }
         if (!isset($this->queuedChecks[$priority])) {
             $this->queuedChecks[$priority] = [];
@@ -78,33 +76,26 @@ class MemoryQueue implements QueueInterface
             $this->queueMin = \min($priority, $this->queueMin);
         }
         ++$this->queueTot;
+
         return \React\Promise\resolve([]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function countQueued() : PromiseInterface
+    public function countQueued(): PromiseInterface
     {
         return \React\Promise\resolve($this->queueTot);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getQueued() : PromiseInterface
+    public function getQueued(): PromiseInterface
     {
         $queued = [];
         foreach (\array_keys($this->queuePriorities) as $priority) {
             $queued = \array_merge($queued, $this->queuedChecks[$priority]);
         }
+
         return \React\Promise\resolve($queued);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function flush() : PromiseInterface
+    public function flush(): PromiseInterface
     {
         return \React\Promise\resolve([]);
     }

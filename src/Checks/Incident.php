@@ -1,8 +1,11 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
 
+use Carbon\Carbon;
 use SeanKndy\Poller\Results\Result;
 use Ramsey\Uuid\Uuid;
+
 /**
  * Represents an incident (check that underwent a non-OK state change).
  *
@@ -10,141 +13,98 @@ use Ramsey\Uuid\Uuid;
 class Incident
 {
     /**
-     * @var string
+     * @var mixed
      */
     private $id;
     /**
-     * @var string
+     * @var mixed
      */
     private $externalId;
-    /**
-     * @var int
-     */
-    private $fromState;
-    /**
-     * @var int
-     */
-    private $toState;
-    /**
-     * Reason for incident
-     * @var string
-     */
-    private $reason;
-    /**
-     * Timestamp incident created
-     * @var int
-     */
-    private $addedTime;
-    /**
-     * Timestamp incident updated
-     * @var int
-     */
-    private $updatedTime;
-    /**
-     * Timestamp incident acknowledged
-     * @var int
-     */
-    private $acknowledgedTime = null;
-    /**
-     * Timestamp incident resolved
-     * @var int
-     */
-    private $resolvedTime = null;
 
-    public function __construct($id, int $fromState, int $toState, string $reason = null,
-        $resolved = null, $acknowledged = null, $added = null, $updated = null)
-    {
-        $this->id = $id ? $id : Uuid::uuid4()->toString();
+    private int $fromState;
+
+    private int $toState;
+
+    private ?string $reason;
+
+    private int $addedTime;
+
+    private int $updatedTime;
+
+    private ?int $acknowledgedTime;
+
+    private ?int $resolvedTime;
+
+    public function __construct(
+               $id,
+        int    $fromState,
+        int    $toState,
+        string $reason = null,
+        ?int   $resolvedTime = null,
+        ?int   $acknowledgedTime = null,
+        ?int   $addedTime = null,
+        ?int   $updatedTime = null
+    ) {
+        $this->id = $id ?: Uuid::uuid4()->toString();
         $this->fromState = $fromState;
         $this->toState = $toState;
-        $this->addedTime = $added ? $added : time();
-        $this->updatedTime = $updated ? $updated : time();
         $this->reason = $reason;
-        $this->resolvedTime = $resolved;
-        $this->acknowledgedTime = $acknowledged;
+        $this->resolvedTime = $resolvedTime;
+        $this->acknowledgedTime = $acknowledgedTime;
+        $this->addedTime = $addedTime ?: Carbon::now()->getTimestamp();
+        $this->updatedTime = $updatedTime ?: Carbon::now()->getTimestamp();
     }
 
     /**
      * Given a previous Result object and current Result object, make from them
      * a new Incident.
      *
-     * @param Result $lastResult Previous check Result
+     * @param Result|null $lastResult Previous check Result
      * @param Result $currentResult Current check Result
      *
      * @return self
      */
-    public static function fromResults(Result $lastResult = null, Result $currentResult)
+    public static function fromResults(?Result $lastResult, Result $currentResult): self
     {
         if ($lastResult === null) {
             $lastResult = new Result();
         }
+
         return new self(null, $lastResult->getState(), $currentResult->getState(), $currentResult->getStateReason());
     }
 
-    /**
-     * Has incident been resolved?
-     *
-     * @return bool
-     */
-    public function isResolved()
+    public function isResolved(): bool
     {
         return !!$this->resolvedTime;
     }
 
-    /**
-     * Has incident been acknowledged?
-     *
-     * @return bool
-     */
-    public function isAcknowledged()
+    public function isAcknowledged(): bool
     {
         return !!$this->acknowledgedTime;
     }
 
-    /**
-     * Get value of resolvedTime
-     *
-     * @return int
-     */
-    public function getResolvedTime()
+    public function getResolvedTime(): ?int
     {
         return $this->resolvedTime;
     }
 
-    /**
-     * Get value of addedTime
-     *
-     * @return int
-     */
-    public function getAddedTime()
+    public function getAddedTime(): int
     {
         return $this->addedTime;
     }
 
-    /**
-     * Get value of updatedTime
-     *
-     * @return int
-     */
-    public function getUpdatedTime()
+    public function getUpdatedTime(): int
     {
         return $this->updatedTime;
     }
 
-    /**
-     * Get value of acknowledgedTime
-     *
-     * @return int
-     */
-    public function getAcknowledgedTime()
+    public function getAcknowledgedTime(): ?int
     {
         return $this->acknowledgedTime;
     }
 
     /**
-     * Get value of id
-     *
-     * @return string
+     * @return mixed
      */
     public function getId()
     {
@@ -152,53 +112,32 @@ class Incident
     }
 
     /**
-     * Get value of externalId
-     *
-     * @return string
+     * @return mixed
      */
     public function getExternalId()
     {
         return $this->externalId;
     }
 
-    /**
-     * Get value of fromState
-     *
-     * @return int
-     */
-    public function getFromState()
+    public function getFromState(): int
     {
         return $this->fromState;
     }
 
-    /**
-     * Get value of toState
-     *
-     * @return int
-     */
-    public function getToState()
+    public function getToState(): int
     {
         return $this->toState;
     }
 
-    /**
-     * Get value of reason
-     *
-     * @return string
-     */
-    public function getReason()
+    public function getReason(): ?string
     {
         return $this->reason;
     }
 
     /**
-     * Set value of id
-     *
-     * @param $id string
-     *
-     * @return self
+     * @param mixed $id
      */
-    public function setId(string $id)
+    public function setId($id): self
     {
         $this->id = $id;
 
@@ -206,71 +145,25 @@ class Incident
     }
 
     /**
-     * Set value of externalId
-     *
-     * @param $id string
-     *
-     * @return self
+     * @param mixed $id
      */
-    public function setExternalId(string $id = null)
+    public function setExternalId($id = null): self
     {
         $this->externalId = $id;
 
         return $this;
     }
 
-    /**
-     * Set value of resolvedTime
-     *
-     * @param $time int
-     *
-     * @return self
-     */
-    public function setResolvedTime($time = null)
+    public function resolve(): self
     {
-        $this->resolvedTime = $time ? $time : time();
+        $this->resolvedTime = Carbon::now()->getTimestamp();
 
         return $this;
     }
 
-    /**
-     * Set value of acknowledgedTime
-     *
-     * @param $time int
-     *
-     * @return self
-     */
-    public function setAcknowledgedTime($time = null)
+    public function acknowledge(): self
     {
-        $this->acknowledgedTime = $time ? $time : time();
-
-        return $this;
-    }
-
-    /**
-     * Set value of addedTime
-     *
-     * @param $time int
-     *
-     * @return self
-     */
-    public function setAddedTime($time = null)
-    {
-        $this->addedTime = $time ? $time : time();
-
-        return $this;
-    }
-
-    /**
-     * Set value of updatedTime
-     *
-     * @param $time int
-     *
-     * @return self
-     */
-    public function setUpdatedTime($time = null)
-    {
-        $this->updatedTime = $time ? $time : time();
+        $this->acknowledgedTime = Carbon::now()->getTimestamp();
 
         return $this;
     }

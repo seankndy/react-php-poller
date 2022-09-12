@@ -1,48 +1,47 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 use React\EventLoop\LoopInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
+
 /**
  * Command to check subscriber pool utilization on JunOS
- *
  */
 final class JunosSubscriberPools implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-    /**
-     * Path to snmpwalk binary
-     * @var string
-     */
-    private $snmpGetBin;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoopInterface $loop;
 
-    public function __construct(LoopInterface $loop, LoggerInterface $logger,
-        $snmpGetBin = '/usr/bin/snmpget')
-    {
+    private string $snmpGetBin;
+
+    private LoggerInterface $logger;
+
+    public function __construct(
+        LoopInterface $loop,
+        LoggerInterface $logger,
+        string $snmpGetBin = '/usr/bin/snmpget'
+    ) {
         $this->loop = $loop;
         $this->logger = $logger;
 
         if (!\file_exists($snmpGetBin)) {
-            throw new \Exception("snmpget binary '$snmpGetBin' not found!");
+            throw new \RuntimeException("snmpget binary '$snmpGetBin' not found!");
         }
         $this->snmpGetBin = $snmpGetBin;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'total_pool_usage')
+        ];
+    }
+
+    public function run(Check $check): PromiseInterface
     {
         // set default attributes
         $attributes = array_merge([
@@ -110,15 +109,5 @@ final class JunosSubscriberPools implements CommandInterface
         });
 
         return $deferred->promise();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'total_pool_usage')
-        ];
     }
 }

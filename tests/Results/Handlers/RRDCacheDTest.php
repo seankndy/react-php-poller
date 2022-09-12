@@ -1,6 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Tests\Results\Handlers;
 
+use React\EventLoop\Loop;
 use SeanKndy\Poller\Tests\TestCase;
 use SeanKndy\Poller\Results\Handlers\RRDCacheD;
 use SeanKndy\Poller\Results\Metric;
@@ -22,8 +24,8 @@ class RRDCacheDTest extends TestCase
 
     public function testInitilizaitonOfFileStructure()
     {
-        $loop = \React\EventLoop\Factory::create();
-        $handler = new RRDCacheD($loop, new NullLogger(), self::TMP_RRD_DIR, '/usr/bin/rrdtool', '/var/run/rrdcached.sock');
+        $loop = Loop::get();
+        $handler = new RRDCacheD($loop, new NullLogger(), self::TMP_RRD_DIR);
 
         $checkResultPairs = [];
         for ($i = 1; $i <= self::NUM_CHECKS; $i++) {
@@ -35,7 +37,7 @@ class RRDCacheDTest extends TestCase
         }
 
         foreach ($checkResultPairs as $pair) {
-            list($check, $result) = $pair;
+            [$check, $result] = $pair;
             $this->invokeMethod($handler, 'initFileStructure', [$check, $result]);
         }
 

@@ -1,6 +1,7 @@
 <?php
 namespace SeanKndy\Poller\Tests\Commands;
 
+use React\EventLoop\Loop;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Commands\HTTP;
@@ -12,7 +13,7 @@ class HTTPTest extends TestCase
 
     public function testRun()
     {
-        $loop = \React\EventLoop\Factory::create();
+        $loop = Loop::get();
         $command = new HTTP($loop);
 
         $attributes = [

@@ -1,6 +1,7 @@
 <?php
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
@@ -10,17 +11,21 @@ use React\MySQL\ConnectionInterface;
 
 class MySQL implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
+    private LoopInterface $loop;
 
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
     }
 
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp')
+        ];
+    }
+
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         // set default metrics
@@ -82,12 +87,5 @@ class MySQL implements CommandInterface
         );
 
         return $deferred->promise();
-    }
-
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp')
-        ];
     }
 }

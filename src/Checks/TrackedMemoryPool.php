@@ -1,7 +1,9 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
 
 use React\Promise\PromiseInterface;
+
 /**
  * Pool to store active Check objects in memory (internal array)
  *
@@ -31,9 +33,9 @@ class TrackedMemoryPool extends MemoryQueue
      * Similar to $queuedChecks except $trackedChecks is indexed by check ID
      * and is constant unless untrack() is called.
      *
-     * @var array
+     * @var Check[]
      */
-    protected $trackedChecks = [];
+    protected array $trackedChecks = [];
 
     /**
      * Track and optionally auto queue a new Check in the pool
@@ -43,7 +45,7 @@ class TrackedMemoryPool extends MemoryQueue
      *
      * @return void
      */
-    public function track(Check $check, bool $autoQueue = true) : void
+    public function track(Check $check, bool $autoQueue = true): void
     {
         if ($check->getId() === '') {
             throw new \RuntimeException("Check must have an ID set");
@@ -60,10 +62,8 @@ class TrackedMemoryPool extends MemoryQueue
      * Untrack a Check from the pool
      *
      * @param mixed $id  ID of Check to untrack
-     *
-     * @return void
      */
-    public function untrack($id) : void
+    public function untrack($id): void
     {
         if (isset($this->trackedChecks[$id]))
             unset($this->trackedChecks[$id]);
@@ -72,14 +72,14 @@ class TrackedMemoryPool extends MemoryQueue
     /**
      * {@inheritDoc}
      */
-    public function dequeue() : PromiseInterface
+    public function dequeue(): PromiseInterface
     {
         return parent::dequeue()->then(function ($check) {
             if ($check) {
                 $deleted = !isset($this->trackedChecks[$check->getId()]);
                 if ($deleted) {
                     // check is not tracked; if it's interval is >0 then we
-                    // want to just delete this check from existance, so we
+                    // want to just delete this check from existence, so we
                     // will call dequeue() again to effectively do that.
                     // however, if it's interval == 0, then release it to caller
                     // because caller shouldn't ever re-enqueue being that it's
@@ -94,7 +94,7 @@ class TrackedMemoryPool extends MemoryQueue
     /**
      * {@inheritDoc}
      */
-    public function enqueue(Check $check) : PromiseInterface
+    public function enqueue(Check $check): PromiseInterface
     {
         if ($check->getInterval() > 0 && !$this->getById($check->getId())) {
             return \React\Promise\reject(new \RuntimeException("Check with ID " .
@@ -107,10 +107,8 @@ class TrackedMemoryPool extends MemoryQueue
 
     /**
      * Return number of Checks tracked
-     *
-     * @return int
      */
-    public function countTracked() : int
+    public function countTracked(): int
     {
         return count($this->trackedChecks);
     }
@@ -120,7 +118,7 @@ class TrackedMemoryPool extends MemoryQueue
      *
      * @return Check[]
      */
-    public function getTracked() : array
+    public function getTracked(): array
     {
         return \array_values($this->trackedChecks);
     }
@@ -132,8 +130,8 @@ class TrackedMemoryPool extends MemoryQueue
      *
      * @return Check|null
      */
-    public function getById($id) : ?Check
+    public function getById($id): ?Check
     {
-        return isset($this->trackedChecks[$id]) ? $this->trackedChecks[$id] : null;
+        return $this->trackedChecks[$id] ?? null;
     }
 }

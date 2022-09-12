@@ -1,7 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
 
-use \React\Promise\PromiseInterface;
+use React\Promise\PromiseInterface;
 
 /**
  * Queue interface for queueing Check objects.
@@ -16,11 +17,9 @@ interface QueueInterface
     /**
      * Add a Check to the queue
      *
-     * @param Check $check  Check to queue
-     *
-     * @return void
+     * @param Check $check  Check to place into queue
      */
-    public function enqueue(Check $check) : PromiseInterface;
+    public function enqueue(Check $check): PromiseInterface;
 
     /**
      * Extract next Check that is DUE from queue. Note that this command
@@ -28,30 +27,30 @@ interface QueueInterface
      * must be due for checking.
      * Returns a Promise whose value is the Check or else null
      *
-     * @return PromiseInterface Returns a Promise<Check,\Exception>
+     * @return PromiseInterface Returns a PromiseInterface<Check,\Exception>
      */
-    public function dequeue() : PromiseInterface;
+    public function dequeue(): PromiseInterface;
 
     /**
      * Return number of Checks queued
      *
-     * @return PromiseInterface Returns a Promise<int,\Exception>
+     * @return PromiseInterface Returns a PromiseInterface<int,\Exception>
      */
-    public function countQueued() : PromiseInterface;
+    public function countQueued(): PromiseInterface;
 
     /**
      * Get all queued Checks
      *
-     * @return PromiseInterface Returns a Promise<Check[],\Exception>
+     * @return PromiseInterface Returns a PromiseInterface<Check[],\Exception>
      */
-    public function getQueued() : PromiseInterface;
+    public function getQueued(): PromiseInterface;
 
     /**
      * Request that cached queue data is flushed to disk.
      * For example, this will likely be called just before the script
      * is killed.
      *
-     * @return PromiseInterface Returns a Promise<void,\Exception>
+     * @return PromiseInterface Returns a PromiseInterface<void,\Exception>
      */
-    public function flush() : PromiseInterface;
+    public function flush(): PromiseInterface;
 }

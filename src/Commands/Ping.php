@@ -1,6 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use React\EventLoop\LoopInterface;
 use SeanKndy\Poller\Results\Result;
@@ -11,23 +13,24 @@ use Psr\Log\NullLogger;
 
 class Ping implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-    private $logger;
-    protected $fpingBin = '';
+    private LoopInterface $loop;
 
-    public function __construct(LoopInterface $loop, LoggerInterface $logger = null,
-        $fpingBin = '')
-    {
+    private LoggerInterface $logger;
+
+    protected string $fpingBin = '';
+
+    public function __construct(
+        LoopInterface $loop,
+        ?LoggerInterface $logger = null,
+        string $fpingBin = null
+    ) {
         $this->loop = $loop;
-        $this->logger = $logger == null ? new NullLogger() : $logger;
+        $this->logger = $logger === null ? new NullLogger() : $logger;
 
         try {
             if (!$fpingBin) {
                 $bins = ['/usr/bin/fping', '/usr/local/bin/fping',
-                    '/usr/sbin/fping', '/sbin/fping', '/usr/local/sbin/fping'];
+                    '/usr/sbin/fping', '/sbin/fping', '/usr/local/sbin/fping', '/opt/homebrew/bin/fping'];
                 foreach ($bins as $bin) {
                     if (\file_exists($bin)) {
                         $fpingBin = $bin;
@@ -49,7 +52,16 @@ class Ping implements CommandInterface
         }
     }
 
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'loss'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'avg'),
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'jitter')
+        ];
+    }
+    
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         // set default metrics
@@ -148,14 +160,5 @@ class Ping implements CommandInterface
         });
 
         return $deferred->promise();
-    }
-
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'loss'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'avg'),
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'jitter')
-        ];
     }
 }

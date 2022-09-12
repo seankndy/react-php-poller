@@ -1,6 +1,8 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
+use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
@@ -8,17 +10,21 @@ use React\EventLoop\LoopInterface;
 
 class HTTP implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
+    private LoopInterface $loop;
 
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
     }
 
-    public function run(Check $check)
+    public function getProducableMetrics(array $attributes): array
+    {
+        return [
+            new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp')
+        ];
+    }
+
+    public function run(Check $check): PromiseInterface
     {
         $lastResult = $check->getResult();
         // set default metrics
@@ -107,12 +113,5 @@ class HTTP implements CommandInterface
         $request->end();
 
         return $deferred->promise();
-    }
-
-    public function getProducableMetrics(array $attributes)
-    {
-        return [
-            new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp')
-        ];
     }
 }

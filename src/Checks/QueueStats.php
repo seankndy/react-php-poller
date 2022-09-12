@@ -1,16 +1,18 @@
 <?php
+
 namespace SeanKndy\Poller\Checks;
-/**
- *
- */
+
+use Carbon\Carbon;
+use React\Promise\PromiseInterface;
+
 class QueueStats
 {
     /**
      * Fetch a QueueInterface's stats
      *
-     * @return \React\Promise\PromiseInterface Returns a Promise<array,void>
+     * @return PromiseInterface Returns a Promise<array,void>
      */
-    public static function get(QueueInterface $queue)
+    public static function get(QueueInterface $queue): PromiseInterface
     {
         return $queue->getQueued()->then(function ($queued) {
             $counts = [];
@@ -28,7 +30,7 @@ class QueueStats
                 '<=180s' => 0,
                 '>180s' => 0,
             ];
-            $time = time();
+            $time = Carbon::now()->getTimestamp();
             foreach ($counts as $nextCheckTime => $count) {
                 $diff = $nextCheckTime-$time;
                 if ($diff <= 60) {
