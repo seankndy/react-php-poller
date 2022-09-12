@@ -198,15 +198,19 @@ class Check
     public function run(): PromiseInterface
     {
         if (! $this->command) {
-            throw new \RuntimeException("Cannot execute Check (ID=" .
-                $this->getId() . ") because a Command is not defined for it!");
+            return \React\Promise\reject(new \RuntimeException("Cannot execute Check (ID=" .
+                $this->getId() . ") because a Command is not defined for it!"));
         }
 
         if ($this->interval > 0) {
             $this->nextCheck += $this->interval;
         }
 
-        return $this->command->run($this);
+        try {
+            return $this->command->run($this);
+        } catch (\Throwable $e) {
+            return \React\Promise\reject($e);
+        }
     }
 
     public function setNextCheck(?int $nextCheckTime = null): self

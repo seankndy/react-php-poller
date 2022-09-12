@@ -2,19 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/functions.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/FunctionHumanSizeToBytesTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/QueueInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/QueueInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/HTTP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/HTTP.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/JunosSubscriberPools.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/JunosSubscriberPools.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/Ping.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/Ping.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SMTP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SMTP.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Commands/SNMP.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/SNMP.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

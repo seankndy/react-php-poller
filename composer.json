@@ -24,13 +24,13 @@
   "autoload": {
     "psr-4": {
       "SeanKndy\\Poller\\": "src/"
-    }
+    },
+    "files": ["src/functions.php"]
   },
   "autoload-dev": {
     "psr-4": {
       "SeanKndy\\Poller\\Tests\\": "tests/"
-    },
-    "files": ["src/functions.php"]
+    }
   },
   "authors": [
     {
