@@ -21,16 +21,16 @@ class Ping implements CommandInterface
 
     public function __construct(
         LoopInterface $loop,
-        LoggerInterface $logger = null,
-        string $fpingBin = ''
+        ?LoggerInterface $logger = null,
+        string $fpingBin = null
     ) {
         $this->loop = $loop;
-        $this->logger = $logger == null ? new NullLogger() : $logger;
+        $this->logger = $logger === null ? new NullLogger() : $logger;
 
         try {
             if (!$fpingBin) {
                 $bins = ['/usr/bin/fping', '/usr/local/bin/fping',
-                    '/usr/sbin/fping', '/sbin/fping', '/usr/local/sbin/fping'];
+                    '/usr/sbin/fping', '/sbin/fping', '/usr/local/sbin/fping', '/opt/homebrew/bin/fping'];
                 foreach ($bins as $bin) {
                     if (\file_exists($bin)) {
                         $fpingBin = $bin;

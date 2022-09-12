@@ -1,4 +1,5 @@
 <?php
+
 namespace SeanKndy\Poller\Commands;
 
 use React\Promise\PromiseInterface;
@@ -9,10 +10,7 @@ use React\EventLoop\LoopInterface;
 
 class HTTP implements CommandInterface
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
+    private LoopInterface $loop;
 
     public function __construct(LoopInterface $loop)
     {

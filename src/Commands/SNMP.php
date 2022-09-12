@@ -7,6 +7,7 @@ use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric as ResultMetric;
 use React\EventLoop\LoopInterface;
+use function SeanKndy\Poller\humanSizeToBytes;
 
 //define('DEBUG', true);
 //define('DEBUG_IP', '209.193.82.59'); //not optional
@@ -51,9 +52,9 @@ class SNMP implements CommandInterface
 
                 if (($p = \strpos($val, '%')) !== false) {
                     $perc = \substr($val, 0, $p) / 100.0;
-                    $thresholds[$keyName][$key] = \bcmul($this->humanSizeToBytes($attributes['port_speed']), $perc);
+                    $thresholds[$keyName][$key] = \bcmul(humanSizeToBytes($attributes['port_speed']), $perc);
                 } else {
-                    $thresholds[$keyName][$key] = $this->humanSizeToBytes($val);
+                    $thresholds[$keyName][$key] = humanSizeToBytes($val);
                 }
             }
         }
@@ -362,60 +363,6 @@ class SNMP implements CommandInterface
         }
 
         return $metrics;
-    }
-
-    private function humanSizeToBytes($size): int
-    {
-        if (\preg_match('/^\-?([0-9\.]+)\s*([A-Za-z]+)$/', $size, $m)) {
-            $num = $m[1];
-            $sizeAbbrev = $m[2];
-
-            switch ($sizeAbbrev) {
-                case 'B':
-                case 'Bytes':
-                    return intval($num);
-                case 'KB':
-                case 'kB':
-                case 'Kilobytes':
-                    return intval($num * 1024);
-                case 'MB':
-                case 'Megabytes':
-                    return intval($num * 1024 * 1024);
-                case 'GB':
-                case 'Gigabytes':
-                    return intval($num * 1024 * 1024 * 1024);
-                case 'TB':
-                case 'Terabytes':
-                    return intval($num * 1024 * 1024 * 1024 * 1024);
-
-                case 'b':
-                case 'bits':
-                    return intval($num/8);
-                case 'Kb':
-                case 'kb':
-                case 'kbit':
-                case 'Kilobits':
-                    return intval($num/8 * 1024);
-                case 'm':
-                case 'M':
-                case 'Mb':
-                case 'Mbit':
-                case 'Megabits':
-                    return intval($num/8 * 1024 * 1024);
-                case 'Gb':
-                case 'Gbit':
-                case 'Gigabits':
-                    return intval($num/8 * 1024 * 1024 * 1024);
-                case 'Tb':
-                case 'Tbit':
-                case 'Terabits':
-                    return intval($num/8 * 1024 * 1024 * 1024 * 1024);
-            }
-
-            return intval($num);
-        } else {
-            return intval(\preg_replace('/[^\-0-9\.]/', '', $size));
-        }
     }
 
     private function mergeWithDefaultAttributes(array $attributes): array

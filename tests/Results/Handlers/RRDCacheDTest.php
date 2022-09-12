@@ -1,4 +1,5 @@
 <?php
+
 namespace SeanKndy\Poller\Tests\Results\Handlers;
 
 use React\EventLoop\Loop;

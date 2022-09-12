@@ -55,7 +55,8 @@ class RRDCacheD implements HandlerInterface
         if ($rrdToolBin === null) {
             foreach ([
                 '/usr/bin/rrdtool',
-                '/usr/local/bin/rrdtool'
+                '/usr/local/bin/rrdtool',
+                '/opt/homebrew/bin/rrdtool',
             ] as $possibleLocation) {
                 if (\file_exists($possibleLocation)) {
                     $rrdToolBin = $possibleLocation;
