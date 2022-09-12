@@ -2,6 +2,8 @@
 
 namespace SeanKndy\Poller\Commands;
 
+use React\ChildProcess\Process;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use React\EventLoop\LoopInterface;
@@ -67,7 +69,7 @@ class Ping implements CommandInterface
     {
         $lastResult = $check->getResult();
         // set default metrics
-        $attributes = array_merge([
+        $attributes = \array_merge([
             'ip' => '',
             'interval' => 25,
             'size' => 64,
@@ -86,12 +88,10 @@ class Ping implements CommandInterface
             "{$attributes['size']} -B1 -r1 -i{$attributes['interval']} -p 500 " .
             "{$attributes['ip']}";
 
-        /*$command = $this->fpingBin . " -q -p 100 -b {$attributes['size']} -i " .
-            "{$attributes['interval']} -c {$attributes['count']} {$attributes['ip']}";*/
-        $process = new \React\ChildProcess\Process($command);
+        $process = new Process($command);
         $process->start($this->loop);
 
-        $deferred = new \React\Promise\Deferred();
+        $deferred = new Deferred();
         $stderrBuffer = '';
         $process->stderr->on('data', function ($chunk) use (&$stderrBuffer) {
             $stderrBuffer .= $chunk;
@@ -101,7 +101,8 @@ class Ping implements CommandInterface
 
             $this->logger->debug("Ping: $command --> $stderrBuffer");
 
-            [$host, $measurements] = \explode(' : ', $stderrBuffer);
+            $last = \array_slice(\explode("\n", \trim($stderrBuffer)), -1);
+            [$host, $measurements] = \explode(' : ', $last);
             $measurements = \explode(' ', \trim($measurements));
             $cntNoResponse = 0;
             $realMeasurements = [];

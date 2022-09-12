@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Commands;
 
+use Carbon\Carbon;
 use React\Promise\PromiseInterface;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Results\Result;
@@ -42,7 +43,7 @@ class SMTP implements CommandInterface
 
         $connector = new \React\Socket\Connector($this->loop);
         $connector = new \React\Socket\TimeoutConnector($connector, $attributes['timeout'], $this->loop);
-        $timeStart = microtime(true);
+        $timeStart = Carbon::now()->getTimestampMs() * .001;
         $connector->connect($attributes['ip'] . ':' . $attributes['port'])->then(
             function (ConnectionInterface $connection) use ($attributes, $deferred, $timeStart) {
                 // when we get response from SMTP server, begin our speaking
@@ -57,7 +58,7 @@ class SMTP implements CommandInterface
                             }
                         }
                     } else if ($phase == 2) {
-                        $timeEnd = microtime(true);
+                        $timeEnd = Carbon::now()->getTimestampMs() * .001;
                         $respTime = sprintf('%.3f', $timeEnd - $timeStart);
                         $metrics = [];
                         $connection->close();
@@ -79,7 +80,7 @@ class SMTP implements CommandInterface
                     $connection->close();
                     $connection = null;
                     $state = Result::STATE_CRIT;
-                    $timeEnd = microtime(true);
+                    $timeEnd = Carbon::now()->getTimestampMs() * .001;
                     $totalTime = sprintf('%.3f', $timeEnd - $timeStart);
                     $stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
                     $deferred->resolve(new Result($state, $stateReason));
@@ -87,7 +88,7 @@ class SMTP implements CommandInterface
             },
             function (\Exception $e) use ($deferred, $timeStart) {
                 $state = Result::STATE_CRIT;
-                $timeEnd = microtime(true);
+                $timeEnd = Carbon::now()->getTimestampMs() * .001;
                 $totalTime = sprintf('%.3f', $timeEnd - $timeStart);
                 $stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
                 $deferred->resolve(new Result($state, $stateReason));

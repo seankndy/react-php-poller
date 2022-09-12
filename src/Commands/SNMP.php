@@ -227,7 +227,7 @@ class SNMP implements CommandInterface
                         $state = Result::STATE_OK;
                     }
 
-                    $lbl = isset($renameLabels[$key]) ? $renameLabels[$key] : $key;
+                    $lbl = $renameLabels[$key] ?? $key;
 
                     if (isset($thresholds['warning_min_thresholds'][$key])) {
                         if (\bccomp($val, $thresholds['warning_min_thresholds'][$key]) < 0) {
@@ -254,6 +254,10 @@ class SNMP implements CommandInterface
                         }
                     }
                 } else if (\in_array($key, $attributes['snmp_incremental_mibs'])) {
+                    if (!is_numeric($val)) {
+                        $val = 0;
+                    }
+
                     //$this->insertResultData(new ServiceCommandResultData(\bcmul($val, $postProcessValue, 3), null, $label, true));
                     $metrics[] = new ResultMetric(ResultMetric::TYPE_COUNTER, $label, \bcmul($val, $postProcessValue, 3));
 
