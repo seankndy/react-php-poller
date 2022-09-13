@@ -103,6 +103,50 @@ class ServerTest extends TestCase
     }
 
     /** @test */
+    public function it_emits_check_warn_event_when_check_ran_excessively_late(): void
+    {
+        TestTime::freeze();
+
+        $server = new Server(Loop::get(), $queue = new MemoryQueue());
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 60);
+        $check->setLastCheck(Carbon::now()->getTimestamp());
+
+        TestTime::addSeconds(90);
+
+        $server->on('check.warn', $this->expectCallableOnceWith($check, 90));
+
+        $queue->enqueue($check);
+
+        Loop::futureTick(fn() => Loop::stop());
+        Loop::run();
+
+        TestTime::unfreeze();
+    }
+
+    /** @test */
+    public function it_does_not_emit_check_warn_event_when_check_runs_reasonably_on_time(): void
+    {
+        TestTime::freeze();
+
+        $server = new Server(Loop::get(), $queue = new MemoryQueue());
+
+        $check = new Check(1, new DummyCommand(), [], \time(), 60);
+        $check->setLastCheck(Carbon::now()->getTimestamp());
+
+        TestTime::addSeconds(70);
+
+        $server->on('check.warn', $this->expectCallableNever());
+
+        $queue->enqueue($check);
+
+        Loop::futureTick(fn() => Loop::stop());
+        Loop::run();
+
+        TestTime::unfreeze();
+    }
+
+    /** @test */
     public function it_emits_error_event_when_dequeue_fails(): void
     {
         $queue = $this->createMock(QueueInterface::class);

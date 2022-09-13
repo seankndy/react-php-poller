@@ -148,8 +148,19 @@ class Server extends EventEmitter
                 return;
             }
 
-            $this->checksExecuting[$check->getId()] = [$check, Carbon::now()->getTimestampMs() * .001];
+            $this->checksExecuting[$check->getId()] = [
+                $check,
+                ($time = Carbon::now()->getTimestampMs() * .001)
+            ];
             $this->emit('check.start', [$check]);
+
+            // emit warning if check starting excessively late
+            if ($check->getLastCheck() && $check->getInterval()) {
+                $checkTimeDelta = (int) $time - $check->getLastCheck();
+                if ($checkTimeDelta >= $check->getInterval() * 1.5) {
+                    $this->emit('check.warn', [$check, $checkTimeDelta]);
+                }
+            }
 
             $this->executor
                 ->execute($check)
@@ -162,8 +173,9 @@ class Server extends EventEmitter
                 )->always(function () use ($check) {
                     // calc runtime, remove check from executing array,
                     // requeue check
+                    $time = Carbon::now()->getTimestampMs() * .001;
 
-                    $runtime = Carbon::now()->getTimestampMs() * .001 - $this->checksExecuting[$check->getId()][1];
+                    $runtime = $time - $this->checksExecuting[$check->getId()][1];
                     $this->avgRunTime->counter++;
                     $this->avgRunTime->total += $runtime;
                     if (($this->avgRunTime->max = \max($runtime, $this->avgRunTime->max)) === $runtime) {

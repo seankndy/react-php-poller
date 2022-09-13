@@ -4,6 +4,7 @@
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/ServerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ServerTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,25 +137,30 @@
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.ServerTest.it_emits_check_finish_event">
+  <component name="RunManager" selected="PHPUnit.ServerTest.it_does_not_emit_check_warn_event_when_check_ran_reasonably_on_time">
     <configuration name="FunctionHumanSizeToBytesTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="SeanKndy\Poller\Tests\FunctionHumanSizeToBytesTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/FunctionHumanSizeToBytesTest.php" scope="Class" />
-      <method v="2" />
-    </configuration>
-    <configuration name="FunctionHumanSizeToBytesTest.it_converts_kilobits_to_bytes" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\FunctionHumanSizeToBytesTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/FunctionHumanSizeToBytesTest.php" method="it_converts_kilobits_to_bytes" scope="Method" />
-      <method v="2" />
-    </configuration>
-    <configuration name="FunctionHumanSizeToBytesTest.it_converts_terabits_to_bytes" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\FunctionHumanSizeToBytesTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/FunctionHumanSizeToBytesTest.php" method="it_converts_terabits_to_bytes" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="FunctionHumanSizeToBytesTest.it_returns_bytes_when_unknown_unit_provided" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="SeanKndy\Poller\Tests\FunctionHumanSizeToBytesTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/FunctionHumanSizeToBytesTest.php" method="it_returns_bytes_when_unknown_unit_provided" scope="Method" />
       <method v="2" />
     </configuration>
+    <configuration name="ServerTest.it_does_not_emit_check_warn_event_when_check_ran_reasonably_on_time" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_does_not_emit_check_warn_event_when_check_ran_reasonably_on_time" scope="Method" />
+      <method v="2" />
+    </configuration>
     <configuration name="ServerTest.it_emits_check_finish_event" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_emits_check_finish_event" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ServerTest.it_emits_check_warn_event_when_check_ran_excessively_late" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="PHP 7.4" />
+        </PhpTestInterpreterSettings>
+      </CommandLine>
+      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_emits_check_warn_event_when_check_ran_excessively_late" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -163,11 +169,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.ServerTest.it_does_not_emit_check_warn_event_when_check_ran_reasonably_on_time" />
+        <item itemvalue="PHPUnit.ServerTest.it_emits_check_warn_event_when_check_ran_excessively_late" />
         <item itemvalue="PHPUnit.ServerTest.it_emits_check_finish_event" />
         <item itemvalue="PHPUnit.FunctionHumanSizeToBytesTest.it_returns_bytes_when_unknown_unit_provided" />
         <item itemvalue="PHPUnit.FunctionHumanSizeToBytesTest" />
-        <item itemvalue="PHPUnit.FunctionHumanSizeToBytesTest.it_converts_kilobits_to_bytes" />
-        <item itemvalue="PHPUnit.FunctionHumanSizeToBytesTest.it_converts_terabits_to_bytes" />
       </list>
     </recent_temporary>
   </component>
