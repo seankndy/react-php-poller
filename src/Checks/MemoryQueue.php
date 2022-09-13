@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Checks;
 
+use Carbon\Carbon;
 use React\Promise\PromiseInterface;
 
 /**
@@ -61,11 +62,8 @@ class MemoryQueue implements QueueInterface
 
     public function enqueue(Check $check): PromiseInterface
     {
-        $priority = $check->getNextCheck();
-        if (!is_int($priority) || $priority < 1) {
-            return \React\Promise\reject(new \OutOfRangeException("The Check's " .
-                "getNextCheck() must return a positive integer"));
-        }
+        $priority = Carbon::now()->getTimestamp() + ($check->getSchedule() ? $check->getSchedule()->secondsUntilDue($check) : 0);
+        
         if (!isset($this->queuedChecks[$priority])) {
             $this->queuedChecks[$priority] = [];
         }

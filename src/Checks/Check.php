@@ -3,6 +3,7 @@
 namespace SeanKndy\Poller\Checks;
 
 use React\Promise\PromiseInterface;
+use SeanKndy\Poller\Checks\Schedules\ScheduleInterface;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Handlers\HandlerInterface;
 use SeanKndy\Poller\Commands\CommandInterface;
@@ -17,10 +18,9 @@ class Check
     protected $id;
 
     /**
-     * Interval in seconds the Check is due to run.
-     * A value <=0 means the Check should not be re-enqueued()
+     * Scheduling of check runs, or null for Checks that should not be re-enqueued().
      */
-    protected int $interval;
+    protected ?ScheduleInterface $schedule;
 
     protected bool $incidentsSuppressed = false;
 
@@ -29,8 +29,6 @@ class Check
     protected array $attributes = [];
 
     protected ?int $lastCheck = null;
-
-    protected ?int $nextCheck = null;
 
     /**
      * @var HandlerInterface[]
@@ -58,8 +56,8 @@ class Check
         $id,
         ?CommandInterface $command,
         array $attributes,
-        int $nextCheck,
-        int $interval,
+        int $lastCheck,
+        ?ScheduleInterface $schedule,
         Result $result = null,
         array $handlers = [],
         Incident $incident = null,
@@ -68,9 +66,8 @@ class Check
         $this->id = $id;
         $this->command = $command;
         $this->attributes = $attributes;
-        // its important that if nextCheck is in the past that this is instead set to "now"
-        $this->setNextCheck($nextCheck);
-        $this->interval = $interval;
+        $this->lastCheck = $lastCheck;
+        $this->schedule = $schedule;
         $this->result = $result;
         $this->handlers = $handlers;
         $this->incident = $incident;
@@ -79,7 +76,9 @@ class Check
 
     public function isDue(): bool
     {
-        return $this->nextCheck && Carbon::now()->getTimestamp() >= $this->nextCheck;
+        return !$this->schedule || $this->schedule->isDue($this);
+
+        //return $this->nextCheck && Carbon::now()->getTimestamp() >= $this->nextCheck;
     }
 
     public function setAttributes(array $attributes): self
@@ -173,9 +172,9 @@ class Check
         return $this->incidentsSuppressed;
     }
 
-    public function getInterval(): int
+    public function getSchedule(): ?ScheduleInterface
     {
-        return $this->interval;
+        return $this->schedule;
     }
 
     public function setResult(?Result $result): self
@@ -190,11 +189,6 @@ class Check
         return $this->result;
     }
 
-    public function getNextCheck(): ?int
-    {
-        return $this->nextCheck;
-    }
-
     public function run(): PromiseInterface
     {
         if (! $this->command) {
@@ -202,30 +196,13 @@ class Check
                 $this->getId() . ") because a Command is not defined for it!"));
         }
 
-        if ($this->interval > 0) {
-            $this->nextCheck += $this->interval;
-        }
+        $this->lastCheck = Carbon::now()->getTimestamp();
 
         try {
             return $this->command->run($this);
         } catch (\Throwable $e) {
             return \React\Promise\reject($e);
         }
-    }
-
-    public function setNextCheck(?int $nextCheckTime = null): self
-    {
-        if ($nextCheckTime !== null) {
-            $now = Carbon::now()->getTimestamp();
-
-            // this is important to override $nextCheckTime to the current time if $nextCheckTime
-            // is in the past
-            $this->nextCheck = max($now, $nextCheckTime);
-        } else {
-            $this->nextCheck = null;
-        }
-
-        return $this;
     }
 
     public function getLastCheck(): ?int
@@ -264,24 +241,6 @@ class Check
     public function getMeta()
     {
         return $this->meta;
-    }
-
-    /**
-     * Calculate time to next check, or negative if past due
-     */
-    public function timeToNextCheck(?int $time = null): int
-    {
-        $time = $time !== null ? $time : Carbon::now()->getTimestamp();
-
-        return ($this->getNextCheck() - $time);
-    }
-
-    /**
-     * @deprecated Use getNextCheck() instead.
-     */
-    public function timeOfNextCheck(): ?int
-    {
-        return $this->getNextCheck();
     }
 
     /**

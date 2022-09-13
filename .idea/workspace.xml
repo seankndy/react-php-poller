@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Checks/Schedules/ScheduleInterface.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -119,20 +123,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/sean/Projects/kdg/react-php-poller/tests/Checks&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;php.override.implement.member.chooser.php.doc&quot;: &quot;NONE&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.webide.settings.project.settings.php&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/sean/Projects/kdg/react-php-poller/src/Checks/Schedules",
+    "nodejs_package_manager_path": "npm",
+    "php.override.implement.member.chooser.php.doc": "NONE",
+    "settings.editor.selected.configurable": "reference.webide.settings.project.settings.php",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/Checks/Schedules" />
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>

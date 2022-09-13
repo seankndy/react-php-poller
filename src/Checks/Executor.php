@@ -36,7 +36,7 @@ class Executor extends EventEmitter
             return $this->runHandlers(
                 $check, $result, $newIncident
             )->always(function() use ($check, $result, $newIncident) {
-                $check->setLastCheck();
+                //$check->setLastCheck();
                 $check->setResult($result);
                 if ($newIncident) {
                     $check->setIncident($newIncident);
@@ -44,7 +44,7 @@ class Executor extends EventEmitter
             });
         }, function ($e) use ($check) {
             // no handlers called here because the Check Command completely failed.
-            $check->setLastCheck();
+            //$check->setLastCheck();
 
             return \React\Promise\reject($e);
         });

@@ -141,7 +141,7 @@ class Server extends EventEmitter
             return;
         }
 
-        $this->checkQueue->dequeue()->then(function ($check) {
+        $this->checkQueue->dequeue()->then(function (?Check $check) {
             if ($check === null) {
                 $this->loop->addTimer(self::QUIET_TIME*2, fn() => $this->runDueChecks());
                 return;
@@ -154,11 +154,8 @@ class Server extends EventEmitter
             $this->emit('check.start', [$check]);
 
             // emit warning if check starting excessively late
-            if ($check->getLastCheck() && $check->getInterval()) {
-                $checkTimeDelta = (int) $time - $check->getLastCheck();
-                if ($checkTimeDelta >= $check->getInterval() * 1.5) {
-                    $this->emit('check.warn', [$check, "Check is $checkTimeDelta seconds late to start."]);
-                }
+            if ($check->getSchedule() && ($checkTimeDelta = abs($check->getSchedule()->secondsUntilDue($check))) >= 60) {
+                $this->emit('check.warn', [$check, "Check is $checkTimeDelta seconds late to start."]);
             }
 
             $this->executor
@@ -183,7 +180,8 @@ class Server extends EventEmitter
 
                     unset($this->checksExecuting[$check->getId()]);
 
-                    if ($check->getInterval() <= 0) {
+                    if (! $check->getSchedule()) {
+                        // do not re-queue check's without schedules
                         return;
                     }
 
