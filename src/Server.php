@@ -158,7 +158,7 @@ class Server extends EventEmitter
             if ($check->getLastCheck() && $check->getInterval()) {
                 $checkTimeDelta = (int) $time - $check->getLastCheck();
                 if ($checkTimeDelta >= $check->getInterval() * 1.5) {
-                    $this->emit('check.warn', [$check, $checkTimeDelta]);
+                    $this->emit('check.warn', [$check, "Check is $checkTimeDelta seconds late to start."]);
                 }
             }
 

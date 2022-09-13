@@ -114,7 +114,7 @@ class ServerTest extends TestCase
 
         TestTime::addSeconds(90);
 
-        $server->on('check.warn', $this->expectCallableOnceWith($check, 90));
+        $server->on('check.warn', $this->expectCallableOnceWith($check, "Check is 90 seconds late to start."));
 
         $queue->enqueue($check);
 
