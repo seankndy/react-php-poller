@@ -44,14 +44,14 @@ class Server extends EventEmitter
      */
     const QUIET_TIME = 0.5;
 
-    public function __construct(LoopInterface $loop, QueueInterface $queue)
+    public function __construct(LoopInterface $loop, QueueInterface $queue, int $maxConcurrentChecks = 100)
     {
         $this->loop = $loop;
         $this->checkQueue = $queue;
         $this->running = true;
         $this->checksExecuting = [];
-        $this->maxConcurrentChecks = 100;
         $this->timers = [];
+        $this->maxConcurrentChecks = $maxConcurrentChecks;
 
         // structure for tracking average runtime data
         $this->avgRunTime = new class {
@@ -101,6 +101,11 @@ class Server extends EventEmitter
             }
             $this->avgRunTime->reset();
         });
+    }
+
+    public function getMaxConcurrentChecks(): int
+    {
+        return $this->maxConcurrentChecks;
     }
 
     public function setMaxConcurrentChecks(int $max): self
