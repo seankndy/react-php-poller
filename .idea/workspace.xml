@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/ServerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ServerTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

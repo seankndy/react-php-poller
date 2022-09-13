@@ -83,8 +83,7 @@ class Server extends EventEmitter
 
         //  report any checks that have run for > 30sec
         $this->timers[] = $this->loop->addPeriodicTimer(30.0, function () {
-            foreach ($this->checksExecuting as $id => $pair) {
-                list($check,$startTime) = $pair;
+            foreach ($this->checksExecuting as [$check, $startTime]) {
                 if (Carbon::now()->getTimestampMs() * .001 - $startTime > 30.0) {
                     $this->emit('check.error', [$check, new \Exception("Check has been executing for > 30sec!")]);
                 }
