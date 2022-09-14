@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Tests\TestCase;
 
@@ -14,7 +15,7 @@ class ResultTest extends TestCase
     /** @test */
     public function it_does_not_justify_new_incident_when_check_result_ok()
     {
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_CRIT));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_CRIT));
 
         $this->assertFalse((new Result(Result::STATE_OK))->justifiesNewIncidentForCheck($check));
     }
@@ -22,7 +23,7 @@ class ResultTest extends TestCase
     /** @test */
     public function it_justifies_new_incident_when_check_result_state_goes_from_ok_to_crit()
     {
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_OK));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_OK));
 
         $this->assertTrue((new Result(Result::STATE_CRIT))->justifiesNewIncidentForCheck($check));
     }
@@ -30,7 +31,7 @@ class ResultTest extends TestCase
     /** @test */
     public function it_justifies_new_incident_when_check_result_state_goes_from_ok_to_warn()
     {
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_OK));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_OK));
 
         $this->assertTrue((new Result(Result::STATE_WARN))->justifiesNewIncidentForCheck($check));
     }
@@ -38,7 +39,7 @@ class ResultTest extends TestCase
     /** @test */
     public function it_justifies_new_incident_when_check_result_state_goes_from_ok_to_unknown()
     {
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_OK));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_OK));
 
         $this->assertTrue((new Result(Result::STATE_UNKNOWN))->justifiesNewIncidentForCheck($check));
     }
@@ -51,7 +52,7 @@ class ResultTest extends TestCase
             null,
             [],
             Carbon::now()->getTimestamp(),
-            10,
+            new Periodic(10),
             new Result(Result::STATE_WARN),
             [],
             new Incident(1, Result::STATE_CRIT, Result::STATE_WARN)
@@ -68,7 +69,7 @@ class ResultTest extends TestCase
             null,
             [],
             Carbon::now()->getTimestamp(),
-            10,
+            new Periodic(10),
             new Result(Result::STATE_WARN),
             [],
             new Incident(1, Result::STATE_CRIT, Result::STATE_WARN)
@@ -80,29 +81,29 @@ class ResultTest extends TestCase
     /** @test */
     public function it_justifies_new_incident_when_check_result_state_goes_from_not_ok_to_other_not_ok()
     {
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_CRIT));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_CRIT));
         $this->assertTrue((new Result(Result::STATE_WARN))->justifiesNewIncidentForCheck($check));
 
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_CRIT));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_CRIT));
         $this->assertTrue((new Result(Result::STATE_UNKNOWN))->justifiesNewIncidentForCheck($check));
 
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_WARN));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_WARN));
         $this->assertTrue((new Result(Result::STATE_CRIT))->justifiesNewIncidentForCheck($check));
 
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_WARN));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_WARN));
         $this->assertTrue((new Result(Result::STATE_UNKNOWN))->justifiesNewIncidentForCheck($check));
 
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_UNKNOWN));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_UNKNOWN));
         $this->assertTrue((new Result(Result::STATE_CRIT))->justifiesNewIncidentForCheck($check));
 
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_UNKNOWN));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_UNKNOWN));
         $this->assertTrue((new Result(Result::STATE_WARN))->justifiesNewIncidentForCheck($check));
     }
 
     /** @test */
     public function it_does_not_justify_new_incident_when_check_incident_suppression_enabled()
     {
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), 10, new Result(Result::STATE_OK));
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10), new Result(Result::STATE_OK));
         $check->setIncidentsSuppressed(true);
 
         $this->assertFalse((new Result(Result::STATE_CRIT))->justifiesNewIncidentForCheck($check));

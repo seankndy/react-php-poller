@@ -8,6 +8,7 @@ use React\Promise\PromiseInterface;
 use React\Socket\Connector;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\Incident;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Results\Metric;
 use React\Socket\ConnectionInterface;
@@ -101,9 +102,11 @@ class RRDCacheD implements HandlerInterface
      */
     public function process(Check $check, Result $result, ?Incident $newIncident = null): PromiseInterface
     {
-        if (!$result->getMetrics()) { // no metrics? no run.
+        // no metrics? no run.  no Periodic schedule? no run.
+        if (!$result->getMetrics() || !($check->getSchedule() instanceof Periodic)) {
             return \React\Promise\resolve([]);
         }
+
         return $this->initFileStructure($check, $result)->then(
             fn() => $this->rrdCachedConnect()->then(
                 fn(ConnectionInterface $connection) => $this->writeRrdUpdateBatch($connection, $check, $result)
@@ -125,7 +128,7 @@ class RRDCacheD implements HandlerInterface
                     $rrdFile = $this->getRrdFilePath($check, $metric);
                     $type = ($metric->getType() == Metric::TYPE_COUNTER
                         ? 'COUNTER' : 'GAUGE');
-                    $interval = $check->getInterval();
+                    $interval = $check->getSchedule()->getInterval();
                     $label = $this->getRrdDsName($metric);
 
                     $this->log(LogLevel::DEBUG, "RRD file $rrdFile does not exist, attempting to create.");

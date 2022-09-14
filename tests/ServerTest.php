@@ -7,6 +7,7 @@ use React\EventLoop\Loop;
 use SeanKndy\Poller\Checks\Check;
 use SeanKndy\Poller\Checks\MemoryQueue;
 use SeanKndy\Poller\Checks\QueueInterface;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Commands\CommandInterface;
 use SeanKndy\Poller\Server;
 use SeanKndy\Poller\Tests\Commands\DummyCommand;
@@ -25,7 +26,7 @@ class ServerTest extends TestCase
             ->method('run')
             ->willReturn(\React\Promise\resolve([]));
 
-        $check = new Check(1, $command, [], \time(), 10);
+        $check = new Check(1, $command, [], \time()-10, new Periodic(10));
 
         $queue->enqueue($check);
 
@@ -44,7 +45,7 @@ class ServerTest extends TestCase
             ->method('run')
             ->willReturn(\React\Promise\resolve([]));
 
-        $check = new Check(1, $command, [], \time()+1000, 10);
+        $check = new Check(1, $command, [], \time(), new Periodic(10));
 
         $queue->enqueue($check);
 
@@ -57,7 +58,7 @@ class ServerTest extends TestCase
     {
         $server = new Server(Loop::get(), $queue = new MemoryQueue());
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(), [], \time()-10, new Periodic(10));
 
         $server->on('check.start', $this->expectCallableOnceWith($check));
 
@@ -75,7 +76,7 @@ class ServerTest extends TestCase
 
         $server = new Server(Loop::get(), $queue = new MemoryQueue());
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(), [], \time()-10, new Periodic(10));
 
         $server->on('check.finish', $this->expectCallableOnceWith($check, $currentTimeMs));
 
@@ -92,7 +93,7 @@ class ServerTest extends TestCase
     {
         $server = new Server(Loop::get(), $queue = new MemoryQueue());
 
-        $check = new Check(1, new DummyCommand(true), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(true), [], \time()-10, new Periodic(10));
 
         $server->on('check.error', $this->expectCallableOnceWith($check, $this->isInstanceOf(\Exception::class)));
 
@@ -109,12 +110,9 @@ class ServerTest extends TestCase
 
         $server = new Server(Loop::get(), $queue = new MemoryQueue());
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 60);
-        $check->setLastCheck(Carbon::now()->getTimestamp());
+        $check = new Check(1, new DummyCommand(), [], Carbon::now()->getTimestamp()-120, new Periodic(60));
 
-        TestTime::addSeconds(90);
-
-        $server->on('check.warn', $this->expectCallableOnceWith($check, "Check is 90 seconds late to start."));
+        $server->on('check.warn', $this->expectCallableOnceWith($check, "Check is 60 seconds late to start."));
 
         $queue->enqueue($check);
 
@@ -131,10 +129,7 @@ class ServerTest extends TestCase
 
         $server = new Server(Loop::get(), $queue = new MemoryQueue());
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 60);
-        $check->setLastCheck(Carbon::now()->getTimestamp());
-
-        TestTime::addSeconds(70);
+        $check = new Check(1, new DummyCommand(), [], Carbon::now()->getTimestamp()-70, new Periodic(60));
 
         $server->on('check.warn', $this->expectCallableNever());
 
@@ -170,7 +165,7 @@ class ServerTest extends TestCase
         $queue
             ->expects($this->once())
             ->method('dequeue')
-            ->willReturn(\React\Promise\resolve(new Check(1, new DummyCommand(), [], \time(), 10)));
+            ->willReturn(\React\Promise\resolve(new Check(1, new DummyCommand(), [], \time()-10, new Periodic(10))));
         $queue
             ->expects($this->once())
             ->method('enqueue')
@@ -187,7 +182,7 @@ class ServerTest extends TestCase
     /** @test */
     public function it_requeues_check_after_it_successfully_runs(): void
     {
-        $check = new Check(1, new DummyCommand(false), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(false), [], \time()-10, new Periodic(10));
 
         $queue = $this->createMock(QueueInterface::class);
         $queue
@@ -209,7 +204,7 @@ class ServerTest extends TestCase
     /** @test */
     public function it_requeues_check_after_it_unsuccessfully_runs(): void
     {
-        $check = new Check(1, new DummyCommand(true), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(true), [], \time()-10, new Periodic(10));
 
         $queue = $this->createMock(QueueInterface::class);
         $queue
@@ -229,9 +224,9 @@ class ServerTest extends TestCase
     }
 
     /** @test */
-    public function it_does_not_requeue_check_with_zero_interval(): void
+    public function it_does_not_requeue_check_with_no_schedule(): void
     {
-        $check = new Check(1, new DummyCommand(false), [], \time(), 0);
+        $check = new Check(1, new DummyCommand(false), [], \time()-60, null);
 
         $queue = $this->createMock(QueueInterface::class);
         $queue

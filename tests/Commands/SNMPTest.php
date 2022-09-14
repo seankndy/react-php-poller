@@ -2,6 +2,7 @@
 namespace SeanKndy\Poller\Tests\Commands;
 
 use SeanKndy\Poller\Checks\Check;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Results\Result;
 use SeanKndy\Poller\Commands\SNMP;
 use SeanKndy\Poller\Tests\TestCase;
@@ -22,7 +23,7 @@ class SNMPTest extends TestCase
             'snmp_read_community' => self::SNMP_COMMUNITY,
             'snmp_if_id' => self::SNMP_IF_ID
         ];
-        $check = new Check(1234, $command, $attributes, \time(), 10);
+        $check = new Check(1234, $command, $attributes, \time()-10, new Periodic(10));
         $command->run($check)->then(
             $this->expectCallableOnceWith($this->isInstanceOf(Result::class)),
             $this->expectCallableNever()

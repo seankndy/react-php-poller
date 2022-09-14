@@ -3,6 +3,7 @@
 namespace SeanKndy\Poller\Tests\Checks;
 
 use Carbon\Carbon;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Tests\TestCase;
 use Spatie\TestTime\TestTime;
 use function React\Async\await;
@@ -18,12 +19,9 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        TestTime::freeze();
-        TestTime::addHour(1);
-        $time = Carbon::now()->getTimestamp();
-        TestTime::subHour(1);
+        $time = Carbon::now()->getTimestamp() - self::NUM_CHECKS * 60;
 
-        // create array of Checks, each Check having a next check time earlier than the last
+        // create array of Checks, each Check having a last check time earlier than the last
         $checks = [];
         for ($i = 0; $i < self::NUM_CHECKS; $i++) {
             $checks[] = new Check(
@@ -31,10 +29,9 @@ class MemoryQueueTest extends TestCase
                 null,
                 [],
                 $time - $i,
-                10
+                new Periodic(10)
             );
         }
-        TestTime::addHour(1);
 
         // randomize checks so they're queued in random order
         shuffle($checks);
@@ -50,8 +47,6 @@ class MemoryQueueTest extends TestCase
 
             $this->assertEquals($i, $check->getId());
         }
-
-        TestTime::unfreeze();
     }
 
     /** @test */
@@ -71,8 +66,8 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            Carbon::now()->getTimestamp()+10, // in future
-            60
+            Carbon::now()->getTimestamp(), // not due until +60sec
+            new Periodic(60)
         ));
 
         $this->assertNull(await($queue->dequeue()));
@@ -87,8 +82,24 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            Carbon::now()->getTimestamp()-10, // in past
-            60
+            Carbon::now()->getTimestamp()-60, // due
+            new Periodic(60)
+        ));
+
+        $this->assertEquals(1, await($queue->dequeue())->getId());
+    }
+
+    /** @test */
+    public function it_dequeues_check_when_its_overdue()
+    {
+        $queue = new MemoryQueue();
+
+        $queue->enqueue(new Check(
+            1,
+            null,
+            [],
+            Carbon::now()->getTimestamp()-61, // 1sec overdue
+            new Periodic(60)
         ));
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
@@ -103,8 +114,8 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            Carbon::now()->getTimestamp()-10, // in past
-            60
+            Carbon::now()->getTimestamp()-60,
+            new Periodic(60)
         ));
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
@@ -120,15 +131,15 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            Carbon::now()->getTimestamp()-10, // in past, due
-            60
+            Carbon::now()->getTimestamp()-60, // due
+            new Periodic(60)
         ));
         $queue->enqueue(new Check(
             2,
             null,
             [],
-            Carbon::now()->getTimestamp()+10, // in future, not due
-            60
+            Carbon::now()->getTimestamp(), // not due
+            new Periodic(60)
         ));
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
@@ -144,15 +155,15 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            Carbon::now()->getTimestamp()-10, // in past
-            60
+            Carbon::now()->getTimestamp()-60, // due
+            new Periodic(60)
         ));
         $queue->enqueue(new Check(
             2,
             null,
             [],
-            Carbon::now()->getTimestamp()+10, // in future
-            60
+            Carbon::now()->getTimestamp(), // not due
+            new Periodic(60)
         ));
 
         $this->assertEquals(2, await($queue->countQueued()));
@@ -175,8 +186,8 @@ class MemoryQueueTest extends TestCase
             1,
             null,
             [],
-            Carbon::now()->getTimestamp()-10, // in past
-            60
+            Carbon::now()->getTimestamp()-60, // due
+            new Periodic(60)
         );
         $queue->enqueue($check);
 

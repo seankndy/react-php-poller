@@ -180,7 +180,7 @@ class Server extends EventEmitter
 
                     unset($this->checksExecuting[$check->getId()]);
 
-                    if (! $check->getSchedule()) {
+                    if (!$check->getSchedule()) {
                         // do not re-queue check's without schedules
                         return;
                     }

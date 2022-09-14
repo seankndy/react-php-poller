@@ -3,6 +3,7 @@
 namespace SeanKndy\Poller\Tests\Results\Handlers;
 
 use React\EventLoop\Loop;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Tests\TestCase;
 use SeanKndy\Poller\Results\Handlers\RRDCacheD;
 use SeanKndy\Poller\Results\Metric;
@@ -32,7 +33,7 @@ class RRDCacheDTest extends TestCase
             $result = new Result(Result::STATE_OK, '', [
                 new Metric(Metric::TYPE_GAUGE, 'test', 69)
             ]);
-            $check = new Check($i, null, [], \time(), 300);
+            $check = new Check($i, null, [], \time()-300, new Periodic(300));
             $checkResultPairs[] = [$check, $result];
         }
 

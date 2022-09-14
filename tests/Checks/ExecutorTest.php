@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Tests\Checks;
 
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Tests\Commands\DummyCommand;
 use SeanKndy\Poller\Tests\TestCase;
 use React\Promise\PromiseInterface;
@@ -15,49 +16,9 @@ use function React\Async\await;
 class ExecutorTest extends TestCase
 {
     /** @test */
-    public function it_increments_checks_next_check_time_by_interval_time()
-    {
-        $time = \time();
-        $interval = 10;
-        $check = new Check(1, new DummyCommand(), [], $time, $interval);
-
-        await((new Executor())->execute($check));
-
-        $this->assertEquals($time + $interval, $check->getNextCheck());
-    }
-
-    /** @test */
-    public function it_updates_checks_last_check_time_after_successful_run()
-    {
-        $interval = 10;
-        $time = \time() - $interval;
-        $check = new Check(1, new DummyCommand(), [], $time + $interval, $interval);
-        $check->setLastCheck($time);
-
-        await((new Executor())->execute($check));
-
-        $this->assertNotEquals($time, $check->getLastCheck());
-    }
-
-    /** @test */
-    public function it_updates_checks_last_check_time_after_unsuccessful_run()
-    {
-        $interval = 10;
-        $time = \time() - $interval;
-        $check = new Check(1, new DummyCommand(true), [], $time + $interval, $interval);
-        $check->setLastCheck($time);
-
-        try {
-            await((new Executor())->execute($check));
-        } catch (\Exception $e) {}
-
-        $this->assertNotEquals($time, $check->getLastCheck());
-    }
-
-    /** @test */
     public function it_creates_incident_when_result_goes_from_ok_to_not_ok()
     {
-        $check = new Check(1, new DummyCommand(false, new Result(Result::STATE_CRIT)), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(false, new Result(Result::STATE_CRIT)), [], \time(), new Periodic(10));
         $this->assertNull($check->getIncident());
 
         await((new Executor())->execute($check));
@@ -73,7 +34,7 @@ class ExecutorTest extends TestCase
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
         $newResult = new Result(Result::STATE_CRIT);
 
-        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), 10, $lastResult, [], $incident);
+        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), new Periodic(10), $lastResult, [], $incident);
 
         await((new Executor())->execute($check));
 
@@ -86,7 +47,7 @@ class ExecutorTest extends TestCase
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
         $newResult = new Result(Result::STATE_WARN);
 
-        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), 10, $lastResult, [], $incident);
+        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), new Periodic(10), $lastResult, [], $incident);
 
         await((new Executor())->execute($check));
 
@@ -99,7 +60,7 @@ class ExecutorTest extends TestCase
     public function it_sets_result_in_check_after_successful_run()
     {
         $result = new Result(Result::STATE_WARN);
-        $check = new Check(1, new DummyCommand(false, $result), [], \time(), 10);
+        $check = new Check(1, new DummyCommand(false, $result), [], \time(), new Periodic(10));
         $this->assertNull($check->getResult());
 
         await((new Executor())->execute($check));
@@ -114,7 +75,7 @@ class ExecutorTest extends TestCase
         $newResult = new Result(Result::STATE_OK);
         $this->assertNull($incident->getResolvedTime());
 
-        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), 10, $lastResult, [], $incident);
+        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), new Periodic(10), $lastResult, [], $incident);
 
         await((new Executor())->execute($check));
 
@@ -128,7 +89,7 @@ class ExecutorTest extends TestCase
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
         $incident->resolve();
 
-        $check = new Check(1, new DummyCommand(false, new Result(Result::STATE_OK)), [], \time(), 10, $lastResult, [], $incident);
+        $check = new Check(1, new DummyCommand(false, new Result(Result::STATE_OK)), [], \time(), new Periodic(10), $lastResult, [], $incident);
         $this->assertNotNull($check->getIncident());
 
         await((new Executor())->execute($check));
@@ -149,7 +110,7 @@ class ExecutorTest extends TestCase
             ->method('process')
             ->willReturn(\React\Promise\resolve([]));
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
             $handlerObserver
         ]);
 
@@ -169,7 +130,7 @@ class ExecutorTest extends TestCase
             ->method('process')
             ->willReturn(\React\Promise\resolve([]));
 
-        $check = new Check(1, new DummyCommand(true), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(true), [], \time(), new Periodic(10), null, [
             $handlerObserver
         ]);
 
@@ -204,7 +165,7 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
             $makeHandler(1, 1),
             $makeHandler(2, 0),
             $makeHandler(3, .5),
@@ -230,7 +191,7 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
             $handler
         ]);
 
@@ -253,7 +214,7 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
             $handler
         ]);
 
@@ -276,7 +237,7 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
             $handler
         ]);
 
@@ -299,7 +260,7 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), 10, null, [
+        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
             $handler
         ]);
 

@@ -2,6 +2,7 @@
 namespace SeanKndy\Poller\Tests\Checks;
 
 use SeanKndy\Poller\Checks\Check;
+use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Checks\TrackedMemoryPool;
 use SeanKndy\Poller\Tests\TestCase;
 use function React\Async\await;
@@ -18,7 +19,7 @@ class TrackedMemoryPoolTest extends TestCase
         $time = \time();
         $checks = [];
         for ($i = 1; $i <= self::NUM_CHECKS; $i++) {
-            $check = new Check($i, null, [], \time(), 10);
+            $check = new Check($i, null, [], \time(), new Periodic(10));
             $check->setLastCheck($time - ($i * 10));
 
             $checks[] = $check;
@@ -42,7 +43,7 @@ class TrackedMemoryPoolTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         $pool = new TrackedMemoryPool();
-        await($pool->enqueue(new Check(1, null, [], \time(), 10)));
+        await($pool->enqueue(new Check(1, null, [], \time(), new Periodic(10))));
     }
 
 }
