@@ -2,27 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Checks/Schedules/ScheduleInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/TrackedMemoryPool.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/TrackedMemoryPool.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/CheckTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/DNSTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/DNSTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/MySQLTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/MySQLTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/PingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/PingTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/SMTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/SMTPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/SNMPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/SNMPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Results/ResultTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/ResultTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/ServerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ServerTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,25 +147,25 @@
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.SNMPTest.testRun">
-    <configuration name="SNMPTest.testRun" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Commands\SNMPTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Commands/SNMPTest.php" method="testRun" scope="Method" />
+  <component name="RunManager" selected="PHPUnit.PeriodicTest.it_calculates_zero_seconds_until_due_for_check_with_null_last_check_time">
+    <configuration name="PeriodicTest.it_calculates_negative_seconds_until_due_if_past_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_negative_seconds_until_due_if_past_due" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ServerTest.it_does_not_requeue_check_with_no_schedule" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_does_not_requeue_check_with_no_schedule" scope="Method" />
+    <configuration name="PeriodicTest.it_calculates_seconds_until_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_seconds_until_due" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ServerTest.it_flushes_queue_on_stop" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_flushes_queue_on_stop" scope="Method" />
+    <configuration name="PeriodicTest.it_calculates_zero_seconds_until_due_for_check_with_null_last_check_time" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_zero_seconds_until_due_for_check_with_null_last_check_time" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ServerTest.it_requeues_check_after_it_successfully_runs" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_requeues_check_after_it_successfully_runs" scope="Method" />
+    <configuration name="PeriodicTest.it_is_due_when_checks_last_check_time_is_null" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_is_due_when_checks_last_check_time_is_null" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ServerTest.it_requeues_check_after_it_unsuccessfully_runs" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\ServerTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/ServerTest.php" method="it_requeues_check_after_it_unsuccessfully_runs" scope="Method" />
+    <configuration name="PeriodicTest.it_is_not_due_when_checks_not_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_is_not_due_when_checks_not_due" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -192,11 +174,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.SNMPTest.testRun" />
-        <item itemvalue="PHPUnit.ServerTest.it_flushes_queue_on_stop" />
-        <item itemvalue="PHPUnit.ServerTest.it_does_not_requeue_check_with_no_schedule" />
-        <item itemvalue="PHPUnit.ServerTest.it_requeues_check_after_it_unsuccessfully_runs" />
-        <item itemvalue="PHPUnit.ServerTest.it_requeues_check_after_it_successfully_runs" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_zero_seconds_until_due_for_check_with_null_last_check_time" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_is_due_when_checks_last_check_time_is_null" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_negative_seconds_until_due_if_past_due" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_seconds_until_due" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_is_not_due_when_checks_not_due" />
       </list>
     </recent_temporary>
   </component>
@@ -215,7 +197,7 @@
       <workItem from="1662684851352" duration="6540000" />
       <workItem from="1662725192300" duration="1072000" />
       <workItem from="1662726348446" duration="20157000" />
-      <workItem from="1663124336924" duration="2606000" />
+      <workItem from="1663124336924" duration="3612000" />
     </task>
     <servers />
   </component>

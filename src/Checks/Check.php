@@ -56,7 +56,7 @@ class Check
         $id,
         ?CommandInterface $command,
         array $attributes,
-        int $lastCheck,
+        ?int $lastCheck,
         ?ScheduleInterface $schedule,
         Result $result = null,
         array $handlers = [],
