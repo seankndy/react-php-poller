@@ -4,6 +4,7 @@ namespace SeanKndy\Poller\Tests\Checks;
 
 use Carbon\Carbon;
 use SeanKndy\Poller\Checks\Schedules\Periodic;
+use SeanKndy\Poller\Results\Handlers\Exceptions\HandlerExecutionException;
 use SeanKndy\Poller\Tests\Commands\DummyCommand;
 use SeanKndy\Poller\Tests\TestCase;
 use React\Promise\PromiseInterface;
@@ -26,7 +27,7 @@ class ExecutorTest extends TestCase
             ->withSchedule(new Periodic(10))
             ->setLastCheckNow();
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
     }
 
     /** @test */
@@ -46,7 +47,7 @@ class ExecutorTest extends TestCase
 
         TestTime::addSeconds($interval);
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertEquals(Carbon::now()->getTimestamp(), $check->getLastCheck());
 
@@ -63,7 +64,7 @@ class ExecutorTest extends TestCase
 
         $this->assertNull($check->getIncident());
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertInstanceOf(Incident::class, ($incident = $check->getIncident()));
         $this->assertEquals(Result::STATE_UNKNOWN, $incident->getFromState());
@@ -83,7 +84,7 @@ class ExecutorTest extends TestCase
             ->setIncident($incident)
             ->setLastCheckNow();
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertSame($incident, $check->getIncident());
     }
@@ -101,7 +102,7 @@ class ExecutorTest extends TestCase
             ->setIncident($incident)
             ->setLastCheckNow();
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertNotSame($incident, $newIncident = $check->getIncident());
         $this->assertEquals(Result::STATE_CRIT, $newIncident->getFromState());
@@ -120,7 +121,7 @@ class ExecutorTest extends TestCase
 
         $this->assertNull($check->getResult());
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertSame($result, $check->getResult());
     }
@@ -139,7 +140,7 @@ class ExecutorTest extends TestCase
             ->setIncident($incident)
             ->setLastCheckNow();
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertSame($incident, $check->getIncident());
         $this->assertNotNull($incident->getResolvedTime());
@@ -160,7 +161,7 @@ class ExecutorTest extends TestCase
 
         $this->assertNotNull($check->getIncident());
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertNull($check->getIncident());
     }
@@ -184,7 +185,7 @@ class ExecutorTest extends TestCase
             ->withHandlers([$handlerObserver])
             ->setLastCheckNow();
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
     }
 
     /** @test */
@@ -207,7 +208,7 @@ class ExecutorTest extends TestCase
             ->setLastCheckNow();
 
         try {
-            await((new Executor())->execute($check));
+            await(Executor::execute($check));
         } catch (\Exception $e) {}
     }
 
@@ -249,21 +250,21 @@ class ExecutorTest extends TestCase
             ])
             ->setLastCheckNow();
 
-        await((new Executor())->execute($check));
+        await(Executor::execute($check));
 
         $this->assertEquals('12345', $check->getAttribute('test'));
     }
 
     /** @test */
-    public function it_catches_exceptions_thrown_in_mutation_handler_and_emits_error()
+    public function it_rejects_with_exception_when_handler_mutation_rejects(): void
     {
         $handler = new class implements HandlerInterface {
             public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
-                throw new \RuntimeException("Uh oh.");
+                return \React\Promise\reject(new \Exception("Uh oh."));
             }
 
             public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
-                return \React\Promise\resolve(new Result());
+                return \React\Promise\resolve([]);
             }
         };
 
@@ -273,14 +274,53 @@ class ExecutorTest extends TestCase
             ->withHandlers([$handler])
             ->setLastCheckNow();
 
-        $executor = new Executor();
-        $executor->on('error', $this->expectCallableOnce());
+        $this->expectException(HandlerExecutionException::class);
 
-        await($executor->execute($check));
+        try {
+            await(Executor::execute($check));
+            $this->fail("Exception not thrown!");
+        } catch (HandlerExecutionException $e) {
+            $this->assertSame($check, $e->getCheck());
+            $this->assertSame($handler, $e->getHandler());
+
+            throw $e;
+        }
     }
 
     /** @test */
-    public function it_catches_exceptions_thrown_in_process_handler_and_emits_error()
+    public function it_rejects_with_exception_when_handler_mutation_throws(): void
+    {
+        $handler = new class implements HandlerInterface {
+            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                throw new \Exception("Uh oh.");
+            }
+
+            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
+                return \React\Promise\resolve([]);
+            }
+        };
+
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handler])
+            ->setLastCheckNow();
+
+        $this->expectException(HandlerExecutionException::class);
+
+        try {
+            await(Executor::execute($check));
+            $this->fail("Exception not thrown!");
+        } catch (HandlerExecutionException $e) {
+            $this->assertSame($check, $e->getCheck());
+            $this->assertSame($handler, $e->getHandler());
+
+            throw $e;
+        }
+    }
+
+    /** @test */
+    public function it_rejects_with_exception_when_handler_process_rejects(): void
     {
         $handler = new class implements HandlerInterface {
             public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
@@ -288,7 +328,7 @@ class ExecutorTest extends TestCase
             }
 
             public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
-                throw new \RuntimeException("Uh oh.");
+                return \React\Promise\reject(new \Exception("Uh oh."));
             }
         };
 
@@ -298,39 +338,21 @@ class ExecutorTest extends TestCase
             ->withHandlers([$handler])
             ->setLastCheckNow();
 
-        $executor = new Executor();
-        $executor->on('error', $this->expectCallableOnce());
+        $this->expectException(HandlerExecutionException::class);
 
-        await($executor->execute($check));
+        try {
+            await(Executor::execute($check));
+            $this->fail("Exception not thrown!");
+        } catch (HandlerExecutionException $e) {
+            $this->assertSame($check, $e->getCheck());
+            $this->assertSame($handler, $e->getHandler());
+
+            throw $e;
+        }
     }
 
     /** @test */
-    public function it_emits_error_when_mutation_handler_rejects()
-    {
-        $handler = new class implements HandlerInterface {
-            public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
-                return \React\Promise\reject(new \RuntimeException("Uh oh."));
-            }
-
-            public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
-                return \React\Promise\resolve(new Result());
-            }
-        };
-
-        $check = (new Check(1))
-            ->withCommand(new DummyCommand())
-            ->withSchedule(new Periodic(10))
-            ->withHandlers([$handler])
-            ->setLastCheckNow();
-
-        $executor = new Executor();
-        $executor->on('error', $this->expectCallableOnce());
-
-        await($executor->execute($check));
-    }
-
-    /** @test */
-    public function it_emits_error_when_process_handler_rejects()
+    public function it_rejects_with_exception_when_handler_process_throws(): void
     {
         $handler = new class implements HandlerInterface {
             public function mutate(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
@@ -338,7 +360,7 @@ class ExecutorTest extends TestCase
             }
 
             public function process(Check $check, Result $result, Incident $newIncident = null): PromiseInterface {
-                return \React\Promise\reject(new \RuntimeException("Uh oh."));
+                throw new \Exception("Uh oh.");
             }
         };
 
@@ -348,9 +370,48 @@ class ExecutorTest extends TestCase
             ->withHandlers([$handler])
             ->setLastCheckNow();
 
-        $executor = new Executor();
-        $executor->on('error', $this->expectCallableOnce());
+        $this->expectException(HandlerExecutionException::class);
 
-        await($executor->execute($check));
+        try {
+            await(Executor::execute($check));
+            $this->fail("Exception not thrown!");
+        } catch (HandlerExecutionException $e) {
+            $this->assertSame($check, $e->getCheck());
+            $this->assertSame($handler, $e->getHandler());
+
+            throw $e;
+        }
     }
+
+    /** @test */
+    public function it_stops_processing_handlers_after_mutation_rejects(): void
+    {
+        $handler1 = $this->createMock(HandlerInterface::class);
+        $handler1
+            ->expects($this->once())
+            ->method('mutate')
+            ->willReturn(\React\Promise\reject(new \RuntimeException("Uh oh.")));
+        $handler1
+            ->expects($this->never())
+            ->method('process');
+
+        $handler2 = $this->createMock(HandlerInterface::class);
+        $handler2
+            ->expects($this->never())
+            ->method('mutate');
+        $handler2
+            ->expects($this->never())
+            ->method('process');
+
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handler1, $handler2])
+            ->setLastCheckNow();
+
+        $this->expectException(HandlerExecutionException::class);
+
+        await(Executor::execute($check));
+    }
+
 }

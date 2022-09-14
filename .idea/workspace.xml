@@ -2,8 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Results/Handlers/Exceptions/HandlerExecutionException.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Commands/CommandInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/CommandInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Results/ResultTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/ResultTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/ServerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ServerTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,43 +139,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/sean/Projects/kdg/react-php-poller/src/Checks/Schedules",
-    "nodejs_package_manager_path": "npm",
-    "php.override.implement.member.chooser.php.doc": "NONE",
-    "settings.editor.selected.configurable": "web-ide.project.structure",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/sean/Projects/kdg/react-php-poller/src/Checks/Schedules&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;php.override.implement.member.chooser.php.doc&quot;: &quot;NONE&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;web-ide.project.structure&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/Checks/Schedules" />
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.PeriodicTest.it_calculates_time_due_to_be_now_when_check_last_check_time_is_null">
-    <configuration name="PeriodicTest.it_calculates_accurate_time_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_accurate_time_due" scope="Method" />
+  <component name="RunManager" selected="PHPUnit.ResultTest.it_does_not_justify_new_incident_when_check_incident_suppression_enabled">
+    <configuration name="ResultTest.it_does_not_justify_new_incident_when_check_incident_suppression_enabled" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Results\ResultTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Results/ResultTest.php" method="it_does_not_justify_new_incident_when_check_incident_suppression_enabled" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="PeriodicTest.it_calculates_accurate_time_due_even_if_past_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_accurate_time_due_even_if_past_due" scope="Method" />
+    <configuration name="ResultTest.it_does_not_justify_new_incident_when_check_last_incident_tostate_same_as_new_result_state" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Results\ResultTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Results/ResultTest.php" method="it_does_not_justify_new_incident_when_check_last_incident_tostate_same_as_new_result_state" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="PeriodicTest.it_calculates_time_due_to_be_now_when_check_last_check_time_is_null" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_time_due_to_be_now_when_check_last_check_time_is_null" scope="Method" />
+    <configuration name="ResultTest.it_justifies_new_incident_when_check_last_incident_tostate_different_from_new_result_state" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Results\ResultTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Results/ResultTest.php" method="it_justifies_new_incident_when_check_last_incident_tostate_different_from_new_result_state" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="PeriodicTest.it_is_due_when_checks_last_check_time_is_null" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_is_due_when_checks_last_check_time_is_null" scope="Method" />
+    <configuration name="ResultTest.it_justifies_new_incident_when_check_result_state_goes_from_not_ok_to_other_not_ok" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Results\ResultTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Results/ResultTest.php" method="it_justifies_new_incident_when_check_result_state_goes_from_not_ok_to_other_not_ok" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="PeriodicTest.it_is_not_due_when_checks_not_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_is_not_due_when_checks_not_due" scope="Method" />
+    <configuration name="ResultTest.it_justifies_new_incident_when_check_result_state_goes_from_ok_to_unknown" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Results\ResultTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Results/ResultTest.php" method="it_justifies_new_incident_when_check_result_state_goes_from_ok_to_unknown" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -178,11 +184,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_time_due_to_be_now_when_check_last_check_time_is_null" />
-        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_accurate_time_due_even_if_past_due" />
-        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_accurate_time_due" />
-        <item itemvalue="PHPUnit.PeriodicTest.it_is_due_when_checks_last_check_time_is_null" />
-        <item itemvalue="PHPUnit.PeriodicTest.it_is_not_due_when_checks_not_due" />
+        <item itemvalue="PHPUnit.ResultTest.it_does_not_justify_new_incident_when_check_incident_suppression_enabled" />
+        <item itemvalue="PHPUnit.ResultTest.it_justifies_new_incident_when_check_result_state_goes_from_not_ok_to_other_not_ok" />
+        <item itemvalue="PHPUnit.ResultTest.it_does_not_justify_new_incident_when_check_last_incident_tostate_same_as_new_result_state" />
+        <item itemvalue="PHPUnit.ResultTest.it_justifies_new_incident_when_check_last_incident_tostate_different_from_new_result_state" />
+        <item itemvalue="PHPUnit.ResultTest.it_justifies_new_incident_when_check_result_state_goes_from_ok_to_unknown" />
       </list>
     </recent_temporary>
   </component>

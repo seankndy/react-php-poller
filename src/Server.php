@@ -9,9 +9,10 @@ use SeanKndy\Poller\Checks\Executor;
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
 use Carbon\Carbon;
+use SeanKndy\Poller\Results\Handlers\Exceptions\HandlerExecutionException;
 
 /**
- * Server dequeues Checks from a QueueInterface object, executes it's Command,
+ * Server dequeues Checks from a QueueInterface object, executes its Command,
  * fires the Result through the Check's Handlers, then enqueues it to the
  * QueueInterface object again.
  */
@@ -22,8 +23,6 @@ class Server extends EventEmitter
     private QueueInterface $checkQueue;
 
     private int $maxConcurrentChecks;
-
-    private Executor $executor;
 
     /**
      * @var array<int, array{Check, float}>
@@ -74,18 +73,10 @@ class Server extends EventEmitter
         };
         $this->avgRunTime->reset();
 
-        $this->executor = new Executor();
-        $this->executor->on('error', function ($handler, $e) {
-            $this->emit('error', [new \Exception("Handler " .
-                get_class($handler) . " errored: file=<" .
-                $e->getFile() . ">; line=<" . $e->getLine() . ">; " .
-                "msg=<" . $e->getMessage() . ">")]);
-        });
-
         // start server
         $this->loop->futureTick(fn() => $this->runDueChecks());
 
-        //  report any checks that have run for > 30sec
+        // report any checks that have run for > 30sec
         $this->timers[] = $this->loop->addPeriodicTimer(30.0, function () {
             foreach ($this->checksExecuting as [$check, $startTime]) {
                 if (Carbon::now()->getTimestampMs() * .001 - $startTime > 30.0) {
@@ -162,15 +153,18 @@ class Server extends EventEmitter
                 $this->emit('check.warn', [$check, "Check is $checkTimeDelta seconds late to start."]);
             }
 
-            $this->executor
-                ->execute($check)
-                ->then(
-                    // check succeeded, emit event, and
-                    // let always() handle enqueuing
-                    fn() => $this->emit('check.finish', [$check, $this->checksExecuting[$check->getId()][1]]),
-                    // check crash and burned, emit error
-                    fn (\Throwable $e) => $this->emit('check.error', [$check, $e])
-                )->always(function () use ($check) {
+            Executor::execute($check)
+                // check succeeded, emit event, and
+                // let always() handle enqueuing
+                ->then(fn() => $this->emit('check.finish', [$check, $this->checksExecuting[$check->getId()][1]]))
+                // handler had an error
+                ->otherwise(function(HandlerExecutionException $e) use ($check) {
+                    $this->emit('check.finish', [$check, $this->checksExecuting[$check->getId()][1]]);
+                    $this->emit('check.error', [$check, $e]);
+                })
+                // check crash and burned, emit error
+                ->otherwise(fn (\Throwable $e) => $this->emit('check.error', [$check, $e]))
+                ->always(function () use ($check) {
                     // calc runtime, remove check from executing array,
                     // requeue check
                     $time = Carbon::now()->getTimestampMs() * .001;
