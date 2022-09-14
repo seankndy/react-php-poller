@@ -3,19 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/CheckTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/DNSTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/DNSTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/MySQLTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/MySQLTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/PingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/PingTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/SMTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/SMTPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Commands/SNMPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/SNMPTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

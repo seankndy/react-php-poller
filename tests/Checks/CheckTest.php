@@ -25,7 +25,7 @@ class CheckTest extends TestCase
     {
         $check = (new Check(1))
             ->withSchedule(new Periodic(10))
-            ->setLastCheck(Carbon::now()->getTimestamp());
+            ->setLastCheckNow();
 
         $this->assertFalse($check->isDue());
     }
@@ -37,7 +37,7 @@ class CheckTest extends TestCase
 
         $check = (new Check(1))
             ->withSchedule(null)
-            ->setLastCheck(Carbon::now()->getTimestamp());
+            ->setLastCheckNow();
 
         $this->assertEquals(Carbon::now()->getTimestamp(), $check->getNextCheck());
 
@@ -53,7 +53,7 @@ class CheckTest extends TestCase
 
         $check = (new Check(1))
             ->withSchedule($schedule)
-            ->setLastCheck(Carbon::now()->getTimestamp());
+            ->setLastCheckNow();
 
         $this->assertEquals($schedule->timeDue($check), $check->getNextCheck());
 

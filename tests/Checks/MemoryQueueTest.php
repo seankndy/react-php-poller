@@ -114,7 +114,7 @@ class MemoryQueueTest extends TestCase
 
         $queue->enqueue((new Check(2))
             ->withSchedule(new Periodic(60))
-            ->setLastCheck(Carbon::now()->getTimestamp())); // not due
+            ->setLastCheckNow()); // not due
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
         $this->assertNull(await($queue->dequeue()));
@@ -131,7 +131,7 @@ class MemoryQueueTest extends TestCase
 
         $queue->enqueue((new Check(2))
             ->withSchedule(new Periodic(60))
-            ->setLastCheck(Carbon::now()->getTimestamp())); // not due
+            ->setLastCheckNow()); // not due
 
         $this->assertEquals(2, await($queue->countQueued()));
     }

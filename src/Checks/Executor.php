@@ -20,7 +20,7 @@ final class Executor extends EventEmitter
                 $check->getId() . ") because a Command is not defined for it!"));
         }
 
-        $check->setLastCheck(Carbon::now()->getTimestamp());
+        $check->setLastCheckNow();
 
         return $check->runCommand()->then(function ($result) use ($check) {
             // make new incident if necessary and mark prior incident as resolved
