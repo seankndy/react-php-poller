@@ -143,9 +143,9 @@ class Check
         return $this->command;
     }
 
-    public function setCommand(CommandInterface $cmd): self
+    public function setCommand(?CommandInterface $command): self
     {
-        $this->command = $cmd;
+        $this->command = $command;
 
         return $this;
     }
