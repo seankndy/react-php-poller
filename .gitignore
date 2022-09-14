@@ -4,4 +4,4 @@ src/inc/config.php
 composer.lock
 .phpunit*
 log
-.idea/
+/.idea/
