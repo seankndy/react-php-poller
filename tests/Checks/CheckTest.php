@@ -3,28 +3,19 @@
 namespace SeanKndy\Poller\Tests\Checks;
 
 use Carbon\Carbon;
-use PHPUnit\Util\Test;
 use SeanKndy\Poller\Checks\Check;
-use SeanKndy\Poller\Checks\Executor;
 use SeanKndy\Poller\Checks\Schedules\Periodic;
-use SeanKndy\Poller\Results\Result;
-use SeanKndy\Poller\Tests\Commands\DummyCommand;
 use SeanKndy\Poller\Tests\TestCase;
 use Spatie\TestTime\TestTime;
-use function React\Async\await;
 
 class CheckTest extends TestCase
 {
     /** @test */
     public function it_is_due_when_schedule_is_due()
     {
-        $check = new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-10,
-            new Periodic(10)
-        );
+        $check = (new Check(1))
+            ->withSchedule(new Periodic(10))
+            ->setLastCheck(Carbon::now()->getTimestamp()-10);
 
         $this->assertTrue($check->isDue());
     }
@@ -32,15 +23,11 @@ class CheckTest extends TestCase
     /** @test */
     public function it_is_not_due_when_schedule_is_not_due()
     {
-        $check = new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp(),
-            new Periodic(10)
-        );
+        $check = (new Check(1))
+            ->withSchedule(new Periodic(10))
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
-        $this->assertFalse($check->isDue());;
+        $this->assertFalse($check->isDue());
     }
 
     /** @test */
@@ -48,13 +35,9 @@ class CheckTest extends TestCase
     {
         TestTime::freeze();
 
-        $check = new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp(),
-            null
-        );
+        $check = (new Check(1))
+            ->withSchedule(null)
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         $this->assertEquals(Carbon::now()->getTimestamp(), $check->getNextCheck());
 
@@ -68,13 +51,9 @@ class CheckTest extends TestCase
 
         $schedule = new Periodic(10);
 
-        $check = new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp(),
-            $schedule
-        );
+        $check = (new Check(1))
+            ->withSchedule($schedule)
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         $this->assertEquals($schedule->timeDue($check), $check->getNextCheck());
 

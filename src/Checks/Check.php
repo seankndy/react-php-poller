@@ -22,9 +22,9 @@ class Check
      */
     protected ?ScheduleInterface $schedule;
 
-    protected bool $incidentsSuppressed = false;
-
     protected ?CommandInterface $command;
+
+    protected bool $incidentsSuppressed = false;
 
     protected array $attributes = [];
 
@@ -38,40 +38,74 @@ class Check
     /**
      * Current Result for the check, may be null
      */
-    protected ?Result $result;
+    protected ?Result $result = null;
 
     /**
      * Current Incident for Check.  As long as the incident is unresolved, this
      * will be that incident.  After it's resolved, it will be nulled.
      */
-    protected ?Incident $incident;
+    protected ?Incident $incident = null;
 
     /**
      * Any misc meta data to attach to the Check.
      * @var mixed|null
      */
-    protected $meta;
+    protected $meta = null;
 
     public function __construct(
         $id,
-        ?CommandInterface $command,
-        array $attributes,
-        ?int $lastCheck,
-        ?ScheduleInterface $schedule,
-        Result $result = null,
-        array $handlers = [],
-        Incident $incident = null,
-        $meta = null
+        ?CommandInterface $command = null,
+        ?ScheduleInterface $schedule = null
     ) {
         $this->id = $id;
         $this->command = $command;
-        $this->attributes = $attributes;
-        $this->lastCheck = $lastCheck;
         $this->schedule = $schedule;
-        $this->result = $result;
-        $this->handlers = $handlers;
-        $this->incident = $incident;
-        $this->meta = $meta;
+    }
+
+    public function withAttributes(array $attributes): self
+    {
+        $check = clone $this;
+        $check->attributes = $attributes;
+
+        return $check;
+    }
+
+    public function withCommand(?CommandInterface $command): self
+    {
+        $check = clone $this;
+        $check->command = $command;
+
+        return $check;
+    }
+
+    public function withSchedule(?ScheduleInterface $schedule): self
+    {
+        $check = clone $this;
+        $check->schedule = $schedule;
+
+        return $check;
+    }
+
+    /**
+     * @param HandlerInterface[] $handlers
+     */
+    public function withHandlers(array $handlers): self
+    {
+        $check = clone $this;
+        $check->handlers = $handlers;
+
+        return $check;
+    }
+
+    /**
+     * @param mixed $meta
+     */
+    public function withMeta($meta): self
+    {
+        $check = clone $this;
+        $check->meta = $meta;
+
+        return $check;
     }
 
     public function setAttributes(array $attributes): self
@@ -192,9 +226,16 @@ class Check
         return $this->lastCheck;
     }
 
-    public function setLastCheck(?int $time = null): self
+    public function setLastCheck(?int $time): self
     {
-        $this->lastCheck = $time !== null ? $time : Carbon::now()->getTimestamp();
+        $this->lastCheck = $time;
+
+        return $this;
+    }
+
+    public function setLastCheckNow(): self
+    {
+        $this->lastCheck = Carbon::now()->getTimestamp();
 
         return $this;
     }

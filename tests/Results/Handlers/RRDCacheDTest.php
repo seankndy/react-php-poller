@@ -34,7 +34,11 @@ class RRDCacheDTest extends TestCase
             $result = new Result(Result::STATE_OK, '', [
                 new Metric(Metric::TYPE_GAUGE, 'test', 69)
             ]);
-            $check = new Check($i, null, [], Carbon::now()->getTimestamp(), new Periodic(300));
+
+            $check = (new Check($i))
+                ->withSchedule(new Periodic(300))
+                ->setLastCheckNow();
+
             $checkResultPairs[] = [$check, $result];
         }
 

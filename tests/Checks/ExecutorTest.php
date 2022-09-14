@@ -22,7 +22,9 @@ class ExecutorTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
 
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10));
+        $check = (new Check(1))
+            ->withSchedule(new Periodic(10))
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         await((new Executor())->execute($check));
     }
@@ -34,7 +36,12 @@ class ExecutorTest extends TestCase
 
         $interval = 10;
         $time = Carbon::now()->getTimestamp() - $interval;
-        $check = new Check(1, new DummyCommand(), [], $time, new Periodic($interval));
+
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic($interval))
+            ->setLastCheck($time);
+
         $this->assertEquals($time, $check->getLastCheck());
 
         TestTime::addSeconds($interval);
@@ -49,7 +56,11 @@ class ExecutorTest extends TestCase
     /** @test */
     public function it_creates_incident_when_result_goes_from_ok_to_not_ok()
     {
-        $check = new Check(1, new DummyCommand(false, new Result(Result::STATE_CRIT)), [], \time(), new Periodic(10));
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(false, new Result(Result::STATE_CRIT)))
+            ->withSchedule(new Periodic(10))
+            ->setLastCheck(Carbon::now()->getTimestamp());
+
         $this->assertNull($check->getIncident());
 
         await((new Executor())->execute($check));
@@ -65,7 +76,12 @@ class ExecutorTest extends TestCase
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
         $newResult = new Result(Result::STATE_CRIT);
 
-        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), new Periodic(10), $lastResult, [], $incident);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(false, $newResult))
+            ->withSchedule(new Periodic(10))
+            ->setResult($lastResult)
+            ->setIncident($incident)
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         await((new Executor())->execute($check));
 
@@ -78,7 +94,12 @@ class ExecutorTest extends TestCase
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
         $newResult = new Result(Result::STATE_WARN);
 
-        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), new Periodic(10), $lastResult, [], $incident);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(false, $newResult))
+            ->withSchedule(new Periodic(10))
+            ->setResult($lastResult)
+            ->setIncident($incident)
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         await((new Executor())->execute($check));
 
@@ -91,7 +112,12 @@ class ExecutorTest extends TestCase
     public function it_sets_result_in_check_after_successful_run()
     {
         $result = new Result(Result::STATE_WARN);
-        $check = new Check(1, new DummyCommand(false, $result), [], \time(), new Periodic(10));
+
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(false, $result))
+            ->withSchedule(new Periodic(10))
+            ->setLastCheck(Carbon::now()->getTimestamp());
+
         $this->assertNull($check->getResult());
 
         await((new Executor())->execute($check));
@@ -106,7 +132,12 @@ class ExecutorTest extends TestCase
         $newResult = new Result(Result::STATE_OK);
         $this->assertNull($incident->getResolvedTime());
 
-        $check = new Check(1, new DummyCommand(false, $newResult), [], \time(), new Periodic(10), $lastResult, [], $incident);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(false, $newResult))
+            ->withSchedule(new Periodic(10))
+            ->setResult($lastResult)
+            ->setIncident($incident)
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         await((new Executor())->execute($check));
 
@@ -120,7 +151,13 @@ class ExecutorTest extends TestCase
         $incident = Incident::fromResults(new Result(Result::STATE_CRIT), $lastResult = new Result(Result::STATE_CRIT));
         $incident->resolve();
 
-        $check = new Check(1, new DummyCommand(false, new Result(Result::STATE_OK)), [], \time(), new Periodic(10), $lastResult, [], $incident);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(false, new Result(Result::STATE_OK)))
+            ->withSchedule(new Periodic(10))
+            ->setResult($lastResult)
+            ->setIncident($incident)
+            ->setLastCheck(Carbon::now()->getTimestamp());
+
         $this->assertNotNull($check->getIncident());
 
         await((new Executor())->execute($check));
@@ -141,9 +178,11 @@ class ExecutorTest extends TestCase
             ->method('process')
             ->willReturn(\React\Promise\resolve([]));
 
-        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
-            $handlerObserver
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handlerObserver])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         await((new Executor())->execute($check));
     }
@@ -161,9 +200,11 @@ class ExecutorTest extends TestCase
             ->method('process')
             ->willReturn(\React\Promise\resolve([]));
 
-        $check = new Check(1, new DummyCommand(true), [], \time(), new Periodic(10), null, [
-            $handlerObserver
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand(true))
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handlerObserver])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         try {
             await((new Executor())->execute($check));
@@ -196,13 +237,17 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
-            $makeHandler(1, 1),
-            $makeHandler(2, 0),
-            $makeHandler(3, .5),
-            $makeHandler(4, 0),
-            $makeHandler(5, .7)
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([
+                $makeHandler(1, 1),
+                $makeHandler(2, 0),
+                $makeHandler(3, .5),
+                $makeHandler(4, 0),
+                $makeHandler(5, .7)
+            ])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         await((new Executor())->execute($check));
 
@@ -222,9 +267,11 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
-            $handler
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handler])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         $executor = new Executor();
         $executor->on('error', $this->expectCallableOnce());
@@ -245,9 +292,11 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
-            $handler
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handler])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         $executor = new Executor();
         $executor->on('error', $this->expectCallableOnce());
@@ -268,9 +317,11 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
-            $handler
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handler])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         $executor = new Executor();
         $executor->on('error', $this->expectCallableOnce());
@@ -291,9 +342,11 @@ class ExecutorTest extends TestCase
             }
         };
 
-        $check = new Check(1, new DummyCommand(), [], \time(), new Periodic(10), null, [
-            $handler
-        ]);
+        $check = (new Check(1))
+            ->withCommand(new DummyCommand())
+            ->withSchedule(new Periodic(10))
+            ->withHandlers([$handler])
+            ->setLastCheck(Carbon::now()->getTimestamp());
 
         $executor = new Executor();
         $executor->on('error', $this->expectCallableOnce());

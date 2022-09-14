@@ -4,6 +4,7 @@ namespace SeanKndy\Poller\Tests\Checks;
 
 use Carbon\Carbon;
 use SeanKndy\Poller\Checks\Schedules\Periodic;
+use SeanKndy\Poller\Tests\Commands\DummyCommand;
 use SeanKndy\Poller\Tests\TestCase;
 use Spatie\TestTime\TestTime;
 use function React\Async\await;
@@ -24,13 +25,9 @@ class MemoryQueueTest extends TestCase
         // create array of Checks, each Check having a last check time earlier than the last
         $checks = [];
         for ($i = 0; $i < self::NUM_CHECKS; $i++) {
-            $checks[] = new Check(
-                $i+1,
-                null,
-                [],
-                $time - $i,
-                new Periodic(10)
-            );
+            $checks[] = (new Check($i+1))
+                ->withSchedule(new Periodic(10))
+                ->setLastCheck($time - $i);
         }
 
         // randomize checks so they're queued in random order
@@ -62,13 +59,9 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        $queue->enqueue(new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp(), // not due until +60sec
-            new Periodic(60)
-        ));
+        $queue->enqueue((new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheckNow());
 
         $this->assertNull(await($queue->dequeue()));
     }
@@ -78,13 +71,9 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        $queue->enqueue(new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-60, // due
-            new Periodic(60)
-        ));
+        $queue->enqueue((new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp()-60));
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
     }
@@ -94,13 +83,9 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        $queue->enqueue(new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-61, // 1sec overdue
-            new Periodic(60)
-        ));
+        $queue->enqueue((new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp()-61));
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
     }
@@ -110,13 +95,9 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        $queue->enqueue(new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-60,
-            new Periodic(60)
-        ));
+        $queue->enqueue((new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp()-60));
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
         $this->assertNull(await($queue->dequeue()));
@@ -127,20 +108,13 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        $queue->enqueue(new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-60, // due
-            new Periodic(60)
-        ));
-        $queue->enqueue(new Check(
-            2,
-            null,
-            [],
-            Carbon::now()->getTimestamp(), // not due
-            new Periodic(60)
-        ));
+        $queue->enqueue((new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp()-60)); // due
+
+        $queue->enqueue((new Check(2))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp())); // not due
 
         $this->assertEquals(1, await($queue->dequeue())->getId());
         $this->assertNull(await($queue->dequeue()));
@@ -151,20 +125,13 @@ class MemoryQueueTest extends TestCase
     {
         $queue = new MemoryQueue();
 
-        $queue->enqueue(new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-60, // due
-            new Periodic(60)
-        ));
-        $queue->enqueue(new Check(
-            2,
-            null,
-            [],
-            Carbon::now()->getTimestamp(), // not due
-            new Periodic(60)
-        ));
+        $queue->enqueue((new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp()-60)); // due
+
+        $queue->enqueue((new Check(2))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp())); // not due
 
         $this->assertEquals(2, await($queue->countQueued()));
     }
@@ -182,13 +149,11 @@ class MemoryQueueTest extends TestCase
     {
         // ensure the pool does not return a cloned/copied Check
         $queue = new MemoryQueue();
-        $check = new Check(
-            1,
-            null,
-            [],
-            Carbon::now()->getTimestamp()-60, // due
-            new Periodic(60)
-        );
+
+        $check = (new Check(1))
+            ->withSchedule(new Periodic(60))
+            ->setLastCheck(Carbon::now()->getTimestamp()-60);
+
         $queue->enqueue($check);
 
         $this->assertSame($check, await($queue->dequeue()));

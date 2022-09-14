@@ -19,10 +19,9 @@ class TrackedMemoryPoolTest extends TestCase
         $time = \time();
         $checks = [];
         for ($i = 1; $i <= self::NUM_CHECKS; $i++) {
-            $check = new Check($i, null, [], \time(), new Periodic(10));
-            $check->setLastCheck($time - ($i * 10));
-
-            $checks[] = $check;
+            $checks[] = (new Check($i))
+                ->withSchedule(new Periodic(10))
+                ->setLastCheck($time - ($i * 10));
         }
 
         foreach ($checks as $check) {
@@ -43,7 +42,7 @@ class TrackedMemoryPoolTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         $pool = new TrackedMemoryPool();
-        await($pool->enqueue(new Check(1, null, [], \time(), new Periodic(10))));
+        await($pool->enqueue((new Check(1))->withSchedule(new Periodic(10))->setLastCheckNow()));
     }
 
 }

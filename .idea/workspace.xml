@@ -2,19 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e1ff580-aff4-453f-aaf0-b725cbc94620" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Checks/Schedules/AbstractBaseSchedule.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Checks/Check.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Check.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Executor.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Executor.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/MemoryQueue.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Schedules/Periodic.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Schedules/Periodic.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Schedules/ScheduleInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Schedules/ScheduleInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Checks/Schedules/TimeOfDayInterval.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Checks/Schedules/TimeOfDayInterval.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Results/Handlers/RRDCacheD.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Server.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Checks/CheckTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/CheckTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/MemoryQueueTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Checks/TrackedMemoryPoolTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/DNSTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/DNSTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/HTTPTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/MySQLTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/MySQLTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/PingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/PingTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/SMTPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/SMTPTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Commands/SNMPTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Commands/SNMPTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Results/Handlers/RRDCacheDTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -163,25 +163,25 @@
       <recent name="$PROJECT_DIR$/tests/Checks" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.ExecutorTest.it_sets_last_check_time_when_executed">
-    <configuration name="CheckTest.it_sets_last_check_time_when_executed" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_sets_last_check_time_when_executed" scope="Method" />
+  <component name="RunManager" selected="PHPUnit.PeriodicTest.it_calculates_time_due_to_be_now_when_check_last_check_time_is_null">
+    <configuration name="PeriodicTest.it_calculates_accurate_time_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_accurate_time_due" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="CheckTest.it_throws_exception_when_executed_without_command" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\CheckTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/CheckTest.php" method="it_throws_exception_when_executed_without_command" scope="Method" />
+    <configuration name="PeriodicTest.it_calculates_accurate_time_due_even_if_past_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_accurate_time_due_even_if_past_due" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_rejects_with_exception_when_executed_without_command" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_rejects_with_exception_when_executed_without_command" scope="Method" />
+    <configuration name="PeriodicTest.it_calculates_time_due_to_be_now_when_check_last_check_time_is_null" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_calculates_time_due_to_be_now_when_check_last_check_time_is_null" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="ExecutorTest.it_sets_last_check_time_when_executed" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\ExecutorTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/ExecutorTest.php" method="it_sets_last_check_time_when_executed" scope="Method" />
+    <configuration name="PeriodicTest.it_is_due_when_checks_last_check_time_is_null" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_is_due_when_checks_last_check_time_is_null" scope="Method" />
       <method v="2" />
     </configuration>
-    <configuration name="PeriodicTest.it_has_time_due_equal_to_now_when_check_last_check_time_is_null" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_has_time_due_equal_to_now_when_check_last_check_time_is_null" scope="Method" />
+    <configuration name="PeriodicTest.it_is_not_due_when_checks_not_due" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="SeanKndy\Poller\Tests\Checks\Schedules\PeriodicTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Checks/Schedules/PeriodicTest.php" method="it_is_not_due_when_checks_not_due" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -190,11 +190,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.ExecutorTest.it_sets_last_check_time_when_executed" />
-        <item itemvalue="PHPUnit.ExecutorTest.it_rejects_with_exception_when_executed_without_command" />
-        <item itemvalue="PHPUnit.CheckTest.it_sets_last_check_time_when_executed" />
-        <item itemvalue="PHPUnit.CheckTest.it_throws_exception_when_executed_without_command" />
-        <item itemvalue="PHPUnit.PeriodicTest.it_has_time_due_equal_to_now_when_check_last_check_time_is_null" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_time_due_to_be_now_when_check_last_check_time_is_null" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_accurate_time_due_even_if_past_due" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_calculates_accurate_time_due" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_is_due_when_checks_last_check_time_is_null" />
+        <item itemvalue="PHPUnit.PeriodicTest.it_is_not_due_when_checks_not_due" />
       </list>
     </recent_temporary>
   </component>

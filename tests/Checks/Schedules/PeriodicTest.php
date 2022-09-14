@@ -14,7 +14,10 @@ class PeriodicTest extends TestCase
     public function it_is_due_when_checks_is_overdue(): void
     {
         $schedule = new Periodic(10);
-        $check = new Check(1234, null, [], Carbon::now()->getTimestamp()-11, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck(Carbon::now()->getTimestamp()-11);
 
         $this->assertTrue($schedule->isDue($check));
     }
@@ -23,7 +26,10 @@ class PeriodicTest extends TestCase
     public function it_is_due_when_check_is_exactly_due(): void
     {
         $schedule = new Periodic(10);
-        $check = new Check(1234, null, [], Carbon::now()->getTimestamp()-10, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck(Carbon::now()->getTimestamp()-10);
 
         $this->assertTrue($schedule->isDue($check));
     }
@@ -32,7 +38,10 @@ class PeriodicTest extends TestCase
     public function it_is_not_due_when_checks_not_due(): void
     {
         $schedule = new Periodic(10);
-        $check = new Check(1234, null, [], Carbon::now()->getTimestamp()-9, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck(Carbon::now()->getTimestamp()-9);
 
         $this->assertFalse($schedule->isDue($check));
     }
@@ -41,7 +50,10 @@ class PeriodicTest extends TestCase
     public function it_is_due_when_checks_last_check_time_is_null(): void
     {
         $schedule = new Periodic(10);
-        $check = new Check(1234, null, [], null, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck(null);
 
         $this->assertTrue($schedule->isDue($check));
     }
@@ -55,7 +67,10 @@ class PeriodicTest extends TestCase
 
         $schedule = new Periodic($interval);
         $lastCheck = Carbon::now()->getTimestamp()-7;
-        $check = new Check(1234, null, [], $lastCheck, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck($lastCheck);
 
         $this->assertEquals($lastCheck+$interval, $schedule->timeDue($check));
 
@@ -71,7 +86,10 @@ class PeriodicTest extends TestCase
 
         $schedule = new Periodic($interval);
         $lastCheck = Carbon::now()->getTimestamp() - 65;
-        $check = new Check(1234, null, [], $lastCheck, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck($lastCheck);
 
         $this->assertEquals($lastCheck+$interval, $schedule->timeDue($check));
 
@@ -84,7 +102,10 @@ class PeriodicTest extends TestCase
         TestTime::freeze();
 
         $schedule = new Periodic(60);
-        $check = new Check(1234, null, [], null, $schedule);
+
+        $check = (new Check(1234))
+            ->withSchedule($schedule)
+            ->setLastCheck(null);
 
         $this->assertEquals(Carbon::now()->getTimestamp(), $schedule->timeDue($check));
 

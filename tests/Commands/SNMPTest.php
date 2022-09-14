@@ -23,7 +23,11 @@ class SNMPTest extends TestCase
             'snmp_read_community' => self::SNMP_COMMUNITY,
             'snmp_if_id' => self::SNMP_IF_ID
         ];
-        $check = new Check(1234, $command, $attributes, \time()-10, new Periodic(10));
+
+        $check = (new Check(1234))
+            ->withCommand($command)
+            ->withAttributes($attributes);
+
         $command->run($check)->then(
             $this->expectCallableOnceWith($this->isInstanceOf(Result::class)),
             $this->expectCallableNever()
