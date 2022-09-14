@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Tests\Checks;
 
+use Carbon\Carbon;
 use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Tests\Commands\DummyCommand;
 use SeanKndy\Poller\Tests\TestCase;
@@ -11,10 +12,40 @@ use SeanKndy\Poller\Checks\Executor;
 use SeanKndy\Poller\Checks\Incident;
 use SeanKndy\Poller\Results\Handlers\HandlerInterface;
 use SeanKndy\Poller\Results\Result;
+use Spatie\TestTime\TestTime;
 use function React\Async\await;
 
 class ExecutorTest extends TestCase
 {
+    /** @test */
+    public function it_rejects_with_exception_when_executed_without_command()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10));
+
+        await((new Executor())->execute($check));
+    }
+
+    /** @test */
+    public function it_sets_last_check_time_when_executed()
+    {
+        TestTime::freeze();
+
+        $interval = 10;
+        $time = Carbon::now()->getTimestamp() - $interval;
+        $check = new Check(1, new DummyCommand(), [], $time, new Periodic($interval));
+        $this->assertEquals($time, $check->getLastCheck());
+
+        TestTime::addSeconds($interval);
+
+        await((new Executor())->execute($check));
+
+        $this->assertEquals(Carbon::now()->getTimestamp(), $check->getLastCheck());
+
+        TestTime::unfreeze();
+    }
+
     /** @test */
     public function it_creates_incident_when_result_goes_from_ok_to_not_ok()
     {

@@ -2,6 +2,7 @@
 
 namespace SeanKndy\Poller\Tests\Results\Handlers;
 
+use Carbon\Carbon;
 use React\EventLoop\Loop;
 use SeanKndy\Poller\Checks\Schedules\Periodic;
 use SeanKndy\Poller\Tests\TestCase;
@@ -33,7 +34,7 @@ class RRDCacheDTest extends TestCase
             $result = new Result(Result::STATE_OK, '', [
                 new Metric(Metric::TYPE_GAUGE, 'test', 69)
             ]);
-            $check = new Check($i, null, [], \time()-300, new Periodic(300));
+            $check = new Check($i, null, [], Carbon::now()->getTimestamp(), new Periodic(300));
             $checkResultPairs[] = [$check, $result];
         }
 
@@ -57,6 +58,7 @@ class RRDCacheDTest extends TestCase
                     $missingFiles[] = $rrdFile;
                 }
             }
+
             $that->assertCount(0, $missingDirs);
             $that->assertCount(0, $missingFiles);
         });

@@ -47,40 +47,46 @@ class PeriodicTest extends TestCase
     }
 
     /** @test */
-    public function it_calculates_seconds_until_due(): void
+    public function it_calculates_accurate_time_due(): void
     {
         TestTime::freeze();
 
-        $schedule = new Periodic(60);
-        $check = new Check(1234, null, [], Carbon::now()->getTimestamp()-5, $schedule);
+        $interval = 60;
 
-        $this->assertEquals(55, $schedule->secondsUntilDue($check));
+        $schedule = new Periodic($interval);
+        $lastCheck = Carbon::now()->getTimestamp()-7;
+        $check = new Check(1234, null, [], $lastCheck, $schedule);
+
+        $this->assertEquals($lastCheck+$interval, $schedule->timeDue($check));
 
         TestTime::unfreeze();
     }
 
     /** @test */
-    public function it_calculates_negative_seconds_until_due_if_past_due(): void
+    public function it_calculates_accurate_time_due_even_if_past_due(): void
     {
         TestTime::freeze();
 
-        $schedule = new Periodic(60);
-        $check = new Check(1234, null, [], Carbon::now()->getTimestamp()-65, $schedule);
+        $interval = 60;
 
-        $this->assertEquals(-5, $schedule->secondsUntilDue($check));
+        $schedule = new Periodic($interval);
+        $lastCheck = Carbon::now()->getTimestamp() - 65;
+        $check = new Check(1234, null, [], $lastCheck, $schedule);
+
+        $this->assertEquals($lastCheck+$interval, $schedule->timeDue($check));
 
         TestTime::unfreeze();
     }
 
     /** @test */
-    public function it_calculates_zero_seconds_until_due_for_check_with_null_last_check_time(): void
+    public function it_calculates_time_due_to_be_now_when_check_last_check_time_is_null(): void
     {
         TestTime::freeze();
 
         $schedule = new Periodic(60);
         $check = new Check(1234, null, [], null, $schedule);
 
-        $this->assertEquals(0, $schedule->secondsUntilDue($check));
+        $this->assertEquals(Carbon::now()->getTimestamp(), $schedule->timeDue($check));
 
         TestTime::unfreeze();
     }

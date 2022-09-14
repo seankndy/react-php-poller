@@ -62,8 +62,8 @@ class MemoryQueue implements QueueInterface
 
     public function enqueue(Check $check): PromiseInterface
     {
-        $priority = Carbon::now()->getTimestamp() + ($check->getSchedule() ? $check->getSchedule()->secondsUntilDue($check) : 0);
-        
+        $priority = $check->getNextCheck();
+
         if (!isset($this->queuedChecks[$priority])) {
             $this->queuedChecks[$priority] = [];
         }

@@ -4,6 +4,7 @@ namespace SeanKndy\Poller\Results\Handlers;
 
 use React\Filesystem\Filesystem;
 use React\Filesystem\FilesystemInterface;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use React\Socket\Connector;
 use SeanKndy\Poller\Checks\Check;
@@ -138,7 +139,7 @@ class RRDCacheD implements HandlerInterface
                     $cmd .= "DS:$label:$type:" . ($interval*2) . ":U:U ";
                     $cmd .= $this->buildRras($interval);
 
-                    $deferred = new \React\Promise\Deferred();
+                    $deferred = new Deferred();
 
                     $process = new \React\ChildProcess\Process("exec $cmd");
                     $process->start($this->loop);
@@ -206,7 +207,7 @@ class RRDCacheD implements HandlerInterface
             return \React\Promise\reject(new \Exception("Connection not writable!"));
         }
 
-        $deferred = new \React\Promise\Deferred();
+        $deferred = new Deferred();
         if (!$connection->write($dataToWrite)) {
             $this->log(LogLevel::DEBUG, "Write temp failed to RRD socket!");
 

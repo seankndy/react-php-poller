@@ -12,7 +12,7 @@ interface ScheduleInterface
     public function isDue(Check $check): bool;
 
     /**
-     * Seconds until Check $check will be due, or negative if past due.
+     * Timestamp when Check $check will be next due (can be in past).
      */
-    public function secondsUntilDue(Check $check): int;
+    public function timeDue(Check $check): int;
 }

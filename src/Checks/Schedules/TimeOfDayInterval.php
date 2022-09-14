@@ -3,6 +3,7 @@
 namespace SeanKndy\Poller\Checks\Schedules;
 
 use Carbon\Carbon;
+use SeanKndy\Poller\Checks\Check;
 
 /**
  * This scheduler is constrained to a certain time of the day in a given timezone.
@@ -15,7 +16,7 @@ use Carbon\Carbon;
  * interval = 6, offset = 5)
  *
  */
-final class TimeOfDayInterval implements ScheduleInterface
+final class TimeOfDayInterval extends AbstractBaseSchedule
 {
     const FREQUENCY_MINUTELY = 1;
     const FREQUENCY_HOURLY = 60;
@@ -53,13 +54,7 @@ final class TimeOfDayInterval implements ScheduleInterface
         $this->offset($offset);
     }
 
-    /**
-     * Is Check $check due according to schedule?
-     *
-     * @param Check $check
-     * @return boolean
-     */
-    public function isDue(Check $check)
+    public function isDue(Check $check): bool
     {
         $now = new \DateTime('now', $this->timezone);
         $startAt = new \DateTime($this->startAt, $this->timezone);
@@ -82,13 +77,7 @@ final class TimeOfDayInterval implements ScheduleInterface
             || ($time - $check->getLastCheck()) >= $this->interval);
     }
 
-    /**
-     * Time of next check
-     *
-     * @param Check $check
-     * @return int UNIX timestamp
-     */
-    public function nextTimeIsDue(Check $check)
+    public function timeDue(Check $check): int
     {
         $dayBegin = new \DateTime('00:00:00', $this->timezone);
         $dayEnd = new \DateTime('23:59:59', $this->timezone);

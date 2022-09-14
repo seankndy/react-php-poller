@@ -8,7 +8,7 @@ use SeanKndy\Poller\Checks\Check;
 /**
  * This scheduler becomes "due" at a fixed interval (example: every 60 seconds).
  */
-final class Periodic implements ScheduleInterface
+final class Periodic extends AbstractBaseSchedule
 {
     /**
      * Interval in seconds.
@@ -20,14 +20,11 @@ final class Periodic implements ScheduleInterface
         $this->interval = $interval;
     }
 
-    public function isDue(Check $check): bool
+    public function timeDue(Check $check): int
     {
-        return $this->secondsUntilDue($check) <= 0;
-    }
+        $now = Carbon::now()->getTimestamp();
 
-    public function secondsUntilDue(Check $check): int
-    {
-        return !$check->getLastCheck() ? 0 : ($check->getLastCheck() + $this->interval) - Carbon::now()->getTimestamp();
+        return !$check->getLastCheck() ? $now : ($check->getLastCheck() + $this->interval);
     }
 
     public function getInterval(): int

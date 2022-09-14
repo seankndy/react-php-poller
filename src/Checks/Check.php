@@ -74,13 +74,6 @@ class Check
         $this->meta = $meta;
     }
 
-    public function isDue(): bool
-    {
-        return !$this->schedule || $this->schedule->isDue($this);
-
-        //return $this->nextCheck && Carbon::now()->getTimestamp() >= $this->nextCheck;
-    }
-
     public function setAttributes(array $attributes): self
     {
         $this->attributes = $attributes;
@@ -177,32 +170,21 @@ class Check
         return $this->schedule;
     }
 
-    public function setResult(?Result $result): self
+    public function setSchedule(?ScheduleInterface $schedule): self
     {
-        $this->result = $result;
+        $this->schedule = $schedule;
 
         return $this;
     }
 
-    public function getResult(): ?Result
+    public function isDue(): bool
     {
-        return $this->result;
+        return !$this->schedule || $this->schedule->isDue($this);
     }
 
-    public function run(): PromiseInterface
+    public function getNextCheck(): int
     {
-        if (! $this->command) {
-            return \React\Promise\reject(new \RuntimeException("Cannot execute Check (ID=" .
-                $this->getId() . ") because a Command is not defined for it!"));
-        }
-
-        $this->lastCheck = Carbon::now()->getTimestamp();
-
-        try {
-            return $this->command->run($this);
-        } catch (\Throwable $e) {
-            return \React\Promise\reject($e);
-        }
+        return $this->schedule ? $this->schedule->timeDue($this) : Carbon::now()->getTimestamp();
     }
 
     public function getLastCheck(): ?int
@@ -215,6 +197,27 @@ class Check
         $this->lastCheck = $time !== null ? $time : Carbon::now()->getTimestamp();
 
         return $this;
+    }
+
+    public function setResult(?Result $result): self
+    {
+        $this->result = $result;
+
+        return $this;
+    }
+
+    public function getResult(): ?Result
+    {
+        return $this->result;
+    }
+
+    public function runCommand(): PromiseInterface
+    {
+        try {
+            return $this->command->run($this);
+        } catch (\Throwable $e) {
+            return \React\Promise\reject($e);
+        }
     }
 
     /**

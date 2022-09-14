@@ -44,30 +44,39 @@ class CheckTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_exception_when_run_without_command()
-    {
-        $this->expectException(\RuntimeException::class);
-
-        $check = new Check(1, null, [], Carbon::now()->getTimestamp(), new Periodic(10));
-
-        await($check->run());
-    }
-
-    /** @test */
-    public function it_sets_last_check_time_when_run()
+    public function it_has_next_check_time_equal_to_now_if_schedule_null()
     {
         TestTime::freeze();
 
-        $interval = 10;
-        $time = Carbon::now()->getTimestamp() - $interval;
-        $check = new Check(1, new DummyCommand(), [], $time, new Periodic($interval));
-        $this->assertEquals($time, $check->getLastCheck());
+        $check = new Check(
+            1,
+            null,
+            [],
+            Carbon::now()->getTimestamp(),
+            null
+        );
 
-        TestTime::addSeconds($interval);
+        $this->assertEquals(Carbon::now()->getTimestamp(), $check->getNextCheck());
 
-        await($check->run());
+        TestTime::unfreeze();
+    }
 
-        $this->assertEquals(Carbon::now()->getTimestamp(), $check->getLastCheck());
+    /** @test */
+    public function it_has_next_check_time_equal_schedules_due_time()
+    {
+        TestTime::freeze();
+
+        $schedule = new Periodic(10);
+
+        $check = new Check(
+            1,
+            null,
+            [],
+            Carbon::now()->getTimestamp(),
+            $schedule
+        );
+
+        $this->assertEquals($schedule->timeDue($check), $check->getNextCheck());
 
         TestTime::unfreeze();
     }

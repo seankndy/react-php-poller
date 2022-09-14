@@ -43,6 +43,10 @@ class Server extends EventEmitter
      * @const float Time to wait between runDueChecks calls
      */
     const QUIET_TIME = 0.5;
+    /**
+     * @const int Number of seconds a Check is past it's scheduled run before it's considered late.
+     */
+    const CHECK_LATE_THRESHOLD = 60;
 
     public function __construct(LoopInterface $loop, QueueInterface $queue, int $maxConcurrentChecks = 100)
     {
@@ -154,7 +158,7 @@ class Server extends EventEmitter
             $this->emit('check.start', [$check]);
 
             // emit warning if check starting excessively late
-            if ($check->getSchedule() && ($checkTimeDelta = abs($check->getSchedule()->secondsUntilDue($check))) >= 60) {
+            if ($check->getSchedule() && ($checkTimeDelta = (int)$time - $check->getNextCheck()) >= self::CHECK_LATE_THRESHOLD) {
                 $this->emit('check.warn', [$check, "Check is $checkTimeDelta seconds late to start."]);
             }
 
@@ -181,7 +185,7 @@ class Server extends EventEmitter
                     unset($this->checksExecuting[$check->getId()]);
 
                     if (!$check->getSchedule()) {
-                        // do not re-queue check's without schedules
+                        // do not re-enqueue checks without schedules
                         return;
                     }
 
