@@ -53,35 +53,33 @@ class MySQL implements CommandInterface
                     $attributes, $deferred) {
                     $total_time = sprintf('%.3f', \microtime(true) - $startTime);
 
-                    $status = Result::STATE_UNKNOWN;
                     $status_reason = '';
                     $metrics = [];
 
                     if ($total_time >= $attributes['response_time_crit_threshold']) {
                         $status = Result::STATE_CRIT;
-                        $status_reason = 'Response time hit max threshold';
+                        $status_reason = 'RESP_TIME_EXCEEDED';
                     } else if ($total_time >= $attributes['response_time_warn_threshold']) {
                         $status = Result::STATE_WARN;
-                        $status_reason = 'Response time hit max threshold';
+                        $status_reason = 'RESP_TIME_EXCEEDED';
                     } else {
                         $status = Result::STATE_OK;
-                        $status_reason = "Connection succeeded in " . $total_time . "s";
                     }
                     $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp', $total_time);
+
                     $deferred->resolve(new Result($status, $status_reason, $metrics));
-                }, function (\Exception $error) use ($startTime, $deferred) {
-                    $total_time = sprintf('%.3f', \microtime(true) - $startTime);
+                }, function (\Exception $error) use ($deferred) {
                     $status = Result::STATE_CRIT;
-                    $status_reason = "Query failed after " .
-                    $total_time . "s with error: " . $error->getMessage();
+                    $status_reason = 'SQL_QRY_FAILURE';
+
                     $deferred->resolve(new Result($status, $status_reason));
                 });
                 $mysqlConn->quit();
-            }, function (\Exception $error) use ($startTime, $deferred) {
-                $total_time = sprintf('%.3f', \microtime(true)-$startTime);
+            },
+            function (\Exception $error) use ($deferred) {
                 $status = Result::STATE_CRIT;
-                $status_reason = "Connection failed after " .
-                $total_time . "s with error: " . $error->getMessage();
+                $status_reason = 'UNREACHABLE';
+
                 $deferred->resolve(new Result($status, $status_reason));
             }
         );

@@ -84,31 +84,26 @@ class HTTP implements CommandInterface
 
                 if ($respTime >= $attributes['resp_crit_threshold']) {
                     $status = Result::STATE_CRIT;
-                    $status_reason = 'Response time CRIT threshold exceeded (' .
-                        $respTime . ' >= ' . $attributes['resp_crit_threshold'] . ')';
+                    $status_reason = 'RESP_TIME_EXCEEDED';
                 } else if ($respTime >= $attributes['resp_warn_threshold']) {
                     $status = Result::STATE_WARN;
-                    $status_reason = 'Response time WARN threshold exceeded (' .
-                        $respTime . ' >= ' . $attributes['resp_warn_threshold'] . ')';
+                    $status_reason = 'RESP_TIME_EXCEEDED';
                 }
             } else {
                 $status = Result::STATE_CRIT;
-                $status_reason = 'Unexpected response code:  ' . $response->getCode() . '.';
+                $status_reason = 'HTTP_UNEXPECTED_RESP_CODE';
             }
             $deferred->resolve(new Result($status, $status_reason, $metrics));
         });
         $request->on('error', function (\Exception $e) use ($startTime, $deferred) {
-            $respTime = sprintf('%.3f', microtime(true) - $startTime);
             $status = Result::STATE_CRIT;
-            $message = $e->getMessage();
-            if (stristr($message, 'verify failed')) {
-                $message = "SSL verification failed.";
-            } else if (stristr($message, 'tls handshake')) {
-                $message = "Issue during TLS handshake.";
+            if (stristr($e->getMessage(), 'verify failed') || stristr($e->getMessage(), 'tls handshake')) {
+                $statusReason = 'HTTP_SSL_FAILURE';
+            } else {
+                $statusReason = 'UNREACHABLE';
             }
-            $status_reason = 'Connection error after ' . $respTime . 's: ' . $message;
 
-            $deferred->resolve(new Result($status, $status_reason));
+            $deferred->resolve(new Result($status, $statusReason));
         });
         $request->end();
 

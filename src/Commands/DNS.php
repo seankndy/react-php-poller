@@ -68,7 +68,7 @@ class DNS implements CommandInterface
             },
             function (\Exception $e) use ($deferred) {
                 $status = Result::STATE_CRIT;
-                $statusReason = "Failed lookup: " . $e->getMessage();
+                $statusReason = 'DNS_QRY_FAILURE';
                 $deferred->resolve(new Result($status, $statusReason));
             }
         );

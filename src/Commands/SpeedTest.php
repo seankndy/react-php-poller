@@ -103,7 +103,7 @@ class SpeedTest implements CommandInterface
             if (!($stResult = \json_decode($stdoutBuffer))) {
                 $state = Result::STATE_UNKNOWN;
                 $this->logger->error(__CLASS__ . ": unparseable command output: $stdoutBuffer");
-                $stateReason = 'Invalid output from speedtest command.';
+                $stateReason = 'CMD_FAILURE';
                 $metrics = [];
             } else {
                 $downloadMbits = $stResult->download->bandwidth * 0.000008;
@@ -111,19 +111,19 @@ class SpeedTest implements CommandInterface
 
                 if ($attributes['download_threshold'] && $downloadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
-                    $stateReason = "Download dropped below threshold.";
+                    $stateReason = "DOWNSTREAM_THROUGHPUT_LOW";
                 } else if ($attributes['upload_threshold'] && $uploadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
-                    $stateReason = "Upload dropped below threshold.";
+                    $stateReason = "UPSTREAM_THROUGHPUT_LOW";
                 } else if ($attributes['ping_threshold'] && $stResult->ping->latency > $attributes['ping_threshold']) {
                     $state = Result::STATE_WARN;
-                    $stateReason = "Ping exceeded threshold.";
+                    $stateReason = "LATENCY_HIGH";
                 } else if ($attributes['jitter_threshold'] && $stResult->ping->jitter > $attributes['jitter_threshold']) {
                     $state = Result::STATE_WARN;
-                    $stateReason = "Jitter exceeded threshold.";
+                    $stateReason = "JITTER_HIGH";
                 } else if ($attributes['loss_threshold'] >= 0 && $stResult->packetLoss > $attributes['loss_threshold']) {
                     $state = Result::STATE_WARN;
-                    $stateReason = "Loss exceeded threshold.";
+                    $stateReason = "PKT_LOSS_HIGH";
                 } else {
                     $state = Result::STATE_OK;
                     $stateReason = '';

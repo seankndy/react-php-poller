@@ -66,20 +66,22 @@ class SpeedTestPP implements CommandInterface
             $attributes, $command, &$stdoutBuffer) {
             if (!($stResult = \json_decode($stdoutBuffer))) {
                 $state = Result::STATE_UNKNOWN;
-                $stateReason = 'Invalid output from speedtest-cli command.';
+                $stateReason = 'CMD_FAILURE';
+
+                $deferred->resolve(new Result($state, $stateReason));
             } else {
                 $downloadMbits = $stResult->download / 1000 / 1000;
                 $uploadMbits = $stResult->upload / 1000 / 1000;
 
                 if ($attributes['download_threshold'] && $downloadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
-                    $stateReason = "Download dropped below threshold.";
+                    $stateReason = "DOWNSTREAM_THROUGHPUT_LOW";
                 } else if ($attributes['upload_threshold'] && $uploadMbits < $attributes['download_threshold']) {
                     $state = Result::STATE_CRIT;
-                    $stateReason = "Upload dropped below threshold.";
+                    $stateReason = "UPSTREAM_THROUGHPUT_LOW";
                 } else if ($attributes['ping_threshold'] && $stResult->ping > $attributes['ping_threshold']) {
                     $state = Result::STATE_WARN;
-                    $stateReason = "Ping exceeded threshold.";
+                    $stateReason = "LATENCY_HIGH";
                 } else {
                     $state = Result::STATE_OK;
                     $stateReason = '';

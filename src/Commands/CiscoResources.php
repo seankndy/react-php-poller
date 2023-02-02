@@ -70,8 +70,7 @@ class CiscoResources implements CommandInterface
         $process->on('exit', function($exitCode, $termSignal) use ($deferred,
             $command, $attributes, &$stdoutBuffer, $mibs) {
             if ($exitCode == 1) {
-                $reason = "SNMP command ($command) returned status of 1";
-                $deferred->resolve(new Result(Result::STATE_CRIT, $reason));
+                $deferred->resolve(new Result(Result::STATE_CRIT, 'CMD_FAILURE'));
                 return;
             }
 
@@ -97,22 +96,22 @@ class CiscoResources implements CommandInterface
                             $prc = ($mem_used / ($mem_free + $mem_used)) * 100.0;
                             if ($prc > $attributes['mem_warn_threshold']) {
                                 $state = Result::STATE_WARN;
-                                $state_reason = 'Hit warning threshold for memory usage.';
+                                $state_reason = 'MEM_USAGE_HIGH';
                             }
                             if ($prc > $attributes['mem_crit_threshold']) {
                                 $state = Result::STATE_CRIT;
-                                $state_reason = 'Hit critical threshold for memory usage.';
+                                $state_reason = 'MEM_USAGE_HIGH';
                             }
                             $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'memory', $prc);
                         }
                     } else if ($key == 'cpu') {
                         if ($val > $attributes['cpu_warn_threshold']) {
                             $state = Result::STATE_WARN;
-                            $state_reason = 'Hit warning threshold for cpu usage.';
+                            $state_reason = 'CPU_USAGE_HIGH';
                         }
                         if ($val > $attributes['cpu_crit_threshold']) {
                             $state = Result::STATE_CRIT;
-                            $state_reason = 'Hit critical threshold for cpu usage.';
+                            $state_reason = 'CPU_USAGE_HIGH';
                         }
                         $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'cpu', $val);
                     }

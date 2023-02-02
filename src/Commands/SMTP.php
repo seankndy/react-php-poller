@@ -70,27 +70,25 @@ class SMTP implements CommandInterface
                             $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, 'resp', $respTime);
                         } else {
                             $state = Result::STATE_CRIT;
-                            $stateReason = 'Received data (' . $data . ') does not match expected value';
+                            $stateReason = 'UNEXPECTED_RESP';
                         }
 
                         $deferred->resolve(new Result($state, $stateReason, $metrics));
                     }
                 });
-                $connection->on('error', function (\Exception $e) use ($deferred, $connection, $timeStart) {
+                $connection->on('error', function (\Exception $e) use ($deferred, $connection) {
                     $connection->close();
                     $connection = null;
+
                     $state = Result::STATE_CRIT;
-                    $timeEnd = Carbon::now()->getTimestampMs() * .001;
-                    $totalTime = sprintf('%.3f', $timeEnd - $timeStart);
-                    $stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
+                    $stateReason = 'CONNECTION_ERROR';
                     $deferred->resolve(new Result($state, $stateReason));
                 });
             },
-            function (\Exception $e) use ($deferred, $timeStart) {
+            function (\Exception $e) use ($deferred) {
                 $state = Result::STATE_CRIT;
-                $timeEnd = Carbon::now()->getTimestampMs() * .001;
-                $totalTime = sprintf('%.3f', $timeEnd - $timeStart);
-                $stateReason = 'Connection error after ' . $totalTime . 's: ' . $e->getMessage();
+                $stateReason = 'UNREACHABLE';
+
                 $deferred->resolve(new Result($state, $stateReason));
             }
         );

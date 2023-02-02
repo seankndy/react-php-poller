@@ -124,7 +124,7 @@ class Ping implements CommandInterface
 
             if ($loss == 100) {
                 $state = Result::STATE_CRIT;
-                $stateReason = 'Host down';
+                $stateReason = 'UNREACHABLE';
             } else {
                 $avg = \array_sum($realMeasurements) / \count($realMeasurements);
                 $jitter = \round(\sqrt(\array_sum(\array_map(function ($x, $mean) {
@@ -138,13 +138,13 @@ class Ping implements CommandInterface
 
                 if ($loss > $attributes['loss_threshold']) {
                     $state = Result::STATE_CRIT;
-                    $stateReason = 'Hit packet loss threshold';
+                    $stateReason = 'PKT_LOSS_HIGH';
                 } else if ($attributes['avg_threshold'] > 0 && $avg > $attributes['avg_threshold']) {
                     $state = Result::STATE_WARN;
-                    $stateReason = 'Hit latency threshold';
+                    $stateReason = 'LATENCY_HIGH';
                 } else if ($attributes['jitter_threshold'] > 0 && $jitter > $attributes['jitter_threshold']) {
                     $state = Result::STATE_WARN;
-                    $stateReason = 'Hit jitter threshold';
+                    $stateReason = 'JITTER_HIGH';
                 } else {
                     $state = Result::STATE_OK;
                     $stateReason = '';

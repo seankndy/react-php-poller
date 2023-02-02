@@ -46,7 +46,9 @@ class SNMP implements CommandInterface
             $thresholds[$keyName] = [];
             foreach ($attributes[$keyName] as $t) {
                 if (\strpos($t, '=') === false) continue;
-                list($key,$val) = \preg_split('/\s*=\s*/', $t);
+
+                [$key, $val] = \preg_split('/\s*=\s*/', $t);
+
                 // strip 'foo:' from 'foo:bar'
                 $key = \preg_replace('/^(.+):+(.+)$/', '$2', $key);
 
@@ -56,6 +58,23 @@ class SNMP implements CommandInterface
                 } else {
                     $thresholds[$keyName][$key] = humanSizeToBytes($val);
                 }
+            }
+        }
+
+        // parse reason code values into array
+        $reasonCodes = [];
+        foreach (['warning_max_reason_codes', 'critical_max_reason_codes', 'warning_min_reason_codes', 'critical_min_reason_codes'] as $keyName) {
+            $reasonCodes[$keyName] = [];
+
+            foreach ($attributes[$keyName] as $t) {
+                if (\strpos($t, '=') === false) continue;
+
+                [$key, $val] = \preg_split('/\s*=\s*/', $t);
+
+                // strip 'foo:' from 'foo:bar'
+                $key = \preg_replace('/^(.+):+(.+)$/', '$2', $key);
+
+                $reasonCodes[$keyName][$key] = $val;
             }
         }
 
@@ -96,7 +115,7 @@ class SNMP implements CommandInterface
                 if (($pos = \strpos($mib, ';')) !== false) {
                     $i = \substr($mib, $pos+1, strlen($mib));
                     $mib = \substr($mib, 0, $pos);
-                    $snmpIfId = isset($snmpIfIds[$i]) ? $snmpIfIds[$i] : $snmpIfIds[0];
+                    $snmpIfId = $snmpIfIds[$i] ?? $snmpIfIds[0];
                 } else {
                     $snmpIfId = $snmpIfIds[0];
                 }
@@ -133,16 +152,18 @@ class SNMP implements CommandInterface
             $stdoutBuffer .= $chunk;
         });
         $process->on('exit', function($exitCode, $termSignal) use ($deferred, $lastResult, $command,
-            $attributes, &$stdoutBuffer, $mibOutputMaps, $thresholds, $renameLabels, $snmpIfIds) {
+            $attributes, &$stdoutBuffer, $mibOutputMaps, $thresholds, $renameLabels, $snmpIfIds, $reasonCodes) {
             if ($exitCode == 1) {
-               $deferred->resolve(new Result(Result::STATE_UNKNOWN, 'snmpget command returned status ' . $exitCode));
+               $deferred->resolve(new Result(Result::STATE_UNKNOWN, ''));
                return;
             }
 
-            $postProcessValues = array();
+            $postProcessValues = [];
             foreach ($attributes['post_process_values'] as $v) {
                 if (\strpos($v, '=') === false) continue;
-                list($key,$val) = \preg_split('/\s*=\s*/', $v);
+
+                [$key,$val] = \preg_split('/\s*=\s*/', $v);
+
                 // strip 'foo:' from 'foo:bar'
                 $key = \preg_replace('/^(.+):+(.+)$/', '$2', $key);
 
@@ -157,7 +178,7 @@ class SNMP implements CommandInterface
             foreach (\preg_split('/[\r\n]+/', \trim($stdoutBuffer)) as $item) {
                 $splitItem = \preg_split('/\s*=\s*/', trim($item));
                 if (count($splitItem) != 2) {
-                    $deferred->resolve(new Result(Result::STATE_UNKNOWN, 'snmpget command returned unknown line: ' . $item));
+                    $deferred->resolve(new Result(Result::STATE_CRIT, 'CMD_FAILURE'));
                     return;
                 }
                 list($key, $val) = $splitItem;
@@ -179,10 +200,10 @@ class SNMP implements CommandInterface
                 if (is_array($snmpIfIds) && ($snmpIfIds_index = array_search($snmpIfId, $snmpIfIds)) !== false && isset($renameLabels[$key_noindex . ';' . $snmpIfIds_index])) {
                     $label = $renameLabels[$key_noindex . ';' . $snmpIfIds_index];
                 } else {
-                    $label = isset($renameLabels[$key]) ? $renameLabels[$key] : $key;
+                    $label = $renameLabels[$key] ?? $key;
                 }
 
-                $postProcessValue = isset($postProcessValues[$key]) ? $postProcessValues[$key] : 1.0;
+                $postProcessValue = $postProcessValues[$key] ?? 1.0;
 
                 if (defined('DEBUG')) {
                     if ($attributes['ip'] == DEBUG_IP) {
@@ -204,7 +225,7 @@ class SNMP implements CommandInterface
                         //$this->insertResultData(new ServiceCommandResultData(1, null, $label));
                     } else if (\strtolower($attributes['status_down_value']) == \strtolower($val)) {
                         $state = Result::STATE_CRIT;
-                        $stateReason = 'Port status down';
+                        $stateReason = 'IFACE_DOWN';
 
                         // state is down for this key
                         $metrics[] = new ResultMetric(ResultMetric::TYPE_GAUGE, $label, 0);
@@ -232,25 +253,29 @@ class SNMP implements CommandInterface
                     if (isset($thresholds['warning_min_thresholds'][$key])) {
                         if (\bccomp($val, $thresholds['warning_min_thresholds'][$key]) < 0) {
                             $state = Result::STATE_WARN;
-                            $stateReason = 'Value (' . $val . ') hit min threshold (' . $thresholds['warning_min_thresholds'][$key] . ') for ' . $lbl;
+                            $stateReason = $reasonCodes['warning_min_reason_codes'][$key] ?? '';
+                            //$stateReason = 'Value (' . $val . ') hit min threshold (' . $thresholds['warning_min_thresholds'][$key] . ') for ' . $lbl;
                         }
                     }
                     if (isset($thresholds['warning_max_thresholds'][$key])) {
                         if (\bccomp($val, $thresholds['warning_max_thresholds'][$key]) > 0) {
                             $state = Result::STATE_WARN;
-                            $stateReason = 'Value (' . $val . ') hit max threshold (' . $thresholds['warning_max_thresholds'][$key] . ') for ' . $lbl;
+                            $stateReason = $reasonCodes['warning_max_reason_codes'][$key] ?? '';
+                            //$stateReason = 'Value (' . $val . ') hit max threshold (' . $thresholds['warning_max_thresholds'][$key] . ') for ' . $lbl;
                         }
                     }
                     if (isset($thresholds['critical_min_thresholds'][$key])) {
                         if (\bccomp($val, $thresholds['critical_min_thresholds'][$key]) < 0) {
                             $state = Result::STATE_CRIT;
-                            $stateReason = 'Value (' . $val . ') hit min threshold (' . $thresholds['critical_min_thresholds'][$key] . ') for ' . $lbl;
+                            $stateReason = $reasonCodes['critical_min_reason_codes'][$key] ?? '';
+                            //$stateReason = 'Value (' . $val . ') hit min threshold (' . $thresholds['critical_min_thresholds'][$key] . ') for ' . $lbl;
                         }
                     }
                     if (isset($thresholds['critical_max_thresholds'][$key])) {
                         if (\bccomp($val, $thresholds['critical_max_thresholds'][$key]) > 0) {
                             $state = Result::STATE_CRIT;
-                            $stateReason = 'Value (' . $val . ') hit max threshold (' . $thresholds['critical_max_thresholds'][$key] . ') for ' . $lbl;
+                            $stateReason = $reasonCodes['critical_max_reason_codes'][$key] ?? '';
+                            //$stateReason = 'Value (' . $val . ') hit max threshold (' . $thresholds['critical_max_thresholds'][$key] . ') for ' . $lbl;
                         }
                     }
                 } else if (\in_array($key, $attributes['snmp_incremental_mibs'])) {
@@ -298,28 +323,32 @@ class SNMP implements CommandInterface
                             if (isset($thresholds['warning_min_thresholds'][$key])) {
                                 if (\bccomp($diff, $thresholds['warning_min_thresholds'][$key]) < 0) {
                                     $state = Result::STATE_WARN;
-                                    $stateReason = 'Hit min threshold (' . $thresholds['warning_min_thresholds'][$key] . ') for ' . $lbl . '; Delta=' . $diff;
+                                    $stateReason = $reasonCodes['warning_min_reason_codes'][$key] ?? '';
+                                    //$stateReason = 'Hit min threshold (' . $thresholds['warning_min_thresholds'][$key] . ') for ' . $lbl . '; Delta=' . $diff;
                                     //echo "{$options['ip']} {$options['port_speed']} WARN because $diff < warn min of {$thresholds['warning_min_thresholds'][$key]}\n";
                                 }
                             }
                             if (isset($thresholds['warning_max_thresholds'][$key])) {
                                 if (\bccomp($diff, $thresholds['warning_max_thresholds'][$key]) > 0) {
                                     $state = Result::STATE_WARN;
-                                    $stateReason = 'Hit max threshold (' . $thresholds['warning_max_thresholds'][$key] . ') for ' . $lbl .  '; Delta=' . $diff;
+                                    $stateReason = $reasonCodes['warning_max_reason_codes'][$key] ?? '';
+                                    //$stateReason = 'Hit max threshold (' . $thresholds['warning_max_thresholds'][$key] . ') for ' . $lbl .  '; Delta=' . $diff;
                                     //echo "{$options['ip']} {$options['port_speed']} WARN because $diff > warn max of {$thresholds['warning_max_thresholds'][$key]}\n";
                                 }
                             }
                             if (isset($thresholds['critical_min_thresholds'][$key])) {
                                 if (\bccomp($diff, $thresholds['critical_min_thresholds'][$key]) < 0) {
                                     $state = Result::STATE_CRIT;
-                                    $stateReason = 'Hit min threshold (' . $thresholds['critical_min_thresholds'][$key] . ') for ' . $lbl . '; Delta=' . $diff;
+                                    $stateReason = $reasonCodes['critical_min_reason_codes'][$key] ?? '';
+                                    //$stateReason = 'Hit min threshold (' . $thresholds['critical_min_thresholds'][$key] . ') for ' . $lbl . '; Delta=' . $diff;
                                     //echo "{$options['ip']} {$options['port_speed']} CRIT because $diff < crit min of {$thresholds['critical_min_thresholds'][$key]}\n";
                                 }
                             }
                             if (isset($thresholds['critical_max_thresholds'][$key])) {
                                 if (\bccomp($diff, $thresholds['critical_max_thresholds'][$key]) > 0) {
                                     $state = Result::STATE_CRIT;
-                                    $stateReason = 'Hit max threshold (' . $thresholds['critical_max_thresholds'][$key] . ') for ' . $lbl . '; Delta=' . $diff;
+                                    $stateReason = $reasonCodes['critical_max_reason_codes'][$key] ?? '';
+                                    //$stateReason = 'Hit max threshold (' . $thresholds['critical_max_thresholds'][$key] . ') for ' . $lbl . '; Delta=' . $diff;
                                     //echo "{$options['ip']} {$options['port_speed']} CRIT because $diff > crit max of {$thresholds['critical_max_thresholds'][$key]}\n";
                                 }
                             }
@@ -372,28 +401,32 @@ class SNMP implements CommandInterface
     private function mergeWithDefaultAttributes(array $attributes): array
     {
         return array_merge([
-            'ip'                      => '',
-            'snmp_status_mibs'        => array('ifAdminStatus','ifOperStatus'),
-            'snmp_incremental_mibs'   => array('ifInOctets','ifOutOctets'),
-            'snmp_gauge_mibs'          => [],
+            'ip'                        => '',
+            'snmp_status_mibs'          => ['ifAdminStatus','ifOperStatus'],
+            'snmp_incremental_mibs'     => ['ifInOctets','ifOutOctets'],
+            'snmp_gauge_mibs'           => [],
             // snmp_output_mib_maps is for when you pass in one mib, and it outputs another
-            'snmp_output_mib_maps'    => [],
-            'post_process_values'     => [],
-            'snmp_version'            => '2c',
-            'status_up_value'         => 'up',
-            'status_down_value'       => 'down',
-            'snmp_output_numeric'     => 'false',
-            'warning_max_thresholds'  => array('ifInOctets=60%', 'ifOutOctets=60%'),
-            'critical_max_thresholds' => array('ifInOctets=90%', 'ifOutOctets=90%'),
-            'warning_min_thresholds'  => array('ifInOctets=2%', 'ifOutOctets=2%'),
-            'critical_min_thresholds' => array('ifInOctets=1%', 'ifOutOctets=1%'),
-            'ds_groups'                  => array('ifInOctets', 'ifOutOctets'),
-            'ds_groups_min_max'       => [],
-            'graph_disable'              => [],
-            'snmp_retries'            => 3,
-            'snmp_timeout'            => 3,
-            'snmp_read_community'     => 'public',
-            'port_speed'              => '1Gb'
+            'snmp_output_mib_maps'      => [],
+            'post_process_values'       => [],
+            'snmp_version'              => '2c',
+            'status_up_value'           => 'up',
+            'status_down_value'         => 'down',
+            'snmp_output_numeric'       => 'false',
+            'warning_max_thresholds'    => ['ifInOctets=60%', 'ifOutOctets=60%'],
+            'critical_max_thresholds'   => ['ifInOctets=90%', 'ifOutOctets=90%'],
+            'warning_min_thresholds'    => ['ifInOctets=2%', 'ifOutOctets=2%'],
+            'critical_min_thresholds'   => ['ifInOctets=1%', 'ifOutOctets=1%'],
+            'critical_max_reason_codes' => ['ifInOctets=BW_UTILIZATION_HIGH', 'ifOutOctets=BW_UTILIZATION_HIGH'],
+            'warning_max_reason_codes'  => ['ifInOctets=BW_UTILIZATION_HIGH', 'ifOutOctets=BW_UTILIZATION_HIGH'],
+            'critical_min_reason_codes' => ['ifInOctets=BW_UTILIZATION_LOW', 'ifOutOctets=BW_UTILIZATION_LOW'],
+            'warning_min_reason_codes'  => ['ifInOctets=BW_UTILIZATION_LOW', 'ifOutOctets=BW_UTILIZATION_LOW'],
+            'ds_groups'                 => ['ifInOctets', 'ifOutOctets'],
+            'ds_groups_min_max'         => [],
+            'graph_disable'             => [],
+            'snmp_retries'              => 3,
+            'snmp_timeout'              => 3,
+            'snmp_read_community'       => 'public',
+            'port_speed'                => '1Gb'
         ], $attributes);
     }
 }

@@ -93,10 +93,10 @@ final class JunosSubscriberPools implements CommandInterface
 
             if ($percentUsedSpace >= $attributes['crit_percent']) {
                 $state =  Result::STATE_CRIT;
-                $stateReason = "Percent utilization hit critical threshold ($percentUsedSpace%)";
+                $stateReason = 'IP_POOL_USAGE_HIGH';
             } else if ($percentUsedSpace >= $attributes['warn_percent']) {
                 $state =  Result::STATE_WARN;
-                $stateReason = "Percent utilization hit warning threshold ($percentUsedSpace%)";
+                $stateReason = 'IP_POOL_USAGE_HIGH';
             } else {
                 $state = Result::STATE_OK;
                 $stateReason = '';
