@@ -77,6 +77,7 @@ class Ping implements CommandInterface
             'avg_threshold' => 0,
             'try_count' => 1,
             'count' => 5,
+            'period' => 100,
             'jitter_threshold' => 0
         ], $check->getAttributes());
 
@@ -85,7 +86,7 @@ class Ping implements CommandInterface
         }
 
         $command = $this->fpingBin . " -C {$attributes['count']} -q -b " .
-            "{$attributes['size']} -B1 -r1 -i{$attributes['interval']} -p 500 " .
+            "{$attributes['size']} -B1 -r1 -i{$attributes['interval']} -p {$attributes['period']} " .
             "{$attributes['ip']}";
 
         $process = new Process($command);
