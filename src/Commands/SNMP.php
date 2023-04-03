@@ -233,7 +233,7 @@ class SNMP implements CommandInterface
                     }
                 } else if (\in_array($key, \preg_replace('/\;[0-9]+$/', '', $attributes['snmp_gauge_mibs']))) {
                     if (\preg_match('/^(\-?[0-9\.]+) ([0-9\.]+).*/', $val, $m)) { // ill take this to mean [value] [multiplier]
-                        if ($postProcessValue == 1.0) {
+                        if ($postProcessValue == 1.0) { // only if we arent already applying a multiplier
                             $val = $m[1] * $m[2];
                         } else {
                             $val = $m[1];
