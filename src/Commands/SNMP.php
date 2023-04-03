@@ -232,7 +232,7 @@ class SNMP implements CommandInterface
                         //$this->insertResultData(new ServiceCommandResultData(0, null, $label));
                     }
                 } else if (\in_array($key, \preg_replace('/\;[0-9]+$/', '', $attributes['snmp_gauge_mibs']))) {
-                    if (\preg_match('/^(\-?[0-9\.]+) ([0-9\.]+).*/', $val, $m)) { // ill take this to mean [value] [multiplier]
+                    if ($postProcessValue == 1.0 && \preg_match('/^(\-?[0-9\.]+) ([0-9\.]+).*/', $val, $m)) { // ill take this to mean [value] [multiplier]
                         $val = $m[1] * $m[2];
                     } else {
                         $val = \preg_replace('/[^0-9\.\-]/', '', $val);
